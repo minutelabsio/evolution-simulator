@@ -19,9 +19,9 @@ export default new Router({
   routes: [
     {
       path: '/'
-      , name: 'player'
+      , name: 'home'
       , component: PlayerUI
-      , redirect: { name: 'welcome' }
+      , redirect: { name: 'playground' }
       , meta: {
         // music: {
         //   maxVolume: 0.7
@@ -55,7 +55,7 @@ export default new Router({
     }
     , {
       path: '*'
-      , redirect: 'welcome'
+      , redirect: 'home'
     }
   ]
 })
