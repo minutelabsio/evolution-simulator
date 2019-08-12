@@ -1,0 +1,278 @@
+;
+// Common
+// @import "~bulmaswatch/solar/_variables";
+@import "./_variables";
+@import "./_fonts";
+@import "~bulma/sass/utilities/initial-variables";
+@import "~buefy/src/scss/utils/_all";
+@import "~bulma/bulma";
+@import "~buefy/src/scss/buefy";
+// @import "~bulmaswatch/solar/_overrides";
+
+* > * {
+  box-sizing: border-box;
+}
+html {
+  height: 100%;
+}
+body {
+  min-height: 100%;
+  background: $background;
+  margin: 0;
+}
+
+.content,
+.content .title {
+  font-family: $family-monospace;
+  color: $text;
+}
+
+.content {
+  .title, .subtitle {
+    text-shadow: 1px 2px rgba(0, 0, 0);
+  }
+}
+
+.content .subtitle {
+  font-family: $family-monospace;
+  color: mix($text, $background, 60%);
+}
+
+a:hover {
+  color: $text;
+}
+
+.select select {
+  background-color: $background;
+  border-color: lighten($background, 10);
+  color: $text;
+}
+
+.heading,
+.button {
+  font-family: $family-monospace;
+}
+
+.menu-label {
+  font-family: $family-monospace;
+  font-size: 1em;
+}
+
+.input {
+  background: $background;
+  color: $text;
+  border-color: $grey-darker;
+}
+
+.loading-overlay .loading-background {
+  background: transparentize($background, 0.5);
+}
+
+.toolbar {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+
+  > .toolbar-item {
+    display: flex;
+    flex-grow: 1;
+    margin: 0;
+    padding: 0;
+  }
+
+  > .toolbar-item,
+  > .toolbar-right,
+  > .toolbar-left {
+    display: flex;
+    align-items: center;
+
+    .toolbar-text {
+      align-self: center;
+      padding: 0 1em;
+    }
+    .toolbar-control {
+      display: flex;
+      padding: 0.75rem;
+    }
+  }
+}
+
+.clickable {
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.subtitle {
+  color: mix($text, $background, 70%);
+}
+
+.no-events {
+  pointer-events: none;
+}
+
+.scrollbars {
+  &::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 1px transparentize($grey, 0.5);
+    background: $background;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: $blue;
+    box-shadow: 0 0 1px transparentize($blue, 0.5);
+  }
+}
+
+.limit-dropdown .dropdown-content {
+  @extend .scrollbars;
+
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.dropdown.is-active .dropdown-trigger .button {
+  color: $blue;
+}
+
+.dropdown.mini .dropdown-menu {
+  min-width: 0;
+}
+
+.dropdown-content {
+  background: $background;
+  border: 1px solid rgba(100, 100, 100, 0.3);
+
+  .dropdown-item {
+    color: $text;
+  }
+  a.dropdown-item:hover {
+    color: $background;
+    background: $text;
+  }
+}
+
+.card.clickable {
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  &:hover,
+  &:focus {
+    box-shadow: 0 2px 3px transparentize($blue, 0.6), 0 0 0 1px transparentize($blue, 0.6);
+  }
+}
+
+.select {
+  &:not(.is-multiple):not(.is-loading):hover::after {
+    border-color: $primary;
+  }
+  select {
+    transition: border-color 0.15s ease;
+  }
+}
+
+.button.btn-dark {
+  background: $background;
+  border-color: $grey-darker;
+  color: $text;
+
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    color: $text;
+    border-color: $text;
+  }
+  &:active {
+    color: $text;
+    border-color: transparent;
+  }
+  &.is-primary {
+    background: $primary;
+  }
+}
+.checkbox-btn-dark .button {
+  @extend .btn-dark;
+}
+
+.button .icon.icon-only:first-child {
+  margin: 0
+}
+
+// Icon stuff
+.icon-anim {
+  transition: transform 0.3s ease-in-out;
+}
+.icon-180 {
+  transform: rotate(180deg);
+}
+.icon-90 {
+  transform: rotate(90deg);
+}
+.icon-270 {
+  transform: rotate(270deg);
+}
+/*
+@keyframes pulse {
+  from {
+    box-shadow: 0 0 0 $red inset;
+  }
+  50% {
+    box-shadow: 0 0 15px 5px $red inset;
+  }
+  to {
+    box-shadow: 0 0 0 $red inset;
+  }
+}
+
+.pulsing {
+  animation: pulse 1s ease-in-out infinite;
+} */
+
+$pulseStart: transparentize($blue, 0.1);
+$pulseEnd: transparentize($blue, 1);
+@keyframes pulse {
+  0% {
+    box-shadow: inset 0 0 0 1000px $pulseEnd, 0 0 0 0px $pulseEnd;
+    border-color: $pulseEnd;
+  }
+  2% {
+    box-shadow: inset 0 0 0 1000px $pulseStart, 0 0 0 0px $pulseStart;
+    border-color: $pulseStart;
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 1000px $pulseEnd, 0 0 0 55px $pulseEnd;
+    border-color: $pulseEnd;
+  }
+}
+
+@keyframes pulse-text {
+  0% {
+    text-shadow: 0 0 0 $pulseStart;
+    color: $text;
+  }
+  20% {
+    color: mix($text, $pulseStart, 30%);
+  }
+
+  100% {
+    text-shadow: 0 0 35px $pulseEnd;
+    color: $text;
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+.pulse-text {
+  animation: pulse-text 2s infinite ease;
+}

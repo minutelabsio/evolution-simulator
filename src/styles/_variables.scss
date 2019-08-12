@@ -1,0 +1,119 @@
+// Minutelabs colors
+//
+$blue: rgb(40, 136, 228);
+$blue-light: rgb(91, 191, 243);
+$blue-dark: rgb(18, 84, 151);
+
+$deep-blue: rgb(0, 80, 224);
+$deep-blue-light: rgb(109, 155, 243);
+$deep-blue-dark: rgb(0, 37, 143);
+
+$red: rgb(233, 63, 51);
+$red-light: rgb(244, 183, 168);
+$red-dark: rgb(167, 42, 34);
+
+$red-orange: rgb(235, 96, 51);
+$red-orange-light: rgb(244, 18, 140);
+$red-orange-dark: rgb(151, 52, 29);
+
+$orange: rgb(239, 132, 51);
+$orange-light: rgb(247, 195, 138);
+$orange-dark: rgb(159, 80, 31);
+
+// $grey: hsl(0, 0%, 86%);
+// $grey-light: hsl(0, 0%, 92%);
+// $grey-dark: hsl(0, 0%, 78%);
+
+$deep-grey: hsl(0, 0%, 26%);
+$deep-grey-light: hsl(0, 0%, 38%);
+$deep-grey-dark: hsl(0, 0%, 10%);
+
+$green: rgb(121, 229, 0);
+$green-light: rgb(125, 242, 129);
+$green-dark: rgb(64, 128, 0);
+
+$yellow: hsl(49, 99%, 28%);
+$yellow-light: hsl(55, 83%, 69%);
+$yellow-dark: hsl(54, 71%, 31%);
+
+// Colors
+
+$black:        hsl(0, 0%, 4%) !default;
+$black-bis:    hsl(0, 0%, 7%) !default;
+$black-ter:    hsl(0, 0%, 10%) !default;
+
+$grey-darker:  hsl(0, 0%, 18%) !default;
+$grey-dark:    hsl(0, 0%, 26%) !default;
+$grey:         hsl(0, 0%, 38%) !default;
+$grey-light:   hsl(0, 0%, 86%) !default;
+$grey-lighter: hsl(0, 0%, 92%) !default;
+
+$white-ter:    hsl(0, 0%, 96%) !default;
+$white-bis:    hsl(0, 0%, 98%) !default;
+$white:        hsl(0, 0%, 100%) !default;
+
+$orange:       hsl(30, 85%, 58%) !default;
+$yellow:       hsl(47, 78%, 41%) !default;
+$green:        hsl(90, 100%, 25%) !default;
+$turquoise:    hsl(171, 94%, 45%) !default;
+$cyan:         hsl(196, 100%, 50%) !default;
+$blue:         hsl(210, 79%, 38%) !default;
+$purple:       hsl(315, 69%, 30%) !default;
+$red:          hsl(3, 80%, 55%) !default;
+
+$primary: $blue;
+$link:    $blue;
+$info:    $cyan;
+$success: $green;
+$warning: $yellow;
+$danger:  $red;
+$background: $black-ter;
+$text: $white;
+
+// Typography
+
+$family-sans-serif: 'Source Sans Pro', BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
+$family-monospace: latin-modern-mono, monospace !default;
+$render-mode: optimizeLegibility !default;
+
+$size-1: 3rem !default;
+$size-2: 2.5rem !default;
+$size-3: 2rem !default;
+$size-4: 1.5rem !default;
+$size-5: 1.25rem !default;
+$size-6: 1rem !default;
+$size-7: 0.75rem !default;
+
+$weight-light: 300 !default;
+$weight-normal: 400 !default;
+$weight-medium: 500 !default;
+$weight-semibold: 600 !default;
+$weight-bold: 700 !default;
+
+// Responsiveness
+
+// The container horizontal gap, which acts as the offset for breakpoints
+$gap: 64px !default;
+// 960, 1152, and 1344 have been chosen because they are divisible by both 12 and 16
+$tablet: 769px !default;
+// 960px container + 4rem
+$desktop: 960px + (2 * $gap) !default;
+// 1152px container + 4rem
+$widescreen: 1152px + (2 * $gap) !default;
+$widescreen-enabled: true !default;
+// 1344px container + 4rem
+$fullhd: 1344px + (2 * $gap) !default;
+$fullhd-enabled: true !default;
+
+// Miscellaneous
+
+$easing: ease-out !default;
+$radius-small: 2px !default;
+$radius: 4px !default;
+$radius-large: 6px !default;
+$radius-rounded: 290486px !default;
+$speed: 86ms !default;
+
+// Flags
+
+$variable-columns: true !default;

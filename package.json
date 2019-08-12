@@ -1,0 +1,80 @@
+{
+  "name": "evolution-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "deploy": "sh deploy.sh"
+  },
+  "dependencies": {
+    "@wildpeaks/three-webpack-plugin": "^2.0.0",
+    "babel-plugin-component": "^1.1.1",
+    "buefy": "^0.7.1",
+    "bulma": "^0.7.1",
+    "chart.js": "^2.7.3",
+    "chartjs-plugin-annotation": "^0.5.7",
+    "howler": "^2.0.15",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "moment-duration-format": "^2.2.2",
+    "nosleep.js": "^0.9.0",
+    "three": "^0.105.1",
+    "three-orbit-controls": "^82.1.0",
+    "vue": "^2.5.17",
+    "vue-analytics": "^5.17.0",
+    "vue-chartjs": "^3.4.0",
+    "vue-circle-slider": "^1.0.2",
+    "vue-router": "^3.0.2",
+    "vue-slider-component": "^3.0.31"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.2.0",
+    "@vue/cli-plugin-eslint": "^3.2.0",
+    "@vue/cli-service": "^3.2.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0-0",
+    "node-sass": "^4.11.0",
+    "pug": "^2.0.3",
+    "pug-plain-loader": "^1.0.0",
+    "sass": "^1.15.2",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.5.17"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "generator-star-spacing": "off",
+      "comma-style": [
+        2,
+        "first"
+      ],
+      "space-in-parens": 0,
+      "space-before-blocks": 0,
+      "padded-blocks": 0,
+      "space-before-function-paren": 0
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
