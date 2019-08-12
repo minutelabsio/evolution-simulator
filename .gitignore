@@ -19,4 +19,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-src/assets/test.jpg
+
+src/wasm/target

@@ -9,6 +9,7 @@ import VueCircleSlider from 'vue-circle-slider'
 import Copilot from 'copilot'
 import * as THREE from 'three'
 
+import 'material-design-icons'
 // require styles
 import './styles/main.scss'
 
