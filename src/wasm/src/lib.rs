@@ -1,4 +1,5 @@
 extern crate wasm_bindgen;
+#[allow(unused_imports)]
 #[macro_use]
 extern crate serde_derive;
 
@@ -21,6 +22,12 @@ pub fn browser_debug() {
   #[cfg(feature = "console_error_panic_hook")]
   console_error_panic_hook::set_once();
 }
+
+extern crate nalgebra as na;
+
+pub mod creature;
+pub mod world;
+pub mod evolving_trait;
 
 mod api;
 pub use api::*;
