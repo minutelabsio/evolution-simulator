@@ -1,25 +1,42 @@
-use crate::na::{Vector2};
+use crate::na::{Point2, Unit, Vector2};
 use super::world::{
-  Trigger,
-  WorldObjectType,
-  WorldObject,
+  Phase,
 };
 use super::evolving_trait::EvolvingTrait;
 
-pub struct Creature<'a> {
-  pub is_dead: bool,
-  pub will_reproduce: bool,
-  pub start_pos : Vector2<f64>,
+const MOTION_ENERGY_COST : f64 : 0.1;
 
-  pub traits : Vec<&'a EvolvingTrait<'a>>,
+enum CreatureState {
+  DEAD,
+  ASLEEP,
+  ACTIVE,
 }
 
-impl<'a> Creature<'a> {
+pub struct Creature {
+  pub will_reproduce : bool,
+  pub pos : Point2<f64>,
+  pub start_pos : Point2<f64>,
+  pub home_pos : Point2<f64>,
+  pub energy : f64,
+
+  // array of displacement vectors
+  pub movement_history : Vec<Vector2<f64>>,
+
+  pub traits : Vec<Box<EvolvingTrait>>,
+  state : CreatureState,
+}
+
+impl Creature {
   pub fn new( x : f64, y : f64 ) -> Self {
     Creature {
-      is_dead: false,
+      state: CreatureState::ACTIVE,
+      energy: 1.0,
+
       will_reproduce: false,
-      start_pos: Vector2::new( x, y ),
+      pos: Point2::new( x, y ),
+      start_pos : Point2::new( x, y ),
+      home_pos: Point2::new( x, y ),
+      movement_history: Vec::new(),
 
       traits: Vec::new(),
     }
@@ -27,42 +44,70 @@ impl<'a> Creature<'a> {
 
   // Instance methods
   //------------------
-  pub fn move_to( &self, pos : &Vector2<f64> ){
-    unimplemented!();
+  pub fn is_alive(&self) -> bool {
+    match self.state {
+      CreatureState::DEAD => false,
+      _ => true,
+    }
   }
 
-  pub fn direction(&self) -> Vector2<f64> {
-    Vector2::x()
+  pub fn is_active(&self) -> bool {
+    match self.state {
+      CreatureState::ACTIVE => true,
+      _ => false,
+    }
   }
 
-  pub fn last_pos(&self) -> Vector2<f64> {
-    self.start_pos
+  // move the creature, record its motion in history,
+  // apply an energy cost.
+  pub fn move_to( &mut self, pos : &Point2<f64> ){
+    let disp = pos - self.pos;
+    self.apply_energy_cost( MOTION_ENERGY_COST * disp.norm() );
+
+    self.pos = pos;
+    movement_history.push(disp);
   }
-}
 
-impl<'a> WorldObject for Creature<'a> {
+  pub fn get_direction(&self) -> Unit<Vector2<f64>> {
+    Unit::new_normalize(Vector2::x())
+  }
 
-  fn get_type( &self ) -> WorldObjectType { WorldObjectType::Creature }
+  pub fn apply_phase( &mut self, phase : &Phase ){
+    // do nothing if it's dead
+    if !self.is_alive() { return; }
 
-  fn apply_trigger( &mut self, trigger : &Trigger ){
-    self.traits.iter().for_each(|t| {
-      t.apply( trigger, self );
-    });
+    let traits = std::mem::replace(&mut self.traits, vec![]);
+
+    let mut iter = traits.iter();
+    while let Some(t) = iter.next() {
+      t.apply( phase, self );
+    };
+
+    std::mem::replace(&mut self.traits, traits);
   }
 
   // get the position of this creature at time
-  fn get_position( &self ) -> Vector2<f64> {
-    self.start_pos
+  pub fn get_position( &self ) -> Point2<f64> {
+    self.pos
   }
 
-  fn hunger_fulfillment_value( &self, predator : &Creature ) -> f64 {
+  pub fn hunger_fulfillment_value( &self, predator : &Creature ) -> f64 {
     self.traits.iter()
-      .filter_map(|t| t.consumption_modifier())
+      .filter_map(|t| t.consumption_modifier(predator))
       .nth(0)
-      .map_or(0., |func| func(self))
+      .unwrap()
   }
 
-  fn can_eat( &self, other : &WorldObject ) -> bool {
+  // can this creature eat that other creature
+  pub fn can_eat( &self, other : &Creature ) -> bool {
     other.hunger_fulfillment_value( self ) > 0.
+  }
+
+  pub fn apply_energy_cost( &mut self, cost : f64 ){
+    self.energy -= cost;
+
+    if self.energy <= 0. {
+      self.state = CreatureState::DEAD;
+    }
   }
 }
