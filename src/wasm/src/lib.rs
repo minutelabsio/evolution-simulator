@@ -25,9 +25,35 @@ pub fn browser_debug() {
 
 extern crate nalgebra as na;
 
+pub mod stage;
 pub mod creature;
-pub mod world;
-pub mod evolving_trait;
+pub mod simulation;
 
 mod api;
 pub use api::*;
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use simulation::*;
+
+  #[test]
+  fn sim_test() {
+    let stage = Box::new(stage::SquareStage(100.));
+    let mut sim = Simulation::new(stage, 123, 10);
+    sim.add_behavour(Box::new(behaviours::BasicMoveBehaviour));
+
+    sim.run(5, 5);
+
+    let mut results = Vec::new();
+    for g in sim.generations {
+      let mut creatures = Vec::new();
+      for c in (*g).creatures {
+        creatures.push((*c).clone());
+      }
+      results.push(creatures);
+    }
+
+    println!("{:#?}", results);
+  }
+}
