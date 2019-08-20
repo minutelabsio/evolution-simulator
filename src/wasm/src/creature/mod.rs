@@ -6,14 +6,14 @@ use super::simulation::{
 
 const MOTION_ENERGY_COST : f64 = 0.1;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 enum CreatureState {
   DEAD,
   ASLEEP,
   ACTIVE,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
   pub speed : f64,
@@ -25,8 +25,8 @@ pub struct Creature {
   pub start_pos : Point2<f64>,
   pub home_pos : Point2<f64>,
 
-  // array of displacement vectors
-  pub movement_history : Vec<Vector2<f64>>,
+  // array of position vectors
+  pub movement_history : Vec<Point2<f64>>,
 
   state : CreatureState,
 }
@@ -42,7 +42,7 @@ impl Creature {
       pos: pos.clone(),
       start_pos : pos.clone(),
       home_pos: pos.clone(),
-      movement_history: Vec::new(),
+      movement_history: vec![pos.clone()],
     }
   }
 
@@ -64,10 +64,9 @@ impl Creature {
 
   // move the creature, record its motion in history,
   // apply an energy cost.
-  pub fn move_to( &mut self, pos : &Point2<f64> ){
-    let disp = pos - self.pos;
+  pub fn move_to( &mut self, pos : Point2<f64> ){
     self.pos = pos.clone();
-    self.movement_history.push(disp);
+    self.movement_history.push(pos);
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
@@ -77,6 +76,12 @@ impl Creature {
   // get the position of this creature at time
   pub fn get_position( &self ) -> Point2<f64> {
     self.pos
+  }
+
+  pub fn get_last_position( &self ) -> Point2<f64> {
+    let len = self.movement_history.len();
+    assert!(len > 1, "No last position");
+    self.movement_history[len - 2]
   }
 
   pub fn apply_energy_cost( &mut self, cost : f64 ){

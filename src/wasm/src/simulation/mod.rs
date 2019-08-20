@@ -21,7 +21,8 @@ pub enum Phase {
 }
 
 pub trait StepBehaviour {
-  fn apply(&mut self, phase : Phase, generation : &mut Generation, sim : &dyn Stage);
+  // if you need &mut self, use Cell or RefCell
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &dyn Stage);
 }
 
 pub struct Simulation {
@@ -29,7 +30,7 @@ pub struct Simulation {
   // Area this simulation occurs in
   pub stage : Box<dyn Stage>,
   pub food_per_generation : u32,
-  pub generations : Vec<Box<Generation>>,
+  pub generations : Vec<Generation>,
   pub behaviours : Vec<Box<dyn StepBehaviour>>
 }
 
@@ -55,14 +56,14 @@ impl Simulation {
 
   pub fn run(&mut self, creature_count: u32, max_generations : u32){
     let food_locations = self.generate_food();
-    let mut generation = Box::new(Generation::new(self, food_locations, creature_count));
+    let mut generation = Generation::new(self, food_locations, creature_count);
     let mut keep_going = generation.has_living_creatures();
 
     for _gen in 1..max_generations {
       if !keep_going { break; }
 
       let food_locations = self.generate_food();
-      let next = Box::new(Generation::from_previous( &generation, food_locations ));
+      let next = Generation::from_previous( &generation, food_locations );
       self.generations.push(generation);
       generation = next;
       keep_going = generation.has_living_creatures();
@@ -79,9 +80,10 @@ impl Simulation {
 }
 
 // Each generation of the simulation. A collection of creatures
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Generation {
   pub steps : usize, // total steps this generation took to complete
-  pub creatures : Vec<Box<Creature>>,
+  pub creatures : Vec<Creature>,
   pub food_history : Vec<(usize, Point2<f64>)>, // tuple showing the step the food was eaten
   pub food_locations : Vec<Point2<f64>>,
 }
@@ -94,7 +96,7 @@ impl Generation {
       // TODO: original started creatures on edges
       let pos = (*sim.stage).get_random_location(&mut sim.rng);
 
-      Box::new(Creature::new( &pos ))
+      Creature::new( &pos )
     }).collect();
 
     let mut gen = Generation {
@@ -131,11 +133,10 @@ impl Generation {
     }
   }
 
-  fn run_phase(&mut self, phase : Phase, sim : &mut Simulation){
-    for i in 0..sim.behaviours.len() {
-      let b = &mut *sim.behaviours[i];
-      b.apply(phase, self, &*sim.stage);
-    }
+  fn run_phase(&mut self, phase : Phase, sim : &Simulation){
+    sim.behaviours.iter().for_each(
+      |b| b.apply(phase, self, &*sim.stage)
+    );
   }
 
   fn step(&mut self, sim : &mut Simulation){

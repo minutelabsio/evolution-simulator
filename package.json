@@ -11,7 +11,7 @@
   "dependencies": {
     "@wildpeaks/three-webpack-plugin": "^2.0.0",
     "babel-plugin-component": "^1.1.1",
-    "buefy": "^0.7.1",
+    "buefy": "^0.8.2",
     "bulma": "^0.7.1",
     "chart.js": "^2.7.3",
     "chartjs-plugin-annotation": "^0.5.7",
@@ -21,14 +21,14 @@
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
     "nosleep.js": "^0.9.0",
-    "three": "^0.105.1",
+    "three": "^0.107.0",
     "three-orbit-controls": "^82.1.0",
     "vue": "^2.5.17",
-    "vue-analytics": "^5.17.0",
+    "vue-analytics": "^5.17.2",
     "vue-chartjs": "^3.4.0",
     "vue-circle-slider": "^1.0.2",
     "vue-router": "^3.0.2",
-    "vue-slider-component": "^3.0.31"
+    "vue-slider-component": "^3.0.38"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
@@ -37,13 +37,13 @@
     "@wasm-tool/wasm-pack-plugin": "^0.2.7",
     "babel-eslint": "^10.0.1",
     "comlink-loader": "^1.1.0",
-    "eslint": "^5.8.0",
+    "eslint": "^6.2.1",
     "eslint-plugin-vue": "^5.0.0-0",
     "node-sass": "^4.11.0",
     "pug": "^2.0.3",
     "pug-plain-loader": "^1.0.0",
-    "sass": "^1.15.2",
-    "sass-loader": "^7.1.0",
+    "sass": "^1.22.10",
+    "sass-loader": "^7.3.1",
     "vue-template-compiler": "^2.5.17"
   },
   "resolutions": {

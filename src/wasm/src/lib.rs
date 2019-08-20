@@ -48,8 +48,8 @@ mod tests {
     let mut results = Vec::new();
     for g in sim.generations {
       let mut creatures = Vec::new();
-      for c in (*g).creatures {
-        creatures.push((*c).clone());
+      for c in g.creatures {
+        creatures.push(c.clone());
       }
       results.push(creatures);
     }

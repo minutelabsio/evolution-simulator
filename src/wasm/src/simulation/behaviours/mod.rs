@@ -10,15 +10,16 @@ impl BasicMoveBehaviour {
   fn move_creature(&self, creature : &mut Creature){
     // move
     let new_pos = creature.get_position() + creature.speed * creature.get_direction().as_ref();
-    creature.move_to( &new_pos );
+    creature.move_to( new_pos );
     // energy cost
-    let displacement = creature.movement_history[creature.movement_history.len() - 1];
+    let last = creature.get_last_position();
+    let displacement = creature.get_position() - last;
     creature.apply_energy_cost( MOTION_ENERGY_COST * displacement.norm() )
   }
 }
 
 impl StepBehaviour for BasicMoveBehaviour {
-  fn apply(&mut self, phase : Phase, generation : &mut Generation, stage : &dyn Stage){
+  fn apply(&self, phase : Phase, generation : &mut Generation, _stage : &dyn Stage){
     if let Phase::MOVE = phase {
       generation.creatures.iter_mut()
         .filter(|c| c.is_alive())

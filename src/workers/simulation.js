@@ -35,6 +35,6 @@ async function run( method, ...args ){
 
 // API
 // ---------------------------------------
-export async function test(){
-  return run('test')
+export async function runSimulation( cfg ){
+  return run('run_simulation', cfg)
 }
