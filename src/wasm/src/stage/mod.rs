@@ -1,4 +1,5 @@
 use crate::na::{Point2};
+use std::cell::{RefMut};
 use rand::{SeedableRng, Rng, rngs::SmallRng};
 use super::creature::*;
 // The stage defines the borders of the simulation
@@ -8,7 +9,7 @@ pub trait Stage {
   // can this creature move here?
   fn can_move_to(&self, to : &Point2<f64>, creature : &Creature ) -> bool;
   // generate a location from a u64 seed. used to randomly place food within boundaries
-  fn get_random_location(&self, rng : &mut SmallRng) -> Point2<f64>;
+  fn get_random_location(&self, rng : &mut RefMut<SmallRng>) -> Point2<f64>;
 }
 
 
@@ -23,7 +24,7 @@ impl Stage for SquareStage {
     to.y < self.0
   }
 
-  fn get_random_location(&self, rng : &mut SmallRng) -> Point2<f64> {
+  fn get_random_location(&self, rng : &mut RefMut<SmallRng>) -> Point2<f64> {
     let x = rng.gen_range(0., self.0);
     let y = rng.gen_range(0., self.0);
 

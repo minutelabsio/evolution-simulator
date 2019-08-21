@@ -7,7 +7,8 @@
           b-select(v-model="genIndex")
             option(v-for="index in simulation.generations.length", :value="index - 1") {{ index - 1 }}
         b-slider(v-model="time", :max="totalTime")
-        .creatures(:style="simulationStyle")
+        .stage(:style="simulationStyle")
+          .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
           .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
 </template>
 
@@ -22,11 +23,11 @@ function lerpArray(from, to, t){
 
 const creaturePositionAt = stepFrac => creature => {
   let step = Math.floor(stepFrac)
-  let frac = stepFrac % step
-  let from = creature.movement_history[step]
-  if ( !frac ){ return from }
-
+  let frac = stepFrac % Math.max(1, step)
+  let from = creature.movement_history[step] || creature.movement_history[creature.movement_history.length - 1]
   let to = creature.movement_history[step + 1]
+
+  if ( !to ){ return from }
   return lerpArray(from, to, frac)
 }
 
@@ -62,7 +63,11 @@ export default {
       , creature_count: 10
       , food_per_generation: 10
       , max_generations: 10
-      , behaviours: [{ name: 'BasicMoveBehaviour' }]
+      , behaviours: [
+        { name: 'WanderBehaviour' }
+        , { name: 'ScavengeBehaviour' }
+        , { name: 'BasicMoveBehaviour' }
+      ]
     }).then( simulation => {
       this.simulation = simulation
     })
@@ -73,6 +78,18 @@ export default {
         width: this.size + 'px'
         , height: this.size + 'px'
       }
+    }
+    , currentStep(){
+      return Math.floor(this.time / this.stepTime)
+    }
+    , foodElements(){
+      let step = this.currentStep
+      return this.generation.food.map(f => {
+        let [x,y] = f[0]
+        let transform = `translate3d(${x}px, ${y}px, 0)`
+        let isEaten = f[1] !== 'Available'
+        return { style: { transform }, isEaten }
+      })
     }
     , creatures(){
       return draw(this.simulation.generations[this.genIndex], this.stepTime, this.time)
@@ -88,7 +105,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.creatures
+.stage
   position: relative
   border: 1px solid rgba(255, 255, 255, 0.4)
   overflow: hidden
@@ -99,4 +116,16 @@ export default {
     width: 10px
     height: 10px
     background: $red
+  .food
+    position: absolute
+    top: 0
+    left: 0
+    width: 4px
+    height: 4px
+    background: $green
+    &.is-eaten
+      background: $grey
+  .creature,
+  .food
+    border-radius: 50%
 </style>

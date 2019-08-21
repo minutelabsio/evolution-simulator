@@ -1,5 +1,7 @@
 extern crate rand;
 use crate::na::{Point2};
+use std::cell::{RefCell, RefMut};
+use std::rc::Rc;
 use rand::{SeedableRng, Rng, rngs::SmallRng};
 use crate::creature::*;
 use crate::stage::*;
@@ -22,11 +24,27 @@ pub enum Phase {
 
 pub trait StepBehaviour {
   // if you need &mut self, use Cell or RefCell
-  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &dyn Stage);
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation);
+}
+
+// behaviour to reset parameters on step
+#[derive(Debug, Copy, Clone)]
+pub struct ResetBehaviour;
+impl StepBehaviour for ResetBehaviour {
+  fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
+    // setup
+    if let Phase::PRE = phase {
+      generation.creatures.iter_mut()
+        .filter(|c| c.is_alive())
+        .for_each(|c| {
+          c.reset_objective();
+        });
+    }
+  }
 }
 
 pub struct Simulation {
-  pub rng : SmallRng,
+  rng : Rc<RefCell<SmallRng>>,
   // Area this simulation occurs in
   pub stage : Box<dyn Stage>,
   pub food_per_generation : u32,
@@ -44,9 +62,9 @@ impl Simulation {
       stage,
       generations,
       food_per_generation,
-      behaviours : Vec::new(),
+      behaviours : vec![Box::new(ResetBehaviour)],
       // prepare a deterministic generator:
-      rng: SmallRng::seed_from_u64(seed)
+      rng: Rc::new(RefCell::new(SmallRng::seed_from_u64(seed)))
     }
   }
 
@@ -72,11 +90,26 @@ impl Simulation {
     self.generations.push(generation);
   }
 
-  pub fn generate_food(&mut self) -> Vec<Point2<f64>> {
+  pub fn get_random_location(&self) -> Point2<f64> {
+    self.stage.get_random_location(&mut self.rng.borrow_mut())
+  }
+
+  pub fn get_random_float(&self, from : f64, to : f64) -> f64 {
+    let mut rng = self.rng.borrow_mut();
+    rng.gen_range(from, to)
+  }
+
+  pub fn generate_food(&self) -> Vec<Point2<f64>> {
     (0..self.food_per_generation).map(|_n|
-      self.stage.get_random_location(&mut self.rng)
+      self.get_random_location()
     ).collect()
   }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum FoodStatus {
+  Available,
+  Eaten(usize), // step the food was eaten at
 }
 
 // Each generation of the simulation. A collection of creatures
@@ -84,8 +117,7 @@ impl Simulation {
 pub struct Generation {
   pub steps : usize, // total steps this generation took to complete
   pub creatures : Vec<Creature>,
-  pub food_history : Vec<(usize, Point2<f64>)>, // tuple showing the step the food was eaten
-  pub food_locations : Vec<Point2<f64>>,
+  pub food : Vec<(Point2<f64>, FoodStatus)>, // tuple showing the step the food was eaten
 }
 
 impl Generation {
@@ -94,15 +126,18 @@ impl Generation {
     let creatures = (0..creature_count).map(|_n| {
       // random creature starting position
       // TODO: original started creatures on edges
-      let pos = (*sim.stage).get_random_location(&mut sim.rng);
+      let pos = sim.get_random_location();
 
       Creature::new( &pos )
     }).collect();
 
+    let food = food_locations.iter().map(|p| {
+      (*p, FoodStatus::Available)
+    }).collect();
+
     let mut gen = Generation {
       creatures,
-      food_locations,
-      food_history: Vec::new(),
+      food,
       steps: 0,
     };
 
@@ -135,7 +170,7 @@ impl Generation {
 
   fn run_phase(&mut self, phase : Phase, sim : &Simulation){
     sim.behaviours.iter().for_each(
-      |b| b.apply(phase, self, &*sim.stage)
+      |b| b.apply(phase, self, &sim)
     );
   }
 

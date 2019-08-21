@@ -11,6 +11,8 @@ impl BehaviourConfig {
   pub fn parse(&self) -> Result<Box<dyn StepBehaviour>, JsValue> {
     match self.name.as_ref() {
       "BasicMoveBehaviour" => Ok(Box::new(behaviours::BasicMoveBehaviour)),
+      "WanderBehaviour" => Ok(Box::new(behaviours::WanderBehaviour)),
+      "ScavengeBehaviour" => Ok(Box::new(behaviours::ScavengeBehaviour)),
       _ => Err(format!("Behaviour {} is not defined", self.name).into())
     }
   }

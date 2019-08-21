@@ -13,10 +13,28 @@ enum CreatureState {
   ACTIVE,
 }
 
+// automatically ordered top to bottom
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Eq, PartialEq, PartialOrd)]
+pub enum ObjectiveIntensity {
+  // Meh level
+  MinorCraving,
+  MinorAversion,
+  // Kind of want this
+  ModerateCraving,
+  ModerateAversion,
+  // Seriously starving
+  MajorCraving,
+  MajorAversion,
+  // Will die unless this happens
+  VitalCraving,
+  VitalAversion,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
   pub speed : f64,
+  pub sense_range : f64,
 
   // other
   pub energy : f64,
@@ -29,6 +47,9 @@ pub struct Creature {
   pub movement_history : Vec<Point2<f64>>,
 
   state : CreatureState,
+  // current target of the creature's desire
+  // and its weight
+  target: Option<(Point2<f64>, ObjectiveIntensity)>
 }
 
 impl Creature {
@@ -36,6 +57,7 @@ impl Creature {
     Creature {
       state: CreatureState::ACTIVE,
       speed: 1.0,
+      sense_range: 50.0,
       energy: 1.0,
 
       will_reproduce: false,
@@ -43,6 +65,7 @@ impl Creature {
       start_pos : pos.clone(),
       home_pos: pos.clone(),
       movement_history: vec![pos.clone()],
+      target: None,
     }
   }
 
@@ -70,7 +93,25 @@ impl Creature {
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
-    Unit::new_normalize(Vector2::x())
+    // displacement vector to target
+    let disp = self.target.map(|t| t.0 - self.pos).unwrap_or_else(|| {
+      // or the direction it was traveling before
+      self.get_last_position()
+        .map(|last| self.pos - last)
+        .unwrap_or_else(|| Vector2::x()) // or the x axis
+    });
+
+    Unit::new_normalize(disp)
+  }
+
+  pub fn add_objective(&mut self, targetPos : Point2<f64>, intensity : ObjectiveIntensity){
+    if self.target.map(|t| intensity > t.1).unwrap_or(true) {
+      self.target = Some((targetPos, intensity));
+    }
+  }
+
+  pub fn reset_objective(&mut self){
+    self.target = None;
   }
 
   // get the position of this creature at time
@@ -78,10 +119,11 @@ impl Creature {
     self.pos
   }
 
-  pub fn get_last_position( &self ) -> Point2<f64> {
+  pub fn get_last_position( &self ) -> Option<Point2<f64>> {
     let len = self.movement_history.len();
-    assert!(len > 1, "No last position");
-    self.movement_history[len - 2]
+    if len <= 1 { return None; }
+
+    Some(self.movement_history[len - 2])
   }
 
   pub fn apply_energy_cost( &mut self, cost : f64 ){
