@@ -5,8 +5,12 @@
       .content(v-if="simulation")
         b-field
           b-select(v-model="genIndex")
-            option(v-for="index in simulation.generations.length", :value="index - 1") {{ index - 1 }}
-        b-slider(v-model="time", :max="totalTime")
+            option(v-for="index in simulation.generations.length", :value="index - 1") Generation {{ index - 1 }}
+        b-field(grouped)
+          b-field
+            b-button.btn-dark(@click="togglePlay()")
+              b-icon(:icon="paused ? 'play' : 'pause'")
+          b-slider(@input="updateTime", :value="time", :max="totalTime", rounded)
         .stage(:style="simulationStyle")
           .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
           .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
@@ -49,13 +53,18 @@ export default {
   , components: {
   }
   , data: () => ({
-    size: 500
-    , stepTime: 500 //
+    paused: true
+
+    , size: 500
+    , stepTime: 50 // ms
     , genIndex: 0
 
     , time: 0
     , simulation: null
   })
+  , created(){
+    this.player = Copilot.Player({ totalTime: 1 })
+  }
   , mounted(){
     worker.runSimulation({
       size: this.size
@@ -67,10 +76,26 @@ export default {
         { name: 'WanderBehaviour' }
         , { name: 'ScavengeBehaviour' }
         , { name: 'BasicMoveBehaviour' }
+        , { name: 'HomesickBehaviour' }
       ]
     }).then( simulation => {
       this.simulation = simulation
     })
+
+    this.player.on('update', () => {
+      this.time = this.player.time
+    })
+  }
+  , beforeDestroy(){
+    this.player.off(true)
+  }
+  , watch: {
+    totalTime(){
+      this.player.totalTime = this.totalTime
+    }
+    , paused(){
+      this.player.togglePause(this.paused)
+    }
   }
   , computed: {
     simulationStyle(){
@@ -85,9 +110,9 @@ export default {
     , foodElements(){
       let step = this.currentStep
       return this.generation.food.map(f => {
-        let [x,y] = f[0]
+        let [x,y] = f.position
         let transform = `translate3d(${x}px, ${y}px, 0)`
-        let isEaten = f[1] !== 'Available'
+        let isEaten = f.status.Eaten < step
         return { style: { transform }, isEaten }
       })
     }
@@ -95,10 +120,20 @@ export default {
       return draw(this.simulation.generations[this.genIndex], this.stepTime, this.time)
     }
     , generation(){
+      if ( !this.simulation ){ return null }
       return this.simulation.generations[this.genIndex]
     }
     , totalTime(){
+      if ( !this.generation ){ return 1 }
       return this.stepTime * this.generation.steps
+    }
+  }
+  , methods: {
+    togglePlay(){
+      this.paused = !this.paused
+    }
+    , updateTime(time){
+      this.player.seek(time)
     }
   }
 }

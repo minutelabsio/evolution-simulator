@@ -106,10 +106,16 @@ impl Simulation {
   }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum FoodStatus {
   Available,
   Eaten(usize), // step the food was eaten at
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Food {
+  position: Point2<f64>,
+  status: FoodStatus,
 }
 
 // Each generation of the simulation. A collection of creatures
@@ -117,7 +123,7 @@ pub enum FoodStatus {
 pub struct Generation {
   pub steps : usize, // total steps this generation took to complete
   pub creatures : Vec<Creature>,
-  pub food : Vec<(Point2<f64>, FoodStatus)>, // tuple showing the step the food was eaten
+  pub food : Vec<Food>, // tuple showing the step the food was eaten
 }
 
 impl Generation {
@@ -132,7 +138,10 @@ impl Generation {
     }).collect();
 
     let food = food_locations.iter().map(|p| {
-      (*p, FoodStatus::Available)
+      Food {
+        position: *p,
+        status: FoodStatus::Available,
+      }
     }).collect();
 
     let mut gen = Generation {
@@ -160,6 +169,18 @@ impl Generation {
     self.creatures.iter().any(|c| c.is_active())
   }
 
+  pub fn get_available_food(&self) -> Vec<Food> {
+    self.food.iter().filter(|f| {
+      if let FoodStatus::Available = f.status { true } else { false }
+    }).map(|f| f.clone()).collect()
+  }
+
+  pub fn mark_food_eaten(&mut self, food : &Food){
+    if let Some(index) = self.food.iter().position(|f| *f == *food) {
+      self.food[index].status = FoodStatus::Eaten(self.steps);
+    }
+  }
+
   // advance the generation to its end
   fn step_to_completion(&mut self, sim : &mut Simulation) {
     // break when all asleep or dead
@@ -175,8 +196,6 @@ impl Generation {
   }
 
   fn step(&mut self, sim : &mut Simulation){
-    self.steps += 1;
-
     assert!(self.steps < MAX_STEPS);
 
     self.run_phase(Phase::PRE, sim);
@@ -184,5 +203,7 @@ impl Generation {
     self.run_phase(Phase::MOVE, sim);
     self.run_phase(Phase::ACT, sim);
     self.run_phase(Phase::POST, sim);
+
+    self.steps += 1;
   }
 }

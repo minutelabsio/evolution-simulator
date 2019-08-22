@@ -9,6 +9,7 @@
     "deploy": "sh deploy.sh"
   },
   "dependencies": {
+    "@mdi/font": "^4.1.95",
     "@wildpeaks/three-webpack-plugin": "^2.0.0",
     "babel-plugin-component": "^1.1.1",
     "buefy": "^0.8.2",

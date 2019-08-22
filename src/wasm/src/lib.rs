@@ -42,6 +42,9 @@ mod tests {
     let stage = Box::new(stage::SquareStage(100.));
     let mut sim = Simulation::new(stage, 123, 10);
     sim.add_behavour(Box::new(behaviours::BasicMoveBehaviour));
+    sim.add_behavour(Box::new(behaviours::ScavengeBehaviour));
+    sim.add_behavour(Box::new(behaviours::WanderBehaviour));
+    sim.add_behavour(Box::new(behaviours::HomesickBehaviour));
 
     sim.run(5, 5);
 

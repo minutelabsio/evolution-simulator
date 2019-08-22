@@ -728,6 +728,11 @@
     cssnano-preset-default "^4.0.0"
     postcss "^7.0.0"
 
+"@mdi/font@^4.1.95":
+  version "4.1.95"
+  resolved "https://registry.yarnpkg.com/@mdi/font/-/font-4.1.95.tgz#8a1ee05601757c57eb073f21c28e259ca2fe1102"
+  integrity sha512-/XhFVHkaBEVSaskmfhe/9sne+Sxkl8rUVdtSk5SCUAiPlFKidzYPDOWi9WGRiYYy8/OC4KuAHTRHvCNPywCxgg==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"

@@ -33,10 +33,12 @@ pub enum ObjectiveIntensity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
-  pub speed : f64,
-  pub sense_range : f64,
+  pub speed : f64, // how far can it move in one step?
+  pub sense_range : f64, // how far can it see?
+  pub reach : f64, // how far can it interact with something?
 
   // other
+  pub foods_eaten : u32,
   pub energy : f64,
   pub will_reproduce : bool,
   pub pos : Point2<f64>,
@@ -58,7 +60,10 @@ impl Creature {
       state: CreatureState::ACTIVE,
       speed: 1.0,
       sense_range: 50.0,
-      energy: 1.0,
+      reach: 5.0,
+
+      foods_eaten: 0,
+      energy: 100.0,
 
       will_reproduce: false,
       pos: pos.clone(),
@@ -90,11 +95,31 @@ impl Creature {
   pub fn move_to( &mut self, pos : Point2<f64> ){
     self.pos = pos.clone();
     self.movement_history.push(pos);
+
+    // energy cost
+    let last = self.get_last_position().expect("Can not get last position.");
+    let displacement = self.pos - last;
+    // the cost of moving
+    let cost = self.get_motion_energy_cost();
+    self.apply_energy_cost( cost );
+  }
+
+  pub fn get_motion_energy_cost(&self) -> f64 {
+    0.5 * self.speed.powi(2)
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
     // displacement vector to target
-    let disp = self.target.map(|t| t.0 - self.pos).unwrap_or_else(|| {
+    let disp = self.target.map(|t| {
+      let d = t.0 - self.pos;
+      match t.1 {
+        ObjectiveIntensity::MinorAversion|
+        ObjectiveIntensity::ModerateAversion|
+        ObjectiveIntensity::MajorAversion|
+        ObjectiveIntensity::VitalAversion => -1. * d, // other way
+        _ => d,
+      }
+    }).filter(|d| d.norm() != 0.).unwrap_or_else(|| {
       // or the direction it was traveling before
       self.get_last_position()
         .map(|last| self.pos - last)
@@ -114,6 +139,10 @@ impl Creature {
     self.target = None;
   }
 
+  pub fn eat_food(&mut self){
+    self.foods_eaten += 1;
+  }
+
   // get the position of this creature at time
   pub fn get_position( &self ) -> Point2<f64> {
     self.pos
@@ -124,6 +153,14 @@ impl Creature {
     if len <= 1 { return None; }
 
     Some(self.movement_history[len - 2])
+  }
+
+  pub fn can_see(&self, pt : &Point2<f64>) -> bool {
+    (pt - self.pos).norm() <= self.sense_range
+  }
+
+  pub fn can_reach(&self, pt : &Point2<f64>) -> bool {
+    (pt - self.pos).norm() <= self.reach
   }
 
   pub fn apply_energy_cost( &mut self, cost : f64 ){
