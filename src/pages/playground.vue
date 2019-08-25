@@ -66,6 +66,7 @@ export default {
     this.player = Copilot.Player({ totalTime: 1 })
   }
   , mounted(){
+    let start = performance.now()
     worker.runSimulation({
       size: this.size
       , seed: 123
@@ -79,6 +80,8 @@ export default {
         , { name: 'HomesickBehaviour' }
       ]
     }).then( simulation => {
+      let time = performance.now() - start;
+      console.log(`Computed in ${time}ms`)
       this.simulation = simulation
     })
 

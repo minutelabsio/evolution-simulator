@@ -15,7 +15,7 @@ impl StepBehaviour for WanderBehaviour {
     // during orientation...
     if let Phase::ORIENT = phase {
       generation.creatures.iter_mut()
-        .filter(|c| c.is_alive())
+        .filter(|c| c.is_active())
         .for_each(|c| {
           let ang = sim.get_random_float(-FRAC_PI_4, FRAC_PI_4);
           let rot = na::Rotation2::new(ang);
@@ -33,7 +33,7 @@ impl HomesickBehaviour {
   fn how_homesick(&self, creature : &Creature) -> Option<ObjectiveIntensity> {
     let dist = (creature.home_pos - creature.get_position()).norm();
     let cost = creature.get_motion_energy_cost();
-    let steps_to_home = dist / creature.speed;
+    let steps_to_home = dist / creature.get_speed();
     let homesick_factor = creature.energy / cost - steps_to_home;
 
     match homesick_factor {
@@ -48,19 +48,24 @@ impl HomesickBehaviour {
 }
 
 impl StepBehaviour for HomesickBehaviour {
-  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation){
+  fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
     // during orientation...
     if let Phase::ORIENT = phase {
       generation.creatures.iter_mut()
-        .filter(|c| c.is_alive())
+        .filter(|c| c.is_active())
         .filter_map(|c|
           self.how_homesick(c)
             .map(|i| (c, i))
         )
         .for_each(|(c, i)| {
-          c.add_objective(c.home_pos, i);
+          if c.can_reach(&c.home_pos) {
+            c.sleep();
+          } else {
+            c.add_objective(c.home_pos, i);
+          }
         });
     }
+
   }
 }
 
@@ -70,7 +75,7 @@ pub struct BasicMoveBehaviour;
 impl BasicMoveBehaviour {
   fn move_creature(&self, creature : &mut Creature){
     // move
-    let new_pos = creature.get_position() + creature.speed * creature.get_direction().as_ref();
+    let new_pos = creature.get_position() + creature.get_speed() * creature.get_direction().as_ref();
     creature.move_to( new_pos );
   }
 }
@@ -79,7 +84,7 @@ impl StepBehaviour for BasicMoveBehaviour {
   fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
     if let Phase::MOVE = phase {
       generation.creatures.iter_mut()
-        .filter(|c| c.is_alive())
+        .filter(|c| c.is_active())
         .for_each(|c| self.move_creature(c));
     }
   }
@@ -137,7 +142,7 @@ impl StepBehaviour for ScavengeBehaviour {
       let available_food = generation.get_available_food();
 
       generation.creatures.iter_mut()
-        .filter(|c| c.is_alive())
+        .filter(|c| c.is_active())
         .for_each(|c| self.look_for_food(c, &available_food));
     }
 

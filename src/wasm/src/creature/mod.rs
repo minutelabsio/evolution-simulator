@@ -1,8 +1,9 @@
 use crate::na::{Point2, Unit, Vector2};
-use super::simulation::{
-  Phase,
-  Generation,
-};
+use std::cell::{RefMut};
+use rand::{rngs::SmallRng};
+
+mod mutatable;
+use mutatable::*;
 
 const MOTION_ENERGY_COST : f64 = 0.1;
 
@@ -33,16 +34,16 @@ pub enum ObjectiveIntensity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
-  pub speed : f64, // how far can it move in one step?
+  speed : Mutatable<f64>, // how far can it move in one step?
   pub sense_range : f64, // how far can it see?
   pub reach : f64, // how far can it interact with something?
+  pub life_span: u32,
 
   // other
   pub foods_eaten : u32,
   pub energy : f64,
-  pub will_reproduce : bool,
+  pub age : u32,
   pub pos : Point2<f64>,
-  pub start_pos : Point2<f64>,
   pub home_pos : Point2<f64>,
 
   // array of position vectors
@@ -58,16 +59,16 @@ impl Creature {
   pub fn new( pos : &Point2<f64> ) -> Self {
     Creature {
       state: CreatureState::ACTIVE,
-      speed: 1.0,
+      speed: Mutatable(1.0, 0.1),
       sense_range: 50.0,
       reach: 5.0,
+      life_span: 4,
 
       foods_eaten: 0,
       energy: 100.0,
+      age: 0,
 
-      will_reproduce: false,
       pos: pos.clone(),
-      start_pos : pos.clone(),
       home_pos: pos.clone(),
       movement_history: vec![pos.clone()],
       target: None,
@@ -76,6 +77,50 @@ impl Creature {
 
   // Instance methods
   //------------------
+  pub fn reproduce(&self, rng : &mut RefMut<SmallRng>) -> Vec<Self> {
+    // TODO could implement multiple children in future
+    if self.will_reproduce() {
+      let child = Creature {
+        speed: self.speed.get_mutated(rng),
+
+        ..Creature::new(&self.home_pos)
+      };
+
+      vec![child]
+    } else {
+      vec![]
+    }
+  }
+
+  // copy self, but increase age. might die so optional
+  pub fn grow_older(&self) -> Option<Self> {
+    if self.age > self.life_span {
+      None
+    } else {
+      let Creature {
+        speed,
+        sense_range,
+        reach,
+        life_span,
+        ..
+      } = *self;
+
+      Some(Creature {
+        speed,
+        sense_range,
+        reach,
+        life_span,
+        age: self.age + 1,
+
+        ..Creature::new(&self.home_pos)
+      })
+    }
+  }
+
+  pub fn get_speed(&self) -> f64 {
+    self.speed.0
+  }
+
   pub fn is_alive(&self) -> bool {
     match self.state {
       CreatureState::DEAD => false,
@@ -96,16 +141,16 @@ impl Creature {
     self.pos = pos.clone();
     self.movement_history.push(pos);
 
-    // energy cost
-    let last = self.get_last_position().expect("Can not get last position.");
-    let displacement = self.pos - last;
+    // // energy cost
+    // let last = self.get_last_position().expect("Can not get last position.");
+    // let displacement = self.pos - last;
     // the cost of moving
     let cost = self.get_motion_energy_cost();
     self.apply_energy_cost( cost );
   }
 
   pub fn get_motion_energy_cost(&self) -> f64 {
-    0.5 * self.speed.powi(2)
+    0.5 * self.get_speed().powi(2)
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
@@ -139,8 +184,16 @@ impl Creature {
     self.target = None;
   }
 
+  pub fn will_reproduce(&self) -> bool {
+    self.foods_eaten > 1
+  }
+
   pub fn eat_food(&mut self){
     self.foods_eaten += 1;
+  }
+
+  pub fn sleep(&mut self){
+    self.state = CreatureState::ASLEEP;
   }
 
   // get the position of this creature at time

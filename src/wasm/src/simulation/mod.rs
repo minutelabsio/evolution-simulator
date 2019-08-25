@@ -1,6 +1,6 @@
 extern crate rand;
 use crate::na::{Point2};
-use std::cell::{RefCell, RefMut};
+use std::cell::{RefCell};
 use std::rc::Rc;
 use rand::{SeedableRng, Rng, rngs::SmallRng};
 use crate::creature::*;
@@ -44,7 +44,7 @@ impl StepBehaviour for ResetBehaviour {
 }
 
 pub struct Simulation {
-  rng : Rc<RefCell<SmallRng>>,
+  pub rng : Rc<RefCell<SmallRng>>,
   // Area this simulation occurs in
   pub stage : Box<dyn Stage>,
   pub food_per_generation : u32,
@@ -81,7 +81,7 @@ impl Simulation {
       if !keep_going { break; }
 
       let food_locations = self.generate_food();
-      let next = Generation::from_previous( &generation, food_locations );
+      let next = Generation::from_previous( self, &generation, food_locations );
       self.generations.push(generation);
       generation = next;
       keep_going = generation.has_living_creatures();
@@ -127,7 +127,7 @@ pub struct Generation {
 }
 
 impl Generation {
-  pub fn new( sim : &mut Simulation, food_locations: Vec<Point2<f64>>, creature_count : u32 ) -> Self {
+  pub fn new( sim : &Simulation, food_locations: Vec<Point2<f64>>, creature_count : u32 ) -> Self {
 
     let creatures = (0..creature_count).map(|_n| {
       // random creature starting position
@@ -157,8 +157,36 @@ impl Generation {
     gen
   }
 
-  pub fn from_previous( previous : &Generation, food_locations: Vec<Point2<f64>> ) -> Self {
-    unimplemented!()
+  pub fn from_previous( sim : &Simulation, previous : &Generation, food_locations: Vec<Point2<f64>> ) -> Self {
+    let creatures = previous.creatures.iter().filter(|c|
+      c.is_alive()
+    ).flat_map(|c| {
+      let mut rng = sim.rng.borrow_mut();
+      let mut ctrs = c.reproduce(&mut rng);
+      if let Some(grown) = c.grow_older() {
+        ctrs.push(grown);
+      }
+      ctrs
+    }).collect();
+
+    let food = food_locations.iter().map(|p| {
+      Food {
+        position: *p,
+        status: FoodStatus::Available,
+      }
+    }).collect();
+
+    let mut gen = Generation {
+      creatures,
+      food,
+      steps: 0,
+    };
+
+    gen.run_phase(Phase::INIT, sim);
+
+    gen.step_to_completion(sim);
+
+    gen
   }
 
   pub fn has_living_creatures(&self) -> bool {
@@ -182,9 +210,9 @@ impl Generation {
   }
 
   // advance the generation to its end
-  fn step_to_completion(&mut self, sim : &mut Simulation) {
+  fn step_to_completion(&mut self, sim : &Simulation) {
     // break when all asleep or dead
-    while self.has_living_creatures() {
+    while self.has_active_creatures() {
       self.step(sim);
     }
   }
@@ -195,7 +223,7 @@ impl Generation {
     );
   }
 
-  fn step(&mut self, sim : &mut Simulation){
+  fn step(&mut self, sim : &Simulation){
     assert!(self.steps < MAX_STEPS);
 
     self.run_phase(Phase::PRE, sim);

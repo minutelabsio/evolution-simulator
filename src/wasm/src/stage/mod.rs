@@ -1,6 +1,6 @@
 use crate::na::{Point2};
 use std::cell::{RefMut};
-use rand::{SeedableRng, Rng, rngs::SmallRng};
+use rand::{Rng, rngs::SmallRng};
 use super::creature::*;
 // The stage defines the borders of the simulation
 // It's the area the creatures can evolve inside
@@ -17,7 +17,7 @@ pub trait Stage {
 pub struct SquareStage(pub f64);
 
 impl Stage for SquareStage {
-  fn can_move_to(&self, to : &Point2<f64>, creature : &Creature ) -> bool {
+  fn can_move_to(&self, to : &Point2<f64>, _creature : &Creature ) -> bool {
     to.x >= 0. &&
     to.y >= 0. &&
     to.x < self.0 &&
