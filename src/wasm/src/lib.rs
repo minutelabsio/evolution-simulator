@@ -45,10 +45,12 @@ mod tests {
     sim.add_behavour(Box::new(behaviours::ScavengeBehaviour));
     sim.add_behavour(Box::new(behaviours::WanderBehaviour));
     sim.add_behavour(Box::new(behaviours::HomesickBehaviour));
+    sim.add_behavour(Box::new(behaviours::StarveBehaviour));
 
     sim.run(5, 5);
 
     let mut results = Vec::new();
+    println!("generations {}", sim.generations.len());
     for g in sim.generations {
       let mut creatures = Vec::new();
       for c in g.creatures {
@@ -57,6 +59,6 @@ mod tests {
       results.push(creatures);
     }
 
-    println!("{:#?}", results);
+    // println!("{:#?}", results);
   }
 }

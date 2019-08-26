@@ -3,13 +3,14 @@ use crate::na::{Point2};
 use std::cell::{RefCell};
 use std::rc::Rc;
 use rand::{SeedableRng, Rng, rngs::SmallRng};
+use rand::distributions::{Normal, Distribution};
 use crate::creature::*;
 use crate::stage::*;
 
 pub mod behaviours;
 
 // just to prevent infinite loops
-const MAX_STEPS : usize = 1000;
+const MAX_STEPS : usize = 1_000_000;
 
 // what phase of the time step is it?
 #[derive(Debug, Copy, Clone)]
@@ -20,6 +21,7 @@ pub enum Phase {
   MOVE,
   ACT,
   POST, // after each step
+  FINAL,
 }
 
 pub trait StepBehaviour {
@@ -99,6 +101,11 @@ impl Simulation {
     rng.gen_range(from, to)
   }
 
+  pub fn get_random_gaussian(&self, mean : f64, var : f64) -> f64 {
+    let normal = Normal::new(mean, var);
+    normal.sample(&mut *self.rng.borrow_mut())
+  }
+
   pub fn generate_food(&self) -> Vec<Point2<f64>> {
     (0..self.food_per_generation).map(|_n|
       self.get_random_location()
@@ -137,24 +144,7 @@ impl Generation {
       Creature::new( &pos )
     }).collect();
 
-    let food = food_locations.iter().map(|p| {
-      Food {
-        position: *p,
-        status: FoodStatus::Available,
-      }
-    }).collect();
-
-    let mut gen = Generation {
-      creatures,
-      food,
-      steps: 0,
-    };
-
-    gen.run_phase(Phase::INIT, sim);
-
-    gen.step_to_completion(sim);
-
-    gen
+    Generation::generate(sim, creatures, food_locations)
   }
 
   pub fn from_previous( sim : &Simulation, previous : &Generation, food_locations: Vec<Point2<f64>> ) -> Self {
@@ -163,12 +153,15 @@ impl Generation {
     ).flat_map(|c| {
       let mut rng = sim.rng.borrow_mut();
       let mut ctrs = c.reproduce(&mut rng);
-      if let Some(grown) = c.grow_older() {
-        ctrs.push(grown);
-      }
+      let grown = c.grow_older();
+      ctrs.push(grown);
       ctrs
     }).collect();
 
+    Generation::generate(sim, creatures, food_locations)
+  }
+
+  fn generate(sim : &Simulation, creatures: Vec<Creature>, food_locations: Vec<Point2<f64>>) -> Self {
     let food = food_locations.iter().map(|p| {
       Food {
         position: *p,
@@ -183,8 +176,8 @@ impl Generation {
     };
 
     gen.run_phase(Phase::INIT, sim);
-
     gen.step_to_completion(sim);
+    gen.run_phase(Phase::FINAL, sim);
 
     gen
   }

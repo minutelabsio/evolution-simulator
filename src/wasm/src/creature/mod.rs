@@ -5,8 +5,6 @@ use rand::{rngs::SmallRng};
 mod mutatable;
 use mutatable::*;
 
-const MOTION_ENERGY_COST : f64 = 0.1;
-
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 enum CreatureState {
   DEAD,
@@ -35,9 +33,9 @@ pub enum ObjectiveIntensity {
 pub struct Creature {
   // mutatable
   speed : Mutatable<f64>, // how far can it move in one step?
-  pub sense_range : f64, // how far can it see?
-  pub reach : f64, // how far can it interact with something?
-  pub life_span: u32,
+  sense_range : Mutatable<f64>, // how far can it see?
+  reach : Mutatable<f64>, // how far can it interact with something?
+  life_span: Mutatable<f64>,
 
   // other
   pub foods_eaten : u32,
@@ -59,10 +57,10 @@ impl Creature {
   pub fn new( pos : &Point2<f64> ) -> Self {
     Creature {
       state: CreatureState::ACTIVE,
-      speed: Mutatable(1.0, 0.1),
-      sense_range: 50.0,
-      reach: 5.0,
-      life_span: 4,
+      speed: Mutatable(0.5, 0.1),
+      sense_range: Mutatable(50.0, 10.0),
+      reach: Mutatable(5.0, 1.0),
+      life_span: Mutatable(4.0, 1.0),
 
       foods_eaten: 0,
       energy: 100.0,
@@ -82,6 +80,9 @@ impl Creature {
     if self.will_reproduce() {
       let child = Creature {
         speed: self.speed.get_mutated(rng),
+        sense_range: self.sense_range.get_mutated(rng),
+        reach: self.reach.get_mutated(rng),
+        life_span: self.life_span.get_mutated(rng),
 
         ..Creature::new(&self.home_pos)
       };
@@ -93,33 +94,30 @@ impl Creature {
   }
 
   // copy self, but increase age. might die so optional
-  pub fn grow_older(&self) -> Option<Self> {
-    if self.age > self.life_span {
-      None
-    } else {
-      let Creature {
-        speed,
-        sense_range,
-        reach,
-        life_span,
-        ..
-      } = *self;
+  pub fn grow_older(&self) -> Self {
+    let Creature {
+      speed,
+      sense_range,
+      reach,
+      life_span,
+      ..
+    } = *self;
 
-      Some(Creature {
-        speed,
-        sense_range,
-        reach,
-        life_span,
-        age: self.age + 1,
+    Creature {
+      speed,
+      sense_range,
+      reach,
+      life_span,
+      age: self.age + 1,
 
-        ..Creature::new(&self.home_pos)
-      })
+      ..Creature::new(&self.home_pos)
     }
   }
 
-  pub fn get_speed(&self) -> f64 {
-    self.speed.0
-  }
+  pub fn get_speed(&self) -> f64 { self.speed.0 }
+  pub fn get_sense_range(&self) -> f64 { self.sense_range.0 }
+  pub fn get_reach(&self) -> f64 { self.reach.0 }
+  pub fn get_life_span(&self) -> f64 { self.life_span.0 }
 
   pub fn is_alive(&self) -> bool {
     match self.state {
@@ -174,9 +172,9 @@ impl Creature {
     Unit::new_normalize(disp)
   }
 
-  pub fn add_objective(&mut self, targetPos : Point2<f64>, intensity : ObjectiveIntensity){
+  pub fn add_objective(&mut self, target_pos : Point2<f64>, intensity : ObjectiveIntensity){
     if self.target.map(|t| intensity > t.1).unwrap_or(true) {
-      self.target = Some((targetPos, intensity));
+      self.target = Some((target_pos, intensity));
     }
   }
 
@@ -196,6 +194,10 @@ impl Creature {
     self.state = CreatureState::ASLEEP;
   }
 
+  pub fn kill(&mut self){
+    self.state = CreatureState::DEAD;
+  }
+
   // get the position of this creature at time
   pub fn get_position( &self ) -> Point2<f64> {
     self.pos
@@ -209,11 +211,11 @@ impl Creature {
   }
 
   pub fn can_see(&self, pt : &Point2<f64>) -> bool {
-    (pt - self.pos).norm() <= self.sense_range
+    (pt - self.pos).norm() <= self.get_sense_range()
   }
 
   pub fn can_reach(&self, pt : &Point2<f64>) -> bool {
-    (pt - self.pos).norm() <= self.reach
+    (pt - self.pos).norm() <= self.get_reach()
   }
 
   pub fn apply_energy_cost( &mut self, cost : f64 ){

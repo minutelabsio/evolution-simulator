@@ -14,6 +14,8 @@ impl BehaviourConfig {
       "WanderBehaviour" => Ok(Box::new(behaviours::WanderBehaviour)),
       "ScavengeBehaviour" => Ok(Box::new(behaviours::ScavengeBehaviour)),
       "HomesickBehaviour" => Ok(Box::new(behaviours::HomesickBehaviour)),
+      "StarveBehaviour" => Ok(Box::new(behaviours::StarveBehaviour)),
+      "OldAgeBehaviour" => Ok(Box::new(behaviours::OldAgeBehaviour)),
       _ => Err(format!("Behaviour {} is not defined", self.name).into())
     }
   }

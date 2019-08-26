@@ -16,6 +16,7 @@
     "bulma": "^0.7.1",
     "chart.js": "^2.7.3",
     "chartjs-plugin-annotation": "^0.5.7",
+    "chroma-js": "^2.0.4",
     "howler": "^2.0.15",
     "lodash": "^4.17.10",
     "material-design-icons": "^3.0.1",

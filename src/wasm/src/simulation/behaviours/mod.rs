@@ -19,8 +19,8 @@ impl StepBehaviour for WanderBehaviour {
         .for_each(|c| {
           let ang = sim.get_random_float(-FRAC_PI_4, FRAC_PI_4);
           let rot = na::Rotation2::new(ang);
-          let randomPos = c.get_position() + rot * c.get_direction().as_ref();
-          self.wander(c, randomPos);
+          let random_pos = c.get_position() + rot * c.get_direction().as_ref();
+          self.wander(c, random_pos);
         });
     }
   }
@@ -65,7 +65,6 @@ impl StepBehaviour for HomesickBehaviour {
           }
         });
     }
-
   }
 }
 
@@ -166,6 +165,52 @@ impl StepBehaviour for ScavengeBehaviour {
           generation.mark_food_eaten(&food);
         }
       }
+    }
+  }
+}
+
+// starve if no food
+#[derive(Debug, Copy, Clone)]
+pub struct StarveBehaviour;
+impl StarveBehaviour {
+  fn check_starvation(&self, creature : &mut Creature){
+    if creature.foods_eaten < 1 {
+      creature.kill();
+    }
+  }
+}
+
+impl StepBehaviour for StarveBehaviour {
+  fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
+    if let Phase::FINAL = phase {
+      generation.creatures.iter_mut()
+        .filter(|c| {
+          c.is_alive()
+        })
+        .for_each(|c| self.check_starvation(c));
+    }
+  }
+}
+
+// Old age behavour. chance of death if too old
+const AGE_LIMIT_VARIANCE : f64 = 1.0;
+#[derive(Debug, Copy, Clone)]
+pub struct OldAgeBehaviour;
+impl OldAgeBehaviour {
+  fn check_old_age(&self, creature : &mut Creature, sim : &Simulation){
+    let lifetime = sim.get_random_gaussian(creature.get_life_span(), AGE_LIMIT_VARIANCE);
+    if (creature.age as f64) > lifetime {
+      creature.kill();
+    }
+  }
+}
+
+impl StepBehaviour for OldAgeBehaviour {
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation){
+    if let Phase::INIT = phase {
+      generation.creatures.iter_mut()
+        .filter(|c| c.is_alive())
+        .for_each(|c| self.check_old_age(c, sim));
     }
   }
 }
