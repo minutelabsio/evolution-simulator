@@ -1,5 +1,8 @@
 const app = import('@/wasm/pkg/app')
-app.then( mod => mod.browser_debug() )
+app.then( mod => {
+  console.log('setting debug hook')
+  mod.browser_debug()
+})
 
 // Helpers
 // ---------------------------------------

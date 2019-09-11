@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-REPO="what-is-a-day.git"
+REPO="evolution-simulator.git"
 
 # abort on errors
 set -e

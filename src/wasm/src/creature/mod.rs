@@ -57,13 +57,13 @@ impl Creature {
   pub fn new( pos : &Point2<f64> ) -> Self {
     Creature {
       state: CreatureState::ACTIVE,
-      speed: Mutatable(0.5, 0.1),
+      speed: Mutatable(5.0, 0.1),
       sense_range: Mutatable(50.0, 10.0),
       reach: Mutatable(5.0, 1.0),
       life_span: Mutatable(4.0, 1.0),
 
       foods_eaten: 0,
-      energy: 100.0,
+      energy: 500.0,
       age: 0,
 
       pos: pos.clone(),
@@ -75,6 +75,15 @@ impl Creature {
 
   // Instance methods
   //------------------
+  pub fn with_new_position(&self, pos : &Point2<f64>) -> Self {
+    let mut ret = self.clone();
+    ret.pos = pos.clone();
+    ret.home_pos = pos.clone();
+    ret.movement_history = vec![pos.clone()];
+
+    ret
+  }
+
   pub fn reproduce(&self, rng : &mut RefMut<SmallRng>) -> Vec<Self> {
     // TODO could implement multiple children in future
     if self.will_reproduce() {
@@ -148,7 +157,7 @@ impl Creature {
   }
 
   pub fn get_motion_energy_cost(&self) -> f64 {
-    0.5 * self.get_speed().powi(2)
+    0.5 * self.get_speed().powi(2) + 0.2
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {

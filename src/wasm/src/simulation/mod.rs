@@ -74,9 +74,9 @@ impl Simulation {
     self.behaviours.push(b)
   }
 
-  pub fn run(&mut self, creature_count: u32, max_generations : u32){
+  pub fn run(&mut self, creatures: Vec<Creature>, max_generations : u32){
     let food_locations = self.generate_food();
-    let mut generation = Generation::new(self, food_locations, creature_count);
+    let mut generation = Generation::new(self, creatures, food_locations);
     let mut keep_going = generation.has_living_creatures();
 
     for _gen in 1..max_generations {
@@ -124,6 +124,9 @@ pub struct Food {
   position: Point2<f64>,
   status: FoodStatus,
 }
+impl Food {
+  pub fn is_eaten(&self) -> bool { self.status != FoodStatus::Available }
+}
 
 // Each generation of the simulation. A collection of creatures
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -134,15 +137,7 @@ pub struct Generation {
 }
 
 impl Generation {
-  pub fn new( sim : &Simulation, food_locations: Vec<Point2<f64>>, creature_count : u32 ) -> Self {
-
-    let creatures = (0..creature_count).map(|_n| {
-      // random creature starting position
-      // TODO: original started creatures on edges
-      let pos = sim.get_random_location();
-
-      Creature::new( &pos )
-    }).collect();
+  pub fn new( sim : &Simulation, creatures: Vec<Creature>, food_locations: Vec<Point2<f64>> ) -> Self {
 
     Generation::generate(sim, creatures, food_locations)
   }
@@ -192,7 +187,7 @@ impl Generation {
 
   pub fn get_available_food(&self) -> Vec<Food> {
     self.food.iter().filter(|f| {
-      if let FoodStatus::Available = f.status { true } else { false }
+      !f.is_eaten()
     }).map(|f| f.clone()).collect()
   }
 

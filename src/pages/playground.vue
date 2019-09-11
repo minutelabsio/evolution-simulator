@@ -2,6 +2,49 @@
 .playground
   .container
     .section
+      h3.title.is-size-3 Setup
+      .columns
+        .column
+          h4.title.is-size-5 Initial Creature Properties
+          b-field(grouped)
+            b-field(label="Energy")
+              b-input(v-model="creatureProps.energy", type="number", min="0", step="any")
+          b-field(grouped)
+            b-field(label="Speed")
+              b-input(v-model="creatureProps.speed[0]", type="number", min="0", step="any")
+            b-field(label="Speed mutation variance")
+              b-input(v-model="creatureProps.speed[1]", type="number", min="0", step="any")
+          b-field(grouped)
+            b-field(label="Sense")
+              b-input(v-model="creatureProps.sense_range[0]", type="number", min="0", step="any")
+            b-field(label="Sense mutation variance")
+              b-input(v-model="creatureProps.sense_range[1]", type="number", min="0", step="any")
+          b-field(grouped)
+            b-field(label="Reach")
+              b-input(v-model="creatureProps.reach[0]", type="number", min="0", step="any")
+            b-field(label="Reach mutation variance")
+              b-input(v-model="creatureProps.reach[1]", type="number", min="0", step="any")
+          b-field(grouped)
+            b-field(label="Avg Lifespan")
+              b-input(v-model="creatureProps.life_span[0]", type="number", min="0", step="any")
+            b-field(label="Avg Lifespan mutation variance")
+              b-input(v-model="creatureProps.life_span[1]", type="number", min="0", step="any")
+        .column
+          b-field(grouped)
+            b-field(label="Number of Creatures")
+              b-input(v-model="creatureCount", type="number", min="1", step="1")
+            b-field(label="Food Per Generation")
+              b-input(v-model="food_per_generation", type="number", min="0", step="1")
+          b-field(grouped)
+            b-field(label="Random Seed")
+              b-input(v-model="seed", type="number", min="0", step="1")
+            b-field(label="Max Generations")
+              b-input(v-model="max_generations", type="number", min="0", step="1")
+          b-field
+            b-button.button.is-primary.is-large(@click="run", :loading="calculating") Run!
+
+    .section
+      h4.title.is-size-4 Simulation Results
       .content(v-if="simulation")
         b-field
           b-select(v-model="genIndex")
@@ -18,14 +61,35 @@
           b-select(v-model="traitToColor")
             option(value="speed") Monitor Speed
             option(value="sense_range") Monitor Sense Range
-        .stage(:style="simulationStyle")
-          .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
-          .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
+            option(value="reach") Monitor Reach
+            option(value="life_span") Lifespan
+            option(value="age") Age
+          .scale
+            .min(:style="{ backgroundColor: traitScale(0) }")
+              span 0
+            .max(:style="{ backgroundColor: traitScale(traitScale.domain()[1]) }")
+              span {{ traitScale.domain()[1].toFixed(2) }}
+          //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
+          //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
+
+      .columns.is-centered
+        .column
+          canvas.stage(ref="canvas", v-bind="simulationProps")
+        .column
+          h2.is-size-2.has-text-centered Population
+          TraitChart(v-if="simulation", :data="populationData", label="Population")
+
+      .columns.is-multiline
+        .column.is-half(v-for="trait in traitData")
+          h2.is-size-2.has-text-centered {{ trait.label }}
+          TraitChart(v-if="simulation", :data="trait.data", :label="trait.label", :key="trait.label")
 </template>
 
 <script>
+import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import Copilot from 'copilot'
+import TraitChart from '@/components/trait-plot'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
@@ -40,7 +104,48 @@ const creaturePositionAt = stepFrac => creature => {
   let to = creature.movement_history[step + 1]
 
   if ( !to ){ return from }
+  // frac = Copilot.Easing.Quadratic.InOut(frac)
   return lerpArray(from, to, frac)
+}
+
+function drawCircle(ctx, {x, y}, radius, color = 'white'){
+  ctx.beginPath()
+  ctx.arc(x, y, radius, 0, 2 * Math.PI, false)
+  ctx.fillStyle = color
+  ctx.fill()
+}
+
+function drawFood(ctx, step, food){
+  food.forEach(f => {
+    let [x,y] = f.position
+    let isEaten = f.status.Eaten < step
+    drawCircle(ctx, {x, y}, 2, isEaten ? '#444' : 'white')
+  })
+}
+
+function drawCreatures(ctx, stepTime, now, creatures, traitName, scale){
+  let stepFrac = now / stepTime
+  const getCreaturePosition = creaturePositionAt(stepFrac)
+
+  creatures.forEach(c => {
+    let [x,y] = getCreaturePosition(c)
+    let trait = getTrait(c, traitName)
+    let color = scale(trait).css()
+
+    drawCircle(ctx, {x, y}, 5, color)
+  })
+}
+
+function getAverageTraitValue(generation, trait){
+  let len = generation.creatures.length
+  return generation.creatures.reduce((avg, c) => {
+    return avg + getTrait(c, trait)/len
+  }, 0)
+}
+
+function getTrait(creature, trait){
+  let value = creature[trait]
+  return value[0] || value
 }
 
 export default {
@@ -48,12 +153,34 @@ export default {
   , props: {
   }
   , components: {
+    TraitChart
   }
   , data: () => ({
     paused: true
+    , calculating: false
 
+    , seed: 124
+    , food_per_generation: 50
+    , max_generations: 50
+    , behaviours: [
+      { name: 'WanderBehaviour' }
+      , { name: 'ScavengeBehaviour' }
+      , { name: 'BasicMoveBehaviour' }
+      , { name: 'HomesickBehaviour' }
+      , { name: 'StarveBehaviour' }
+    ]
+
+    , creatureProps: {
+      speed: [6, 1]
+      , sense_range: [50, 10]
+      , reach: [5, 1]
+      , life_span: [4, 1]
+      , energy: 500
+    }
+
+    , creatureCount: 50
     , size: 500
-    , stepTime: 20 // ms
+    , stepTime: 100 // ms
     , genIndex: 0
 
     , time: 0
@@ -64,35 +191,20 @@ export default {
     this.player = Copilot.Player({ totalTime: 1 })
   }
   , mounted(){
-    let start = performance.now()
-    worker.runSimulation({
-      size: this.size
-      , seed: 124
-      , creature_count: 20
-      , food_per_generation: 25
-      , max_generations: 50
-      , behaviours: [
-        { name: 'WanderBehaviour' }
-        , { name: 'ScavengeBehaviour' }
-        , { name: 'BasicMoveBehaviour' }
-        , { name: 'HomesickBehaviour' }
-        , { name: 'StarveBehaviour' }
-      ]
-    }).then( simulation => {
-      let time = performance.now() - start;
-      console.log(`Computed in ${time}ms`)
-      this.simulation = simulation
-      console.log(simulation)
-    })
+    this.canvas = this.$refs.canvas
+    this.ctx = this.canvas.getContext('2d')
 
-    this.player.on('update', () => {
+    this.player.on('animate', () => {
       this.time = this.player.time
+      this.draw()
     })
     this.player.on('togglePause', () => {
       if ( this.player.paused !== this.paused ){
         this.paused = this.player.paused
       }
     })
+
+    this.run()
   }
   , beforeDestroy(){
     this.player.off(true)
@@ -106,7 +218,17 @@ export default {
     }
   }
   , computed: {
-    simulationStyle(){
+    simulationCfg(){
+      return {
+        size: this.size
+        , seed: this.seed | 0
+        , food_per_generation: this.food_per_generation | 0
+        , max_generations: this.max_generations | 0
+        , behaviours: this.behaviours
+        , creatures: _times(this.creatureCount, this.createCreature.bind(this))
+      }
+    }
+    , simulationProps(){
       return {
         width: this.size + 'px'
         , height: this.size + 'px'
@@ -115,28 +237,38 @@ export default {
     , currentStep(){
       return Math.floor(this.time / this.stepTime)
     }
-    , foodElements(){
-      let step = this.currentStep
-      return this.generation.food.map(f => {
-        let [x,y] = f.position
-        let transform = `translate3d(${x}px, ${y}px, 0)`
-        let isEaten = f.status.Eaten < step
-        return { style: { transform }, isEaten }
-      })
-    }
     , traitScale(){
       let scale = chroma.scale('OrRd')
       if ( this.simulation ){
         let max = this.simulation.generations.reduce((max, g) => {
-          let newmax = g.creatures.reduce((max, c) => Math.max(max, c[this.traitToColor][0]), max)
+          let newmax = g.creatures.reduce((max, c) => Math.max(max, getTrait(c, this.traitToColor)), max)
           return Math.max(max, newmax)
         }, 0)
         return scale.domain([0, max])
       }
       return scale
     }
-    , creatures(){
-      return this.getCreatureProps(this.simulation.generations[this.genIndex], this.stepTime, this.time)
+    , traitData(){
+      if (!this.simulation){ return [] }
+      let traits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
+      let averageValues = this.simulation.generations.reduce((acc, g) => {
+        traits.forEach(t => {
+          acc[t] = acc[t] || []
+          acc[t].push(getAverageTraitValue(g, t))
+        })
+        return acc
+      }, {})
+      console.log(averageValues)
+      return Object.keys(averageValues).map(t => {
+        return {
+          label: t
+          , data: averageValues[t]
+        }
+      })
+    }
+    , populationData(){
+      if (!this.simulation){ return [] }
+      return this.simulation.generations.map(g => g.creatures.length)
     }
     , generation(){
       if ( !this.simulation ){ return null }
@@ -148,7 +280,58 @@ export default {
     }
   }
   , methods: {
-    togglePlay(){
+    createCreature(){
+      let creatureProps = this.creatureProps
+      let props = Object.keys(creatureProps).reduce((p, k) => {
+        let value = creatureProps[k]
+        if ( Array.isArray(value) ){
+          value = value.map(n => +n)
+        }
+
+        if ( typeof value === 'string' ){
+          value = +value
+        }
+
+        p[k] = value
+        return p
+      }, {})
+
+      return {
+        state: 'ACTIVE'
+        , foods_eaten: 0
+        , age: 0
+        // gets overridden
+        , pos: [0, 0]
+        , home_pos: [0, 0]
+        , movement_history: [[0, 0]]
+        , ...props
+      }
+    }
+    , run(){
+      let start = performance.now()
+      this.calculating = true
+      console.log('calculating with', this.simulationCfg)
+      worker.runSimulation(
+        this.simulationCfg
+      ).then( simulation => {
+        let time = performance.now() - start;
+        console.log(`Computed in ${time}ms`)
+        this.simulation = simulation
+        console.log(simulation)
+      })
+      .catch(err => {
+        this.$buefy.snackbar.open({
+          duration: 10000
+          , message: err.message
+          , type: 'is-danger'
+          , position: 'is-top-right'
+        })
+      })
+      .finally(() => {
+        this.calculating = false
+      })
+    }
+    , togglePlay(){
       this.paused = !this.paused
     }
     , nextGeneration(){
@@ -158,26 +341,27 @@ export default {
       this.genIndex += 1
     }
     , updateTime(time){
-      this.player.seek(time)
+      if ( time !== this.player.time ){
+        this.player.seek(time)
+      }
     }
-    , getCreatureProps(generation, stepTime, now){
-      let stepFrac = now / stepTime
-      let creaturePositions = generation.creatures.map(creaturePositionAt(stepFrac))
-
-      return creaturePositions.map((p, i) => {
-        let creature = generation.creatures[i]
-        let [x,y] = p
-        let transform = `translate3d(${x}px, ${y}px, 0)`
-        let color = this.traitScale(creature[this.traitToColor][0]).css()
-
-        return { style: { transform, backgroundColor: color } }
-      })
+    , draw(){
+      if (!this.generation){ return }
+      const ctx = this.ctx
+      const step = this.currentStep
+      const gen = this.generation
+      ctx.clearRect(0, 0, this.size, this.size)
+      drawFood(ctx, step, gen.food)
+      drawCreatures(ctx, this.stepTime, this.time, gen.creatures, this.traitToColor, this.traitScale)
     }
   }
 }
 </script>
 
 <style lang="sass" scoped>
+.playground
+  overflow: auto
+  height: 100%
 .stage
   position: relative
   border: 1px solid rgba(255, 255, 255, 0.4)
@@ -201,4 +385,18 @@ export default {
   .creature,
   .food
     border-radius: 50%
+
+.scale
+  display: flex
+  width: 120px
+  .min,
+  .max
+    flex: 1
+    display: flex
+    flex-direction: column
+    justify-content: center
+    text-align: center
+
+  .min
+    color: $grey-dark
 </style>

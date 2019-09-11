@@ -109,9 +109,9 @@ impl ScavengeBehaviour {
     }
   }
 
-  fn try_find_food(&self, creature : &mut Creature, available_food : &Vec<Food>) -> Option<Food> {
+  fn try_find_food(&self, creature : &Creature, available_food : &Vec<Food>) -> Option<Food> {
     if let Some(food) = self.nearest_food(creature, available_food) {
-      if creature.can_reach(&food.position) {
+      if !food.is_eaten() && creature.can_reach(&food.position) {
         return Some(food);
       }
     }
@@ -147,22 +147,17 @@ impl StepBehaviour for ScavengeBehaviour {
 
     // when it is able to interact
     if let Phase::ACT = phase {
-      let available_food = generation.get_available_food();
-
-      let food_results : Vec<Option<Food>> = generation.creatures.iter_mut()
-        .map(|c| {
-          if c.is_alive() {
-            self.try_find_food(c, &available_food)
-          } else {
-            None
-          }
-        })
-        .collect();
+      let mut available_food = generation.get_available_food();
 
       for index in 0..generation.creatures.len() {
-        if let Some(food) = &food_results[index] {
-          generation.creatures[index].eat_food();
-          generation.mark_food_eaten(&food);
+        let creature = &mut generation.creatures[index];
+        if creature.is_alive() {
+          if let Some(food) = self.try_find_food(creature, &available_food) {
+            creature.eat_food();
+            generation.mark_food_eaten(&food);
+            let index = available_food.iter().position(|f| *f == food).unwrap();
+            available_food.remove(index);
+          }
         }
       }
     }

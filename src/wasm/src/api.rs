@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
 use super::*;
 use simulation::*;
+use creature::*;
 
 #[derive(Deserialize)]
 pub struct BehaviourConfig {
@@ -25,7 +26,7 @@ impl BehaviourConfig {
 pub struct SimulationConfig {
   pub size: f64,
   pub seed: u64,
-  pub creature_count: u32,
+  pub creatures: Vec<Creature>,
   pub max_generations: u32,
   pub food_per_generation: u32,
   pub behaviours: Vec<BehaviourConfig>,
@@ -63,7 +64,16 @@ pub fn run_simulation( cfg : &JsValue ) -> Result<JsValue, JsValue> {
   let sim_cfg : SimulationConfig = cfg.into_serde().map_err(|_| "Problem parsing json")?;
   let mut sim = create_simulation( &sim_cfg )?;
 
-  sim.run(sim_cfg.creature_count, sim_cfg.max_generations);
+  // randomize creature locations
+  let creatures = sim_cfg.creatures.iter().map(|c| {
+    // random creature starting position
+    // TODO: original started creatures on edges
+    let pos = sim.get_random_location();
+
+    c.with_new_position( &pos )
+  }).collect();
+
+  sim.run(creatures, sim_cfg.max_generations);
 
   let results : SimulationResults = sim.into();
   Ok(JsValue::from_serde(&results).unwrap())

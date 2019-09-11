@@ -64,6 +64,11 @@ a:hover {
   border-color: $grey-darker;
 }
 
+.title,
+.label {
+  color: $text;
+}
+
 .loading-overlay .loading-background {
   background: transparentize($background, 0.5);
 }
