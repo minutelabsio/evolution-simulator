@@ -1,10 +1,11 @@
 const path = require('path')
 const ThreeWebpackPlugin = require('@wildpeaks/three-webpack-plugin')
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
+const labConfig = require('./lab-config')
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/what-is-a-day/'
+    ? `/${labConfig.repo}/`
     : '/'
   , configureWebpack: {
     resolve: { symlinks: false }
