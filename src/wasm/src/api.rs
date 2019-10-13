@@ -26,10 +26,15 @@ impl BehaviourConfig {
 pub struct SimulationConfig {
   pub size: f64,
   pub seed: u64,
-  pub creatures: Vec<Creature>,
   pub max_generations: u32,
   pub food_per_generation: u32,
   pub behaviours: Vec<BehaviourConfig>,
+}
+
+#[derive(Deserialize)]
+pub struct RandomCreatureConfig {
+  pub count : usize,
+  pub template : Creature,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -58,20 +63,41 @@ fn create_simulation( sim_cfg : &SimulationConfig ) -> Result<Simulation, JsValu
   Ok(sim)
 }
 
-// run a simulation
+fn parse_creatures( creatures : Vec<JsValue> ) -> Result<Vec<Creature>, JsValue> {
+  let mut results = vec![];
+  for c in creatures {
+    results.push(c.into_serde().map_err(|_| "Problem parsing creature json")?);
+  }
+
+  Ok(results)
+}
+
+// randomize creature starting points
 #[wasm_bindgen]
-pub fn run_simulation( cfg : &JsValue ) -> Result<JsValue, JsValue> {
+pub fn init_random_creatures( cfg : &JsValue, creature_cfg_raw : &JsValue ) -> Result<Vec<JsValue>, JsValue> {
   let sim_cfg : SimulationConfig = cfg.into_serde().map_err(|_| "Problem parsing json")?;
+  let creature_cfg : RandomCreatureConfig = creature_cfg_raw.into_serde().map_err(|_| "Problem parsing json")?;
   let mut sim = create_simulation( &sim_cfg )?;
 
   // randomize creature locations
-  let creatures = sim_cfg.creatures.iter().map(|c| {
-    // random creature starting position
-    // TODO: original started creatures on edges
+  let mut creatures = Vec::with_capacity( creature_cfg.count );
+  for i in 0..creature_cfg.count {
     let pos = sim.get_random_location();
+    let c = creature_cfg.template.with_new_position(&pos);
+    creatures.push(c);
+  }
 
-    c.with_new_position( &pos )
-  }).collect();
+  let ret = creatures.iter().map(|c| JsValue::from_serde(&c).unwrap()).collect();
+  Ok(ret)
+}
+
+
+// run a simulation
+#[wasm_bindgen]
+pub fn run_simulation( cfg : &JsValue, creature_cfg: Vec<JsValue> ) -> Result<JsValue, JsValue> {
+  let sim_cfg : SimulationConfig = cfg.into_serde().map_err(|_| "Problem parsing json")?;
+  let creatures = parse_creatures( creature_cfg )?;
+  let mut sim = create_simulation( &sim_cfg )?;
 
   sim.run(creatures, sim_cfg.max_generations);
 

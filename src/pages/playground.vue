@@ -34,12 +34,12 @@
             b-field(label="Number of Creatures")
               b-input(v-model="creatureCount", type="number", min="1", step="1")
             b-field(label="Food Per Generation")
-              b-input(v-model="food_per_generation", type="number", min="0", step="1")
+              b-input(v-model="cfg.food_per_generation", type="number", min="0", step="1")
           b-field(grouped)
             b-field(label="Random Seed")
-              b-input(v-model="seed", type="number", min="0", step="1")
+              b-input(v-model="cfg.seed", type="number", min="0", step="1")
             b-field(label="Max Generations")
-              b-input(v-model="max_generations", type="number", min="0", step="1")
+              b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
           b-field
             b-button.button.is-primary.is-large(@click="run", :loading="calculating") Run!
 
@@ -90,8 +90,6 @@ import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import Copilot from 'copilot'
 import TraitChart from '@/components/trait-plot'
-import createWorker from '@/workers/simulation'
-const worker = createWorker()
 
 function lerpArray(from, to, t){
   return Copilot.Interpolators.Array(from, to, t)
@@ -159,16 +157,18 @@ export default {
     paused: true
     , calculating: false
 
-    , seed: 124
-    , food_per_generation: 50
-    , max_generations: 50
-    , behaviours: [
-      { name: 'WanderBehaviour' }
-      , { name: 'ScavengeBehaviour' }
-      , { name: 'BasicMoveBehaviour' }
-      , { name: 'HomesickBehaviour' }
-      , { name: 'StarveBehaviour' }
-    ]
+    , cfg: {
+      seed: 124
+      , food_per_generation: 50
+      , max_generations: 50
+      , behaviours: [
+        { name: 'WanderBehaviour' }
+        , { name: 'ScavengeBehaviour' }
+        , { name: 'BasicMoveBehaviour' }
+        , { name: 'HomesickBehaviour' }
+        , { name: 'StarveBehaviour' }
+      ]
+    }
 
     , creatureProps: {
       speed: [6, 1]
@@ -180,11 +180,11 @@ export default {
 
     , creatureCount: 50
     , size: 500
+
     , stepTime: 100 // ms
     , genIndex: 0
 
     , time: 0
-    , simulation: null
     , traitToColor: 'speed'
   })
   , created(){
@@ -204,7 +204,9 @@ export default {
       }
     })
 
-    this.run()
+    this.$store.dispatch('simulation/randomizeCreatures').then(() => {
+      this.run()
+    })
   }
   , beforeDestroy(){
     this.player.off(true)
@@ -216,16 +218,37 @@ export default {
     , paused(){
       this.player.togglePause(this.paused)
     }
+    , simulationCfg: {
+      handler(cfg){
+        this.$store.dispatch('simulation/setConfig', cfg)
+      }
+    }
+    , creatureProps: {
+      handler(cfg){
+        this.$store.dispatch('simulation/setCreatureConfig', {
+          count: this.creatureCount
+          , template: cfg
+        })
+        this.$store.dispatch('simulation/randomizeCreatures')
+      }
+      , deep: true
+    }
+    , creatureCount(){
+      this.$store.dispatch('simulation/setCreatureConfig', {
+        count: this.creatureCount
+        , template: this.creatureProps
+      })
+      this.$store.dispatch('simulation/randomizeCreatures')
+    }
   }
   , computed: {
     simulationCfg(){
       return {
-        size: this.size
-        , seed: this.seed | 0
-        , food_per_generation: this.food_per_generation | 0
-        , max_generations: this.max_generations | 0
-        , behaviours: this.behaviours
-        , creatures: _times(this.creatureCount, this.createCreature.bind(this))
+        size: this.cfg.size
+        , seed: this.cfg.seed | 0
+        , food_per_generation: this.cfg.food_per_generation | 0
+        , max_generations: this.cfg.max_generations | 0
+        , behaviours: this.cfg.behaviours
       }
     }
     , simulationProps(){
@@ -278,58 +301,13 @@ export default {
       if ( !this.generation ){ return 1 }
       return this.stepTime * this.generation.steps
     }
+    , simulation(){
+      return this.$store.getters['simulation/results']
+    }
   }
   , methods: {
-    createCreature(){
-      let creatureProps = this.creatureProps
-      let props = Object.keys(creatureProps).reduce((p, k) => {
-        let value = creatureProps[k]
-        if ( Array.isArray(value) ){
-          value = value.map(n => +n)
-        }
-
-        if ( typeof value === 'string' ){
-          value = +value
-        }
-
-        p[k] = value
-        return p
-      }, {})
-
-      return {
-        state: 'ACTIVE'
-        , foods_eaten: 0
-        , age: 0
-        // gets overridden
-        , pos: [0, 0]
-        , home_pos: [0, 0]
-        , movement_history: [[0, 0]]
-        , ...props
-      }
-    }
-    , run(){
-      let start = performance.now()
-      this.calculating = true
-      console.log('calculating with', this.simulationCfg)
-      worker.runSimulation(
-        this.simulationCfg
-      ).then( simulation => {
-        let time = performance.now() - start;
-        console.log(`Computed in ${time}ms`)
-        this.simulation = simulation
-        console.log(simulation)
-      })
-      .catch(err => {
-        this.$buefy.snackbar.open({
-          duration: 10000
-          , message: err.message
-          , type: 'is-danger'
-          , position: 'is-top-right'
-        })
-      })
-      .finally(() => {
-        this.calculating = false
-      })
+    run(){
+      this.$store.dispatch('simulation/run')
     }
     , togglePlay(){
       this.paused = !this.paused

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from '@/app'
 import VueAnalytics from 'vue-analytics'
 import router from '@/router'
+import store from '@/store'
 import Filters from '@/plugins/filters'
 import Gestures from '@/plugins/gestures'
 import Buefy from 'buefy'
@@ -61,4 +62,5 @@ Vue.config.productionTip = false
 new Vue({
   render: h => h(App)
   , router
+  , store
 }).$mount('#app')

@@ -39,6 +39,10 @@ async function run( method, ...args ){
 
 // API
 // ---------------------------------------
-export async function runSimulation( cfg ){
-  return run('run_simulation', cfg)
+export async function runSimulation( cfg, creatures ){
+  return run('run_simulation', cfg, creatures)
+}
+
+export async function initRandomCreatures( cfg, creatureCfg ){
+  return run('init_random_creatures', cfg, creatureCfg)
 }
