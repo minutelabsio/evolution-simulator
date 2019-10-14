@@ -244,7 +244,7 @@ export default {
   , computed: {
     simulationCfg(){
       return {
-        size: this.cfg.size
+        size: this.size
         , seed: this.cfg.seed | 0
         , food_per_generation: this.cfg.food_per_generation | 0
         , max_generations: this.cfg.max_generations | 0

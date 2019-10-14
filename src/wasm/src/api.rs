@@ -75,8 +75,10 @@ fn parse_creatures( creatures : Vec<JsValue> ) -> Result<Vec<Creature>, JsValue>
 // randomize creature starting points
 #[wasm_bindgen]
 pub fn init_random_creatures( cfg : &JsValue, creature_cfg_raw : &JsValue ) -> Result<Vec<JsValue>, JsValue> {
-  let sim_cfg : SimulationConfig = cfg.into_serde().map_err(|_| "Problem parsing json")?;
+  let mut sim_cfg : SimulationConfig = cfg.into_serde().map_err(|_| "Problem parsing json")?;
   let creature_cfg : RandomCreatureConfig = creature_cfg_raw.into_serde().map_err(|_| "Problem parsing json")?;
+
+  sim_cfg.seed += 1;
   let mut sim = create_simulation( &sim_cfg )?;
 
   // randomize creature locations

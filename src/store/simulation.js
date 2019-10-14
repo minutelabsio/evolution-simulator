@@ -1,3 +1,4 @@
+import _cloneDeep from 'lodash/cloneDeep'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
@@ -31,7 +32,7 @@ const initialState = {
   }
   , creatureCfg: {
     count: 50
-    , properties: {
+    , template: {
       speed: [6, 1]
       , sense_range: [50, 10]
       , reach: [5, 1]
@@ -43,20 +44,31 @@ const initialState = {
   , results: null
 }
 
-function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
-  let props = Object.keys(creatureProps).reduce((p, k) => {
-    let value = creatureProps[k]
-    if ( Array.isArray(value) ){
-      value = value.map(n => +n)
-    }
+function strTypeToNumber( val ){
+  if ( typeof val === 'string' ){
+    return +val
+  }
 
-    if ( typeof value === 'string' ){
-      value = +value
+  return val
+}
+
+// parses all strings as numbers
+function sanitizeConfig( cfg ){
+  return Object.keys(cfg).reduce((p, k) => {
+    let value = cfg[k]
+    if ( Array.isArray(value) ){
+      value = value.map(strTypeToNumber)
+    } else {
+      value = strTypeToNumber( value )
     }
 
     p[k] = value
     return p
   }, {})
+}
+
+function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
+  let props = sanitizeConfig(creatureProps)
 
   return {
     state: 'ACTIVE'
@@ -98,15 +110,15 @@ export const simulation = {
         .finally(() => commit('stop'))
     }
     , setConfig({ commit }, config = {}){
-      commit('setConfig', config)
+      commit('setConfig', _cloneDeep(config))
     }
     , setCreatureConfig({ commit }, config = {}){
-      commit('setCreatureConfig', config)
+      commit('setCreatureConfig', _cloneDeep(config))
     }
     , randomizeCreatures({ state, commit, dispatch }){
       return worker.initRandomCreatures(state.config, {
-        count: state.creatureCfg.count
-        , template: getCreatureTemplate(state.creatureCfg.properties)
+        count: state.creatureCfg.count | 0
+        , template: getCreatureTemplate(state.creatureCfg.template)
       })
         .then(creatures => {
           commit('setCreatures', creatures)
@@ -133,7 +145,7 @@ export const simulation = {
     , setConfig(state, cfg){
       state.config = {
         ...state.config
-        , ...cfg
+        , ...sanitizeConfig(cfg)
       }
     }
     , setCreatureConfig(state, cfg){
