@@ -72,6 +72,9 @@
           //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
           //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
 
+      .columns
+        .column
+          FlowerChart(:width="100", :height="100", :data="flowerData")
       .columns.is-centered
         .column
           canvas.stage(ref="canvas", v-bind="simulationProps")
@@ -90,6 +93,7 @@ import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import Copilot from 'copilot'
 import TraitChart from '@/components/trait-plot'
+import FlowerChart from '@/components/flower-chart'
 
 function lerpArray(from, to, t){
   return Copilot.Interpolators.Array(from, to, t)
@@ -152,6 +156,7 @@ export default {
   }
   , components: {
     TraitChart
+    , FlowerChart
   }
   , data: () => ({
     paused: true
@@ -292,6 +297,12 @@ export default {
     , populationData(){
       if (!this.simulation){ return [] }
       return this.simulation.generations.map(g => g.creatures.length)
+    }
+    , flowerData(){
+      return {
+        center: 0.5
+        , petals: [0.5, 0.1, 0.2, 0.8]
+      }
     }
     , generation(){
       if ( !this.simulation ){ return null }
