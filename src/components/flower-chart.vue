@@ -1,8 +1,17 @@
 <template lang="pug">
-.flower-chart(:style="{ width: size + 'px', height: size + 'px', transform: 'rotate(-0.25turn)' }")
+.flower-chart(
+  :style="{ width: size + 'px', height: size + 'px', transform: 'rotate(-0.25turn)' }"
+  , :class="{ 'show-center-value': centerHover }"
+)
   svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
-    path(v-for="petal in petalPaths", v-bind="petal")
-    circle(:r="center", :fill="colors.center")
+    g.petal(v-for="svg in petalSVG", v-bind="svg.group")
+      path.hover-area(v-bind="svg.hoverArea")
+      path(v-bind="svg.petal")
+      text(v-bind="svg.text") {{ svg.value.toFixed(2) }}
+    g.center(@mouseenter="centerHover = true", @mouseleave="centerHover = false")
+      circle(:r="center", :fill="colors.center")
+      circle.hover-area(r="0.3")
+      text(transform="rotate(90)", dy="-0.3") {{ data.center }}
     circle.outer(r="1", fill="none")
 </template>
 
@@ -17,6 +26,15 @@ function scale(min, max, z){
 
 function lerp(a, b, t) {
   return a * (1 - t) + b * t
+}
+
+function petalPath(r, arc){
+  let x = Math.cos(0.5 * arc)
+  let y = Math.sin(0.5 * arc)
+  // M x0 y0
+  // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+  // L x2 y2
+  return `M ${r * x} ${-r * y} A ${r} ${r} 0 0 1 ${r * x} ${r * y} L 0 0`
 }
 
 export default {
@@ -51,6 +69,7 @@ export default {
   }
   , data: () => ({
     viewbox: '-1.1 -1.1 2.2 2.2'
+    , centerHover: false
   })
   , mounted(){
   }
@@ -68,7 +87,10 @@ export default {
       return v => size * scale(min, max, v)
     }
     , petals(){
-      return (this.data.petals || []).map((p, i) => this.petalScales[i](p))
+      return (this.data.petals || []).map((value, i) => ({
+        value
+        , scaled: this.petalScales[i](value)
+      }))
     }
     , petalScales(){
       let minSize = this.centerScale(this.dataRanges.center[1])
@@ -84,7 +106,7 @@ export default {
         return v => lerp(minSize, 1, scale(min, max, v))
       })
     }
-    , petalPaths(){
+    , petalSVG(){
       let colors = this.colors.petals
       let colorSpaceSize = colors.length
       let len = this.petals.length
@@ -98,12 +120,29 @@ export default {
         // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
         // L x2 y2
         let fill = colors[i % colorSpaceSize]
-        let r = p
-        let d = `M ${r} 0 A ${r} ${r} 0 0 1 ${r * x} ${r * y} L 0 0`
-        let rot = 360 * (i / len - 0.5 / frac)
+        let d = petalPath(p.scaled, ang)
+        let rot = 360 * (i / len)
         let transform = `rotate(${rot})`
 
-        return { d, fill, transform }
+        let group = { transform }
+        let petal = { d, fill }
+
+        d = petalPath(1, Pi2 / len)
+
+        let hoverArea = { d, fill }
+        let text = {
+          transform: `translate(0.8, 0) rotate(${-rot + 90})`
+          , 'alignment-baseline': 'middle'
+          , style: { textShadowColor: fill }
+        }
+
+        return {
+          group
+          , petal
+          , hoverArea
+          , text
+          , value: p.value
+        }
       })
     }
   }
@@ -115,11 +154,52 @@ export default {
 <style lang="sass" scoped>
 .flower-chart
   display: inline-block
+svg
+  font-size: .3px
+text
+  fill: white
+  stroke: black
+  stroke-width: 0.004px
+  text-anchor: middle
+  text-shadow: 0 0 1px white
+.petal
+  transition: opacity 0.15s ease
+  cursor: pointer
+  path
+    transition: fill 0.15s ease
+  .hover-area
+    opacity: 0.05
+    transition: opacity 0.15s ease
+  text
+    opacity: 0
+    transition: opacity 0.15s ease
+  &:hover
+    .hover-area
+      opacity: 0.2
+    text
+      opacity: 1
 circle
   stroke-width: 0.03
   stroke: #222
-
 circle.outer
   stroke-width: 0.01
   stroke: rgba(160, 160, 160, 0.2)
+.center
+  cursor: pointer
+  text
+    opacity: 0
+    transition: opacity 0.15s ease
+  .hover-area
+    fill: white
+    stroke-width: 0
+    opacity: 0
+.show-center-value
+  .petal
+    opacity: 0.1
+    path,
+    text
+      fill: grey
+  .center
+    text
+      opacity: 1
 </style>
