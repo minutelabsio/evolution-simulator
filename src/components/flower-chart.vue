@@ -1,17 +1,17 @@
 <template lang="pug">
 .flower-chart(
   :style="{ width: size + 'px', height: size + 'px', transform: 'rotate(-0.25turn)' }"
-  , :class="{ 'show-center-value': centerHover }"
+  , :class="{ 'show-center-value': centerHover, 'show-values': showValues }"
 )
   svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
     g.petal(v-for="svg in petalSVG", v-bind="svg.group")
       path.hover-area(v-bind="svg.hoverArea")
       path(v-bind="svg.petal")
       text(v-bind="svg.text") {{ svg.value.toFixed(2) }}
-    g.center(@mouseenter="centerHover = true", @mouseleave="centerHover = false")
+    g.center(@mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false")
       circle(:r="center", :fill="colors.center")
       circle.hover-area(r="0.3")
-      text(transform="rotate(90)", dy="-0.3") {{ data.center }}
+      text(transform="rotate(90)", :dy="showValues ? 0.03 : -0.3", alignment-baseline="middle") {{ data.center }}
     circle.outer(r="1", fill="none")
 </template>
 
@@ -66,6 +66,10 @@ export default {
       type: Number
       , default: 1 - 1 / 1.618
     }
+    , showValues: {
+      type: Boolean
+      , default: false
+    }
   }
   , data: () => ({
     viewbox: '-1.1 -1.1 2.2 2.2'
@@ -112,8 +116,6 @@ export default {
       let len = this.petals.length
       let frac = len / this.petalWidth
       let ang = Pi2 / frac
-      let x = Math.cos(ang)
-      let y = Math.sin(ang)
 
       return this.petals.map((p, i) => {
         // M x0 y0
@@ -202,4 +204,16 @@ circle.outer
   .center
     text
       opacity: 1
+
+// overrides to show values only
+.show-values
+  .petal,
+  .center
+    .hover-area
+      opacity: 1
+    text
+      opacity: 1
+  .center
+    text
+      fill: $grey-dark
 </style>

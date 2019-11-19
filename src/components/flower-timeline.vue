@@ -7,6 +7,7 @@
         , :data-ranges="dataRanges"
         , :size="100"
         , :colors="colors"
+        , :key="index"
       )
       .gen-label {{ index + 1 }}
 </template>

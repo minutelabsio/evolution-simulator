@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import _times from 'lodash/times'
+// import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import Copilot from 'copilot'
 import TraitChart from '@/components/trait-plot'
@@ -143,12 +143,12 @@ function drawCreatures(ctx, stepTime, now, creatures, traitName, scale){
   })
 }
 
-function getAverageTraitValue(generation, trait){
-  let len = generation.creatures.length
-  return generation.creatures.reduce((avg, c) => {
-    return avg + getTrait(c, trait)/len
-  }, 0)
-}
+// function getAverageTraitValue(generation, trait){
+//   let len = generation.creatures.length
+//   return generation.creatures.reduce((avg, c) => {
+//     return avg + getTrait(c, trait)/len
+//   }, 0)
+// }
 
 function getTrait(creature, trait){
   let value = creature[trait]
