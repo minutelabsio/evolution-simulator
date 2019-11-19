@@ -75,7 +75,12 @@
       .columns
         .column.is-full
           Legend.legend(:data="flowerLegend")
-          FlowerTimeline(:data="flowerTimelineData", :data-ranges="flowerRanges", :colors="flowerColors")
+          FlowerTimeline(
+            v-model="genIndex"
+            , :data="flowerTimelineData"
+            , :data-ranges="flowerRanges"
+            , :colors="flowerColors"
+          )
           //- FlowerChart(:width="100", :height="100", :data="flowerData", :data-ranges="flowerRanges")
       .columns.is-centered
         .column

@@ -30,6 +30,7 @@
     "vue-chartjs": "^3.4.0",
     "vue-circle-slider": "^1.0.2",
     "vue-router": "^3.0.2",
+    "vue-scrollto": "^2.17.1",
     "vue-slider-component": "^3.0.38",
     "vuex": "^3.1.1"
   },

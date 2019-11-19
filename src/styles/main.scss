@@ -122,6 +122,10 @@ a:hover {
   pointer-events: none;
 }
 
+.no-select {
+  user-select: none;
+}
+
 .scrollbars {
   &::-webkit-scrollbar {
     -webkit-appearance: none;

@@ -4,6 +4,7 @@
   , :class="{ 'show-center-value': centerHover, 'show-values': showValues }"
 )
   svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
+    circle.outer(r="1", fill="none")
     g.petal(v-for="svg in petalSVG", v-bind="svg.group")
       path.hover-area(v-bind="svg.hoverArea")
       path(v-bind="svg.petal")
@@ -12,7 +13,6 @@
       circle(:r="center", :fill="colors.center")
       circle.hover-area(r="0.3")
       text(transform="rotate(90)", :dy="showValues ? 0.03 : -0.3", alignment-baseline="middle") {{ data.center }}
-    circle.outer(r="1", fill="none")
 </template>
 
 <script>
@@ -135,7 +135,7 @@ export default {
         let text = {
           transform: `translate(0.8, 0) rotate(${-rot + 90})`
           , 'alignment-baseline': 'middle'
-          , style: { textShadowColor: fill }
+          , style: { stroke: fill }
         }
 
         return {
@@ -185,7 +185,7 @@ circle
   stroke: #222
 circle.outer
   stroke-width: 0.01
-  stroke: rgba(160, 160, 160, 0.2)
+  stroke: rgba(160, 160, 160, 0.1)
 .center
   cursor: pointer
   text
