@@ -1,6 +1,6 @@
 <template lang="pug">
-.flower-chart(:style="{ width: width + 'px', height: height + 'px', transform: 'rotate(-0.25turn)' }")
-  svg(ref="svg", :viewBox="viewbox", :width="width", :height="height")
+.flower-chart(:style="{ width: size + 'px', height: size + 'px', transform: 'rotate(-0.25turn)' }")
+  svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
     path(v-for="petal in petalPaths", v-bind="petal")
     circle(:r="center", :fill="colors.center")
     circle.outer(r="1", fill="none")
@@ -22,11 +22,7 @@ function lerp(a, b, t) {
 export default {
   name: 'FlowerChart'
   , props: {
-    width: {
-      type: Number
-      , default: 50
-    }
-    , height: {
+    size: {
       type: Number
       , default: 50
     }
@@ -54,25 +50,18 @@ export default {
     }
   }
   , data: () => ({
+    viewbox: '-1.1 -1.1 2.2 2.2'
   })
   , mounted(){
   }
   , watch: {
   }
   , computed: {
-    viewbox(){
-      // let w = this.width
-      // let h = this.height
-      // let hw = w * 0.5
-      // let hh = h * 0.5
-      // return `${-hw} ${-hh} ${w} ${h}`
-      return '-1.1 -1.1 2.2 2.2'
-    }
-    , center(){
+    center(){
       return this.centerScale(this.data.center) || 0
     }
     , centerScale(){
-      let size = 0.25 // * Math.min(this.width, this.height)
+      let size = 0.25
       let range = this.dataRanges.center
       let min = range[0]
       let max = range[1]

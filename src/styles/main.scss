@@ -126,6 +126,7 @@ a:hover {
   &::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 7px;
+    height: 7px;
   }
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 1px transparentize($grey, 0.5);

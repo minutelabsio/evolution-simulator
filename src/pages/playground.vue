@@ -73,8 +73,10 @@
           //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
 
       .columns
-        .column
-          FlowerChart(:width="100", :height="100", :data="flowerData", :data-ranges="flowerRanges")
+        .column.is-full
+          Legend.legend(:data="flowerLegend")
+          FlowerTimeline(:data="flowerTimelineData", :data-ranges="flowerRanges", :colors="flowerColors")
+          //- FlowerChart(:width="100", :height="100", :data="flowerData", :data-ranges="flowerRanges")
       .columns.is-centered
         .column
           canvas.stage(ref="canvas", v-bind="simulationProps")
@@ -94,6 +96,8 @@ import chroma from 'chroma-js'
 import Copilot from 'copilot'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
+import FlowerTimeline from '@/components/flower-timeline'
+import Legend from '@/components/legend'
 import { RunningStatistics } from '@/lib/math'
 
 function lerpArray(from, to, t){
@@ -160,10 +164,17 @@ export default {
   , components: {
     TraitChart
     , FlowerChart
+    , FlowerTimeline
+    , Legend
   }
   , data: () => ({
     paused: true
     , calculating: false
+
+    , flowerColors: {
+      center: '#e6e6e6'
+      , petals: chroma.scale('Set1').colors(8)
+    }
 
     , cfg: {
       seed: 124
@@ -336,12 +347,28 @@ export default {
         , petals: Object.values(this.generationStats[this.genIndex]).map(s => s.mean())
       }
     }
+    , flowerTimelineData(){
+      if (!this.simulation){ return [] }
+      let stats = this.generationStats
+      return this.simulation.generations.map((g, i) => ({
+        center: g.creatures.length
+        , petals: Object.values(stats[i]).map(s => s.mean())
+      }))
+    }
     , flowerRanges(){
       let { population, ...traits } = this.stats
       return {
         center: [population.min(), population.max()]
         , petals: Object.values(traits).map(t => [t.min(), t.max()])
       }
+    }
+    , flowerLegend(){
+      return Object.values(creatureTraits)
+        .map((name, i) => ({ name, color: this.flowerColors.petals[i] }))
+        .concat([{
+          name: 'population'
+          , color: this.flowerColors.center
+        }])
     }
     , generation(){
       if ( !this.simulation ){ return null }
@@ -427,4 +454,7 @@ export default {
 
   .min
     color: $grey-dark
+.legend
+  justify-content: center
+  margin: 0.5em 0
 </style>
