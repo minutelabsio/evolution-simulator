@@ -3,6 +3,7 @@
 import _capitalize from 'lodash/capitalize'
 import _find from 'lodash/find'
 import _filter from 'lodash/filter'
+import _startCase from 'lodash/startCase'
 
 // momentDurationFormatSetup(moment)
 
@@ -55,6 +56,7 @@ export default {
   install( Vue ){
     Vue.filter('capitalize', _capitalize)
     Vue.filter('titleCase', titleCase)
+    Vue.filter('startCase', _startCase)
     Vue.filter('filter', _filter)
     Vue.filter('shortNumber', shortNumber)
     Vue.filter('truncate', truncate)

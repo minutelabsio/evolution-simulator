@@ -5,10 +5,11 @@
 )
   svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
     circle.outer(r="1", fill="none")
-    g.petal(v-for="svg in petalSVG", v-bind="svg.group")
-      path.hover-area(v-bind="svg.hoverArea")
-      path(v-bind="svg.petal")
-      text(v-bind="svg.text") {{ svg.value.toFixed(2) }}
+    g.petals(:transform="`rotate(${-360 * this.topPetal / petalSVG.length})`")
+      g.petal(v-for="svg in petalSVG", v-bind="svg.group")
+        path.hover-area(v-bind="svg.hoverArea")
+        path(v-bind="svg.petal")
+        text(v-bind="svg.text") {{ svg.value.toFixed(2) }}
     g.center(@mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false")
       circle(:r="center", :fill="colors.center")
       circle.hover-area(r="0.3")
@@ -69,6 +70,10 @@ export default {
     , showValues: {
       type: Boolean
       , default: false
+    }
+    , topPetal: {
+      type: Number
+      , default: 0
     }
   }
   , data: () => ({
@@ -164,8 +169,10 @@ text
   stroke-width: 0.004px
   text-anchor: middle
   text-shadow: 0 0 1px white
+.petals
+  transition: transform 0.5s ease
 .petal
-  transition: opacity 0.15s ease
+  transition: all 0.15s ease
   cursor: pointer
   path
     transition: fill 0.15s ease

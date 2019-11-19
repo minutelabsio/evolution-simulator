@@ -1,8 +1,8 @@
 <template lang="pug">
 ul.legend
-  li(v-for="item in data")
+  li.clickable(v-for="(item, index) in data", @click="$emit('select', { item, index })")
     span.color(:style="{ 'background-color': item.color }")
-    span {{ item.name }}
+    span {{ item.name | startCase }}
 </template>
 
 <script>
@@ -21,6 +21,8 @@ export default {
     display: flex
     align-items: center
     margin-right: 1em
+    &:hover
+      text-decoration: underline
 .color
   display: inline-block
   width: 1em

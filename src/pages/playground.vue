@@ -74,12 +74,13 @@
 
       .columns
         .column.is-full
-          Legend.legend(:data="flowerLegend")
+          Legend.legend(:data="flowerLegend", @select="topPetal = $event.index")
           FlowerTimeline(
             v-model="genIndex"
             , :data="flowerTimelineData"
             , :data-ranges="flowerRanges"
             , :colors="flowerColors"
+            , :topPetal="topPetal"
           )
           //- FlowerChart(:width="100", :height="100", :data="flowerData", :data-ranges="flowerRanges")
       .columns.is-centered
@@ -180,6 +181,7 @@ export default {
       center: '#e6e6e6'
       , petals: chroma.scale('Set1').colors(8)
     }
+    , topPetal: 0
 
     , cfg: {
       seed: 124

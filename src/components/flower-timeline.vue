@@ -12,6 +12,7 @@
         , :size="100"
         , :colors="colors"
         , :key="index"
+        , :top-petal="topPetal"
       )
       .gen-label.no-select {{ index + 1 }}
 </template>
@@ -52,6 +53,7 @@ export default {
     data: Array
     , dataRanges: Object
     , colors: Object
+    , topPetal: Number
     , value: Number // selected generation
   }
   , data: () => ({
