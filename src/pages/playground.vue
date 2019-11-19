@@ -74,7 +74,7 @@
 
       .columns
         .column
-          FlowerChart(:width="100", :height="100", :data="flowerData")
+          FlowerChart(:width="100", :height="100", :data="flowerData", :data-ranges="flowerRanges")
       .columns.is-centered
         .column
           canvas.stage(ref="canvas", v-bind="simulationProps")
@@ -94,6 +94,7 @@ import chroma from 'chroma-js'
 import Copilot from 'copilot'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
+import { RunningStatistics } from '@/lib/math'
 
 function lerpArray(from, to, t){
   return Copilot.Interpolators.Array(from, to, t)
@@ -149,6 +150,8 @@ function getTrait(creature, trait){
   let value = creature[trait]
   return value[0] || value
 }
+
+const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
 
 export default {
   name: 'Playground'
@@ -278,30 +281,66 @@ export default {
     }
     , traitData(){
       if (!this.simulation){ return [] }
-      let traits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
-      let averageValues = this.simulation.generations.reduce((acc, g) => {
-        traits.forEach(t => {
-          acc[t] = acc[t] || []
-          acc[t].push(getAverageTraitValue(g, t))
-        })
-        return acc
-      }, {})
-      console.log(averageValues)
-      return Object.keys(averageValues).map(t => {
+      return creatureTraits.map(t => {
         return {
           label: t
-          , data: averageValues[t]
+          , data: this.generationStats.map(gs => gs[t].mean())
         }
       })
+    }
+    , generationStats(){
+      if (!this.simulation){ return [] }
+
+      return this.simulation.generations.map(g => {
+        let stats = {}
+        creatureTraits.forEach(t => {
+          stats[t] = RunningStatistics()
+        })
+
+        g.creatures.forEach(c => {
+          creatureTraits.forEach(t => stats[t].push(getTrait(c, t)))
+        })
+
+        return stats
+      })
+    }
+    , stats(){
+
+      const generationStats = this.generationStats
+      let population = RunningStatistics()
+      let stats = { population }
+      creatureTraits.forEach(t => {
+        stats[t] = RunningStatistics()
+      })
+
+      if (!this.simulation){ return stats }
+
+      this.simulation.generations.forEach((g, i) => {
+        population.push(g.creatures.length)
+        let s = generationStats[i]
+        creatureTraits.forEach(t => {
+          stats[t].push(s[t].mean())
+        })
+      })
+
+      return stats
     }
     , populationData(){
       if (!this.simulation){ return [] }
       return this.simulation.generations.map(g => g.creatures.length)
     }
     , flowerData(){
+      if (!this.simulation){ return {} }
       return {
-        center: 0.5
-        , petals: [0.5, 0.1, 0.2, 0.8]
+        center: this.generation.creatures.length
+        , petals: Object.values(this.generationStats[this.genIndex]).map(s => s.mean())
+      }
+    }
+    , flowerRanges(){
+      let { population, ...traits } = this.stats
+      return {
+        center: [population.min(), population.max()]
+        , petals: Object.values(traits).map(t => [t.min(), t.max()])
       }
     }
     , generation(){

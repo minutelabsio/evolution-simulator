@@ -58,12 +58,6 @@ export default {
   , mounted(){
   }
   , watch: {
-    data: {
-      handler(){
-        this.draw()
-      }
-      , deep: true
-    }
   }
   , computed: {
     viewbox(){
