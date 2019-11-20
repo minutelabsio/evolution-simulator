@@ -1,54 +1,71 @@
 <template lang="pug">
 .playground
-  .container
-    .section
-      h3.title.is-size-3 Setup
-      .columns
-        .column
-          h4.title.is-size-5 Initial Creature Properties
-          b-field(grouped)
-            b-field(label="Energy")
-              b-input(v-model="creatureProps.energy", type="number", min="0", step="any")
-          b-field(grouped)
-            b-field(label="Speed")
-              b-input(v-model="creatureProps.speed[0]", type="number", min="0", step="any")
-            b-field(label="Speed mutation variance")
-              b-input(v-model="creatureProps.speed[1]", type="number", min="0", step="any")
-          b-field(grouped)
-            b-field(label="Sense")
-              b-input(v-model="creatureProps.sense_range[0]", type="number", min="0", step="any")
-            b-field(label="Sense mutation variance")
-              b-input(v-model="creatureProps.sense_range[1]", type="number", min="0", step="any")
-          b-field(grouped)
-            b-field(label="Reach")
-              b-input(v-model="creatureProps.reach[0]", type="number", min="0", step="any")
-            b-field(label="Reach mutation variance")
-              b-input(v-model="creatureProps.reach[1]", type="number", min="0", step="any")
-          b-field(grouped)
-            b-field(label="Avg Lifespan")
-              b-input(v-model="creatureProps.life_span[0]", type="number", min="0", step="any")
-            b-field(label="Avg Lifespan mutation variance")
-              b-input(v-model="creatureProps.life_span[1]", type="number", min="0", step="any")
-        .column
-          b-field(grouped)
-            b-field(label="Number of Creatures")
-              b-input(v-model="creatureCount", type="number", min="1", step="1")
-            b-field(label="Food Per Generation")
-              b-input(v-model="cfg.food_per_generation", type="number", min="0", step="1")
-          b-field(grouped)
-            b-field(label="Random Seed")
-              b-input(v-model="cfg.seed", type="number", min="0", step="1")
-            b-field(label="Max Generations")
-              b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
-          b-field
-            b-button.button.is-primary.is-large(@click="run", :loading="calculating") Run!
+  .upper
+    .columns.is-gapless
+      .column(ref="resultsContainer")
+        .results
+          canvas.stage(ref="canvas", v-bind="simulationProps")
 
-    .section
-      h4.title.is-size-4 Simulation Results
-      .content(v-if="simulation")
-        b-field
-          b-select(v-model="genIndex")
-            option(v-for="index in simulation.generations.length", :value="index - 1") Generation {{ index - 1 }}
+
+              //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
+              //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
+
+          //- .columns.is-centered
+          //-   .column
+          //-     h2.is-size-2.has-text-centered Population
+          //-     TraitChart(v-if="simulation", :data="populationData", label="Population")
+          //-
+          //- .columns.is-multiline
+          //-   .column.is-half(v-for="trait in traitData")
+          //-     h2.is-size-2.has-text-centered {{ trait.label }}
+          //-     TraitChart(v-if="simulation", :data="trait.data", :label="trait.label", :key="trait.label")
+
+      .column
+        .section
+          .columns
+            .column
+              h4.title.is-size-5 Initial Creature Properties
+              b-field(grouped)
+                b-field(label="Energy")
+                  b-input(v-model="creatureProps.energy", type="number", min="0", step="any")
+              b-field(grouped)
+                b-field(label="Speed")
+                  b-input(v-model="creatureProps.speed[0]", type="number", min="0", step="any")
+                b-field(label="Speed mutation variance")
+                  b-input(v-model="creatureProps.speed[1]", type="number", min="0", step="any")
+              b-field(grouped)
+                b-field(label="Sense")
+                  b-input(v-model="creatureProps.sense_range[0]", type="number", min="0", step="any")
+                b-field(label="Sense mutation variance")
+                  b-input(v-model="creatureProps.sense_range[1]", type="number", min="0", step="any")
+              b-field(grouped)
+                b-field(label="Reach")
+                  b-input(v-model="creatureProps.reach[0]", type="number", min="0", step="any")
+                b-field(label="Reach mutation variance")
+                  b-input(v-model="creatureProps.reach[1]", type="number", min="0", step="any")
+              b-field(grouped)
+                b-field(label="Avg Lifespan")
+                  b-input(v-model="creatureProps.life_span[0]", type="number", min="0", step="any")
+                b-field(label="Avg Lifespan mutation variance")
+                  b-input(v-model="creatureProps.life_span[1]", type="number", min="0", step="any")
+
+              b-field(grouped)
+                b-field(label="Number of Creatures")
+                  b-input(v-model="creatureCount", type="number", min="1", step="1")
+                b-field(label="Food Per Generation")
+                  b-input(v-model="cfg.food_per_generation", type="number", min="0", step="1")
+              b-field(grouped)
+                b-field(label="Random Seed")
+                  b-input(v-model="cfg.seed", type="number", min="0", step="1")
+                b-field(label="Max Generations")
+                  b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
+              b-field
+                b-button.button.is-primary.is-large(@click="run", :loading="calculating") Run!
+
+
+  .bottom-drawer
+    .columns.is-marginless(v-if="simulation")
+      .column
         b-field(grouped)
           b-field
             b-button.btn-dark(@click="togglePlay()")
@@ -57,43 +74,16 @@
             b-button.btn-dark(@click="nextGeneration()")
               b-icon(icon="skip-next")
           b-slider(@input="updateTime", :value="time", :max="totalTime", rounded)
-        b-field
-          b-select(v-model="traitToColor")
-            option(value="speed") Monitor Speed
-            option(value="sense_range") Monitor Sense Range
-            option(value="reach") Monitor Reach
-            option(value="life_span") Lifespan
-            option(value="age") Age
-          .scale
-            .min(:style="{ backgroundColor: traitScale(0) }")
-              span 0
-            .max(:style="{ backgroundColor: traitScale(traitScale.domain()[1]) }")
-              span {{ traitScale.domain()[1].toFixed(2) }}
-          //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
-          //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
 
-      .columns
-        .column.is-full
-          Legend.legend(:data="flowerLegend", @select="topPetal = $event.index")
-          FlowerTimeline(
-            v-model="genIndex"
-            , :data="flowerTimelineData"
-            , :data-ranges="flowerRanges"
-            , :colors="flowerColors"
-            , :topPetal="topPetal"
-          )
-          //- FlowerChart(:width="100", :height="100", :data="flowerData", :data-ranges="flowerRanges")
-      .columns.is-centered
-        .column
-          canvas.stage(ref="canvas", v-bind="simulationProps")
-        .column
-          h2.is-size-2.has-text-centered Population
-          TraitChart(v-if="simulation", :data="populationData", label="Population")
-
-      .columns.is-multiline
-        .column.is-half(v-for="trait in traitData")
-          h2.is-size-2.has-text-centered {{ trait.label }}
-          TraitChart(v-if="simulation", :data="trait.data", :label="trait.label", :key="trait.label")
+    Legend.legend(:data="flowerLegend", @select="topPetal = $event.index")
+    .generation-selector(:class="{ 'is-finished': !canContinue }")
+      FlowerTimeline(
+        v-model="genIndex"
+        , :data="flowerTimelineData"
+        , :data-ranges="flowerRanges"
+        , :colors="flowerColors"
+        , :topPetal="topPetal"
+      )
 </template>
 
 <script>
@@ -132,7 +122,7 @@ function drawFood(ctx, step, food){
   food.forEach(f => {
     let [x,y] = f.position
     let isEaten = f.status.Eaten < step
-    drawCircle(ctx, {x, y}, 2, isEaten ? '#444' : 'white')
+    drawCircle(ctx, {x, y}, 2, isEaten ? '#111' : '#666')
   })
 }
 
@@ -211,12 +201,13 @@ export default {
     , genIndex: 0
 
     , time: 0
-    , traitToColor: 'speed'
+    // , traitToColor: 'speed'
   })
   , created(){
     this.player = Copilot.Player({ totalTime: 1 })
   }
   , mounted(){
+    this.size = Math.min(this.$refs.resultsContainer.offsetWidth, this.$refs.resultsContainer.offsetHeight)
     this.canvas = this.$refs.canvas
     this.ctx = this.canvas.getContext('2d')
 
@@ -230,8 +221,10 @@ export default {
       }
     })
 
-    this.$store.dispatch('simulation/randomizeCreatures').then(() => {
-      this.run()
+    this.$nextTick(() => {
+      this.$store.dispatch('simulation/randomizeCreatures').then(() => {
+        this.run()
+      })
     })
   }
   , beforeDestroy(){
@@ -266,6 +259,14 @@ export default {
       })
       this.$store.dispatch('simulation/randomizeCreatures')
     }
+    , genIndex(){
+      this.player.seek(0)
+      this.paused = false
+    }
+    , simulation(){
+      this.genIndex = 0
+      this.paused = false
+    }
   }
   , computed: {
     simulationCfg(){
@@ -286,14 +287,20 @@ export default {
     , currentStep(){
       return Math.floor(this.time / this.stepTime)
     }
+    , traitToColor(){
+      return creatureTraits[this.topPetal]
+    }
+    , traitColor(){
+      let trait = this.traitToColor
+      return this.flowerColors.petals[this.topPetal]
+    }
     , traitScale(){
-      let scale = chroma.scale('OrRd')
+      let scale = chroma.scale(['white', this.traitColor])
       if ( this.simulation ){
-        let max = this.simulation.generations.reduce((max, g) => {
-          let newmax = g.creatures.reduce((max, c) => Math.max(max, getTrait(c, this.traitToColor)), max)
-          return Math.max(max, newmax)
-        }, 0)
-        return scale.domain([0, max])
+        let stat = this.stats[this.traitToColor]
+        let min = stat.min()
+        let max = stat.max()
+        return scale.domain([min, max])
       }
       return scale
     }
@@ -388,6 +395,9 @@ export default {
     , simulation(){
       return this.$store.getters['simulation/results']
     }
+    , canContinue(){
+      return this.$store.getters['simulation/canContinue']
+    }
   }
   , methods: {
     run(){
@@ -422,12 +432,25 @@ export default {
 
 <style lang="sass" scoped>
 .playground
-  overflow: auto
+  // overflow: auto
   height: 100%
+  display: flex
+  flex-direction: column
+.upper
+  flex: 1
+  overflow: hidden
+
+  .columns
+    height: 100%
+.bottom-drawer
+  background: $black-ter
+  border-top: 1px solid $black
+  min-height: 261px
 .stage
   position: relative
-  border: 1px solid rgba(255, 255, 255, 0.4)
+  // border: 1px solid rgba(255, 255, 255, 0.4)
   overflow: hidden
+  background: $black-bis
   .creature
     position: absolute
     top: 0
@@ -464,4 +487,10 @@ export default {
 .legend
   justify-content: center
   margin: 0.5em 0
+.generation-selector.is-finished
+  >>> .flower-timeline .inner:after
+    content: ''
+    background: center center url(https://cdn0.iconfinder.com/data/icons/nature-and-environment-1/64/skeleton-pirate-crossbones-danger-deadly-skull-512.png) no-repeat
+    background-size: contain
+    width: 120px
 </style>

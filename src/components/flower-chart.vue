@@ -22,6 +22,7 @@ import chroma from 'chroma-js'
 const Pi2 = Math.PI * 2
 
 function scale(min, max, z){
+  if ( max === min ){ return 1 }
   return (z - min) / (max - min)
 }
 

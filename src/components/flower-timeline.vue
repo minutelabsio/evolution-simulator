@@ -1,5 +1,5 @@
 <template lang="pug">
-.flower-timeline.scrollbars
+.flower-timeline.scrollbars(@wheel="onScroll")
   .inner
     .generation(
       v-for="(gen, index) in data"
@@ -47,6 +47,14 @@ const watch = {
   }
 }
 
+const methods = {
+  onScroll( e ){
+    e.preventDefault()
+    const el = this.$el
+    el.scrollLeft += e.deltaY
+  }
+}
+
 export default {
   name: 'FlowerTimeline'
   , props: {
@@ -61,6 +69,7 @@ export default {
   , components
   , computed
   , watch
+  , methods
 }
 </script>
 
@@ -68,6 +77,7 @@ export default {
 .flower-timeline
   overflow: hidden
   width: 100%
+  min-height: 148px
   -webkit-overflow-scrolling: touch
   overflow-x: auto
   border: 1px solid transparentize($grey, 0.8)

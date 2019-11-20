@@ -138,8 +138,13 @@ a:hover {
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
+    background-color: mix($blue, $black-ter, 40);
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: darken($blue, 10);
+  }
+  &::-webkit-scrollbar-thumb:hover {
     background-color: $blue;
-    box-shadow: 0 0 1px transparentize($blue, 0.5);
   }
 }
 

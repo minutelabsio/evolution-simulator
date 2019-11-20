@@ -94,6 +94,11 @@ export const simulation = {
   , getters: {
     selectableBehaviours: () => BEHAVIOURS.concat([])
     , results: state => state.results
+    , canContinue: state => {
+      if ( !state.results ){ return true }
+      let g = state.results.generations
+      return g[g.length - 1].creatures.every(c => c.state !== 'DEAD')
+    }
   }
   , actions: {
     run({ state, dispatch, commit }) {
