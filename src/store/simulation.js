@@ -24,7 +24,7 @@ const initialState = {
   , computeTime: 0
 
   , config: {
-    seed: 124
+    seed: 118
     , food_per_generation: 50
     , max_generations: 50
     , behaviours: BEHAVIOURS.concat([])
@@ -92,7 +92,8 @@ export const simulation = {
   namespaced: true
   , state: initialState
   , getters: {
-    selectableBehaviours: () => BEHAVIOURS.concat([])
+    isLoading: state => state.isBusy
+    , selectableBehaviours: () => BEHAVIOURS.concat([])
     , results: state => state.results
     , canContinue: state => {
       if ( !state.results ){ return true }

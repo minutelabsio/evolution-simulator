@@ -20,7 +20,7 @@
           //-     h2.is-size-2.has-text-centered {{ trait.label }}
           //-     TraitChart(v-if="simulation", :data="trait.data", :label="trait.label", :key="trait.label")
 
-      .column
+      .column.is-one-third
         .section
           .columns
             .column
@@ -60,7 +60,7 @@
                 b-field(label="Max Generations")
                   b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
               b-field
-                b-button.button.is-primary.is-large(@click="run", :loading="calculating") Run!
+                b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
 
 
   .bottom-drawer
@@ -88,6 +88,7 @@
 
 <script>
 // import _times from 'lodash/times'
+import { mapGetters } from 'vuex'
 import chroma from 'chroma-js'
 import Copilot from 'copilot'
 import TraitChart from '@/components/trait-plot'
@@ -165,7 +166,7 @@ export default {
   }
   , data: () => ({
     paused: true
-    , calculating: false
+    , canvasScale: 1
 
     , flowerColors: {
       center: '#e6e6e6'
@@ -174,7 +175,7 @@ export default {
     , topPetal: 0
 
     , cfg: {
-      seed: 124
+      seed: 118
       , food_per_generation: 50
       , max_generations: 50
       , behaviours: [
@@ -207,7 +208,7 @@ export default {
     this.player = Copilot.Player({ totalTime: 1 })
   }
   , mounted(){
-    this.size = Math.min(this.$refs.resultsContainer.offsetWidth, this.$refs.resultsContainer.offsetHeight)
+    this.canvasScale = Math.min(this.$refs.resultsContainer.offsetWidth, this.$refs.resultsContainer.offsetHeight) / this.size
     this.canvas = this.$refs.canvas
     this.ctx = this.canvas.getContext('2d')
 
@@ -222,9 +223,7 @@ export default {
     })
 
     this.$nextTick(() => {
-      this.$store.dispatch('simulation/randomizeCreatures').then(() => {
-        this.run()
-      })
+      this.run()
     })
   }
   , beforeDestroy(){
@@ -279,9 +278,14 @@ export default {
       }
     }
     , simulationProps(){
+      const ratio = window.devicePixelRatio * this.canvasScale
       return {
-        width: this.size + 'px'
-        , height: this.size + 'px'
+        width: this.size * ratio
+        , height: this.size * ratio
+        , style: {
+          width: this.size * this.canvasScale + 'px'
+          , height: this.size * this.canvasScale + 'px'
+        }
       }
     }
     , currentStep(){
@@ -392,16 +396,17 @@ export default {
       if ( !this.generation ){ return 1 }
       return this.stepTime * this.generation.steps
     }
-    , simulation(){
-      return this.$store.getters['simulation/results']
-    }
-    , canContinue(){
-      return this.$store.getters['simulation/canContinue']
-    }
+    , ...mapGetters('simulation', {
+      simulation: 'results'
+      , canContinue: 'canContinue'
+      , isLoading: 'isLoading'
+    })
   }
   , methods: {
     run(){
-      this.$store.dispatch('simulation/run')
+      this.$store.dispatch('simulation/randomizeCreatures').then(() => {
+        this.$store.dispatch('simulation/run')
+      })
     }
     , togglePlay(){
       this.paused = !this.paused
@@ -422,7 +427,10 @@ export default {
       const ctx = this.ctx
       const step = this.currentStep
       const gen = this.generation
+      const ratio = window.devicePixelRatio
+      const scale = ratio * this.canvasScale
       ctx.clearRect(0, 0, this.size, this.size)
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
       drawFood(ctx, step, gen.food)
       drawCreatures(ctx, this.stepTime, this.time, gen.creatures, this.traitToColor, this.traitScale)
     }
@@ -493,4 +501,5 @@ export default {
     background: center center url(https://cdn0.iconfinder.com/data/icons/nature-and-environment-1/64/skeleton-pirate-crossbones-danger-deadly-skull-512.png) no-repeat
     background-size: contain
     width: 120px
+    flex: 0 0 auto
 </style>
