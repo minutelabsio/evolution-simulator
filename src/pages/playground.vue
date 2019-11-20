@@ -295,7 +295,6 @@ export default {
       return creatureTraits[this.topPetal]
     }
     , traitColor(){
-      let trait = this.traitToColor
       return this.flowerColors.petals[this.topPetal]
     }
     , traitScale(){
