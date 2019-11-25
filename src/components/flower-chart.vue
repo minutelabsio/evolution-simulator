@@ -5,12 +5,12 @@
 )
   svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
     circle.outer(r="1", fill="none")
-    g.petals(:transform="`rotate(${-360 * this.topPetal / petalSVG.length})`")
-      g.petal(v-for="svg in petalSVG", v-bind="svg.group")
+    g.petals(:transform="`rotate(${globalAngle})`")
+      g.petal(v-for="(svg, index) in petalSVG", v-bind="svg.group", @click="onPetalClick(index)")
         path.hover-area(v-bind="svg.hoverArea")
         path(v-bind="svg.petal")
         text(v-bind="svg.text") {{ svg.value.toFixed(2) }}
-    g.center(@mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false")
+    g.center(@mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false", @click="onCenterClick")
       circle(:r="center", :fill="colors.center")
       circle.hover-area(r="0.3")
       text(transform="rotate(90)", :dy="showValues ? 0.03 : -0.3", alignment-baseline="middle") {{ data.center }}
@@ -86,7 +86,10 @@ export default {
   , watch: {
   }
   , computed: {
-    center(){
+    globalAngle(){
+      return -360 * this.topPetal / this.petals.length
+    }
+    , center(){
       return this.centerScale(this.data.center) || 0
     }
     , centerScale(){
@@ -122,6 +125,7 @@ export default {
       let len = this.petals.length
       let frac = len / this.petalWidth
       let ang = Pi2 / frac
+      let ga = this.globalAngle
 
       return this.petals.map((p, i) => {
         // M x0 y0
@@ -139,7 +143,7 @@ export default {
 
         let hoverArea = { d, fill }
         let text = {
-          transform: `translate(0.8, 0) rotate(${-rot + 90})`
+          transform: `translate(0.8, 0) rotate(${-rot - ga + 90})`
           , 'alignment-baseline': 'middle'
           , style: { stroke: fill }
         }
@@ -155,6 +159,21 @@ export default {
     }
   }
   , methods: {
+    onPetalClick(index){
+      let data = this.data.petals[index]
+      this.$emit('select', {
+        petal: true
+        , index
+        , data
+      })
+    }
+    , onCenterClick(){
+      let data = this.data.center
+      this.$emit('select', {
+        center: true
+        , data
+      })
+    }
   }
 }
 </script>
@@ -182,7 +201,7 @@ text
     transition: opacity 0.15s ease
   text
     opacity: 0
-    transition: opacity 0.15s ease
+    transition: opacity 0.15s ease, transform 0.5s ease
   &:hover
     .hover-area
       opacity: 0.2

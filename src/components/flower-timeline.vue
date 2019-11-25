@@ -13,6 +13,7 @@
         , :colors="colors"
         , :key="index"
         , :top-petal="topPetal"
+        , @select="onFlowerSelect($event, index)"
       )
       .gen-label.no-select {{ index + 1 }}
 </template>
@@ -52,6 +53,12 @@ const methods = {
     e.preventDefault()
     const el = this.$el
     el.scrollLeft += e.deltaY
+  }
+  , onFlowerSelect( selected, generation ){
+    this.$emit('dataSelect', {
+      generation
+      , selected
+    })
   }
 }
 

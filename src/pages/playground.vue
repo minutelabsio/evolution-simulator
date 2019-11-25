@@ -75,7 +75,7 @@
               b-icon(icon="skip-next")
           b-slider(@input="updateTime", :value="time", :max="totalTime", rounded)
 
-    Legend.legend(:data="flowerLegend", @select="topPetal = $event.index")
+    Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
         v-model="genIndex"
@@ -83,6 +83,7 @@
         , :data-ranges="flowerRanges"
         , :colors="flowerColors"
         , :topPetal="topPetal"
+        , @dataSelect="propertySelect($event.selected.index)"
       )
 </template>
 
@@ -432,6 +433,11 @@ export default {
       ctx.setTransform(scale, 0, 0, scale, 0, 0);
       drawFood(ctx, step, gen.food)
       drawCreatures(ctx, this.stepTime, this.time, gen.creatures, this.traitToColor, this.traitScale)
+    }
+    , propertySelect(index){
+      if ( index !== undefined && index < creatureTraits.length ){
+        this.topPetal = index
+      }
     }
   }
 }
