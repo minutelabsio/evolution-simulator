@@ -1,21 +1,22 @@
 import _cloneDeep from 'lodash/cloneDeep'
+import _some from 'lodash/some'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
-const BEHAVIOURS = [
-  { name: 'WanderBehaviour' }
-  , { name: 'ScavengeBehaviour' }
-  , { name: 'BasicMoveBehaviour' }
-  , { name: 'HomesickBehaviour' }
-  , { name: 'StarveBehaviour' }
-]
+// const BEHAVIOURS = [
+//   { name: 'WanderBehaviour' }
+//   , { name: 'ScavengeBehaviour' }
+//   , { name: 'BasicMoveBehaviour' }
+//   , { name: 'HomesickBehaviour' }
+//   , { name: 'StarveBehaviour' }
+// ]
 
 const DEFAULT_CREATURE_PROPS = {
-  speed: [6, 1]
-  , sense_range: [50, 10]
-  , reach: [5, 1]
-  , life_span: [4, 1]
-  , energy: 500
+  speed: [10, 1]
+  , sense_range: [20, 0.5]
+  , reach: [5, 0]
+  , life_span: [1e4, 0]
+  , energy: 5000
 }
 
 const initialState = {
@@ -27,18 +28,15 @@ const initialState = {
     seed: 118
     , food_per_generation: 50
     , max_generations: 50
-    , behaviours: BEHAVIOURS.concat([])
     , size: 500
-  }
-  , creatureCfg: {
-    count: 50
-    , template: {
-      speed: [6, 1]
-      , sense_range: [50, 10]
-      , reach: [5, 1]
-      , life_span: [4, 1]
-      , energy: 500
+    , preset: {
+      name: 'default'
+      , foods_before_home: 2
     }
+  }
+  , creatureConfig: {
+    count: 50
+    , template: DEFAULT_CREATURE_PROPS
   }
   , creatures: []
   , results: null
@@ -74,6 +72,7 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
     state: 'ACTIVE'
     , foods_eaten: 0
     , age: 0
+    , energy_consumed: 0
     // gets overridden
     , pos: [0, 0]
     , home_pos: [0, 0]
@@ -93,22 +92,45 @@ export const simulation = {
   , state: initialState
   , getters: {
     isLoading: state => state.isBusy
-    , selectableBehaviours: () => BEHAVIOURS.concat([])
     , results: state => state.results
-    , canContinue: state => {
-      if ( !state.results ){ return true }
+    , lastGeneration: state => {
+      if (!state.results) { return null }
       let g = state.results.generations
-      return g[g.length - 1].creatures.every(c => c.state !== 'DEAD')
+      return g[g.length - 1]
     }
+    , canContinue: state => {
+      if ( !state.results ){ return false }
+      let g = state.results.generations
+      return _some(g[g.length - 1].creatures, c => c.state !== 'DEAD')
+    }
+    , config: state => state.config
+    , creatureConfig: state => state.creatureConfig
   }
   , actions: {
     run({ state, dispatch, commit }) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
 
       commit('start')
-      return runSimulation(state.config, state.creatures)
+      return runSimulation(state.config, {
+        count: state.creatureConfig.count | 0
+        , template: getCreatureTemplate(state.creatureConfig.template)
+      })
         .then(results => {
           commit('setResults', results)
+        })
+        .catch(error => {
+          dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
+        })
+        .finally(() => commit('stop'))
+    }
+    , continue({ state, getters, dispatch, commit }) {
+      if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
+      if ( !getters.canContinue ){ return Promise.reject(new Error('No Results')) }
+
+      commit('start')
+      return continueSimulation(state.config, getters.lastGeneration.creatures)
+        .then(results => {
+          commit('appendResults', results)
         })
         .catch(error => {
           dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
@@ -120,18 +142,6 @@ export const simulation = {
     }
     , setCreatureConfig({ commit }, config = {}){
       commit('setCreatureConfig', _cloneDeep(config))
-    }
-    , randomizeCreatures({ state, commit, dispatch }){
-      return worker.initRandomCreatures(state.config, {
-        count: state.creatureCfg.count | 0
-        , template: getCreatureTemplate(state.creatureCfg.template)
-      })
-        .then(creatures => {
-          commit('setCreatures', creatures)
-        })
-        .catch(error => {
-          dispatch('error', { error, context: 'while randomizing creatures' }, { root: true })
-        })
     }
   }
   , mutations: {
@@ -148,6 +158,9 @@ export const simulation = {
     , setResults(state, results){
       state.results = results
     }
+    , appendResults(state, results){
+      state.results.generations = state.results.generations.concat(results.generations)
+    }
     , setConfig(state, cfg){
       state.config = {
         ...state.config
@@ -155,8 +168,8 @@ export const simulation = {
       }
     }
     , setCreatureConfig(state, cfg){
-      state.creatureCfg = {
-        ...state.creatureCfg
+      state.creatureConfig = {
+        ...state.creatureConfig
         , ...cfg
       }
     }

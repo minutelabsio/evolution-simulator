@@ -70,7 +70,7 @@ impl Simulation {
     }
   }
 
-  pub fn add_behavour(&mut self, b : Box<StepBehaviour>){
+  pub fn add_behavour(&mut self, b : Box<dyn StepBehaviour>){
     self.behaviours.push(b)
   }
 

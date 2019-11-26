@@ -40,6 +40,7 @@ pub struct Creature {
   // other
   pub foods_eaten : u32,
   pub energy : f64,
+  pub energy_consumed: f64,
   pub age : u32,
   pub pos : Point2<f64>,
   pub home_pos : Point2<f64>,
@@ -61,9 +62,11 @@ impl Creature {
       sense_range: Mutatable(50.0, 10.0),
       reach: Mutatable(5.0, 1.0),
       life_span: Mutatable(4.0, 1.0),
+      energy: 500.0,
 
       foods_eaten: 0,
-      energy: 500.0,
+      energy_consumed: 0.0,
+
       age: 0,
 
       pos: pos.clone(),
@@ -92,6 +95,7 @@ impl Creature {
         sense_range: self.sense_range.get_mutated(rng),
         reach: self.reach.get_mutated(rng),
         life_span: self.life_span.get_mutated(rng),
+        energy: self.energy,
 
         ..Creature::new(&self.home_pos)
       };
@@ -109,6 +113,7 @@ impl Creature {
       sense_range,
       reach,
       life_span,
+      energy,
       ..
     } = *self;
 
@@ -117,6 +122,7 @@ impl Creature {
       sense_range,
       reach,
       life_span,
+      energy,
       age: self.age + 1,
 
       ..Creature::new(&self.home_pos)
@@ -157,7 +163,7 @@ impl Creature {
   }
 
   pub fn get_motion_energy_cost(&self) -> f64 {
-    0.5 * self.get_speed().powi(2) + 0.2
+    0.5 * self.get_speed().powi(2) + 0.5
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
@@ -228,9 +234,9 @@ impl Creature {
   }
 
   pub fn apply_energy_cost( &mut self, cost : f64 ){
-    self.energy -= cost;
+    self.energy_consumed += cost;
 
-    if self.energy <= 0. {
+    if self.energy_consumed >= self.energy {
       self.state = CreatureState::DEAD;
     }
   }

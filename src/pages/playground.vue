@@ -83,7 +83,7 @@
         , :data-ranges="flowerRanges"
         , :colors="flowerColors"
         , :topPetal="topPetal"
-        , @dataSelect="propertySelect($event.selected.index)"
+        , @dataSelect="genIndex === $event.generation && propertySelect($event.selected.index)"
       )
 </template>
 
@@ -179,13 +179,7 @@ export default {
       seed: 118
       , food_per_generation: 50
       , max_generations: 50
-      , behaviours: [
-        { name: 'WanderBehaviour' }
-        , { name: 'ScavengeBehaviour' }
-        , { name: 'BasicMoveBehaviour' }
-        , { name: 'HomesickBehaviour' }
-        , { name: 'StarveBehaviour' }
-      ]
+      , size: 500
     }
 
     , creatureProps: {
@@ -197,7 +191,6 @@ export default {
     }
 
     , creatureCount: 50
-    , size: 500
 
     , stepTime: 100 // ms
     , genIndex: 0
@@ -207,6 +200,8 @@ export default {
   })
   , created(){
     this.player = Copilot.Player({ totalTime: 1 })
+    this.cfg = this.config
+    this.creatureProps = this.creatureConfig.template
   }
   , mounted(){
     this.canvasScale = Math.min(this.$refs.resultsContainer.offsetWidth, this.$refs.resultsContainer.offsetHeight) / this.size
@@ -248,7 +243,6 @@ export default {
           count: this.creatureCount
           , template: cfg
         })
-        this.$store.dispatch('simulation/randomizeCreatures')
       }
       , deep: true
     }
@@ -257,7 +251,6 @@ export default {
         count: this.creatureCount
         , template: this.creatureProps
       })
-      this.$store.dispatch('simulation/randomizeCreatures')
     }
     , genIndex(){
       this.player.seek(0)
@@ -269,13 +262,13 @@ export default {
     }
   }
   , computed: {
-    simulationCfg(){
+    size(){ return this.cfg.size }
+    , simulationCfg(){
       return {
-        size: this.size
+        size: this.cfg.size
         , seed: this.cfg.seed | 0
         , food_per_generation: this.cfg.food_per_generation | 0
         , max_generations: this.cfg.max_generations | 0
-        , behaviours: this.cfg.behaviours
       }
     }
     , simulationProps(){
@@ -400,13 +393,13 @@ export default {
       simulation: 'results'
       , canContinue: 'canContinue'
       , isLoading: 'isLoading'
+      , config: 'config'
+      , creatureConfig: 'creatureConfig'
     })
   }
   , methods: {
     run(){
-      this.$store.dispatch('simulation/randomizeCreatures').then(() => {
-        this.$store.dispatch('simulation/run')
-      })
+      this.$store.dispatch('simulation/run')
     }
     , togglePlay(){
       this.paused = !this.paused

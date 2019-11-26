@@ -19,8 +19,12 @@ impl StepBehaviour for WanderBehaviour {
         .for_each(|c| {
           let ang = sim.get_random_float(-FRAC_PI_4, FRAC_PI_4);
           let rot = na::Rotation2::new(ang);
-          let random_pos = c.get_position() + rot * c.get_direction().as_ref();
-          self.wander(c, random_pos);
+          let target = c.get_position() + rot * c.get_direction().as_ref();
+          if sim.stage.can_move_to(&target, &c) {
+            self.wander(c, target);
+          } else {
+            self.wander(c, sim.stage.get_center());
+          }
         });
     }
   }
@@ -30,7 +34,7 @@ impl StepBehaviour for WanderBehaviour {
 #[derive(Debug, Copy, Clone)]
 pub struct HomesickBehaviour;
 impl HomesickBehaviour {
-  fn how_homesick(&self, creature : &Creature) -> Option<ObjectiveIntensity> {
+  fn how_homesick(creature : &Creature) -> Option<ObjectiveIntensity> {
     let dist = (creature.home_pos - creature.get_position()).norm();
     let cost = creature.get_motion_energy_cost();
     let steps_to_home = dist / creature.get_speed();
@@ -40,7 +44,7 @@ impl HomesickBehaviour {
       // pleanty of energy... can stay out longer
       x if x > 10.0 => None,
       // ok starting to miss home
-      x if x > 5.0 => Some(ObjectiveIntensity::ModerateCraving),
+      x if x > 5.0 => Some(ObjectiveIntensity::MinorCraving),
       x if x > 0.0 => Some(ObjectiveIntensity::MajorCraving),
       _ => Some(ObjectiveIntensity::VitalCraving),
     }
@@ -48,6 +52,41 @@ impl HomesickBehaviour {
 }
 
 impl StepBehaviour for HomesickBehaviour {
+  fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
+    // during orientation...
+    if let Phase::ORIENT = phase {
+      generation.creatures.iter_mut()
+        .filter(|c| c.is_active())
+        .filter_map(|c|
+          Self::how_homesick(c)
+            .map(|i| (c, i))
+        )
+        .for_each(|(c, i)| {
+          if c.can_reach(&c.home_pos) {
+            c.sleep();
+          } else {
+            c.add_objective(c.home_pos, i);
+          }
+        });
+    }
+  }
+}
+
+// Primer behaviour. Go home at 2 food
+#[derive(Debug, Copy, Clone)]
+pub struct SatisfiedBehaviour;
+impl SatisfiedBehaviour {
+  fn how_homesick(&self, creature : &Creature) -> Option<ObjectiveIntensity> {
+
+    match creature.foods_eaten {
+      // if more than 1 foods... go home
+      x if x > 1 => Some(ObjectiveIntensity::MajorCraving),
+      _ => HomesickBehaviour::how_homesick(&creature),
+    }
+  }
+}
+
+impl StepBehaviour for SatisfiedBehaviour {
   fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
     // during orientation...
     if let Phase::ORIENT = phase {
@@ -146,6 +185,8 @@ impl StepBehaviour for ScavengeBehaviour {
     }
 
     // when it is able to interact
+    // FIXME: high speed and low sense, means this creature might pass right through food
+    // need ray tracing
     if let Phase::ACT = phase {
       let mut available_food = generation.get_available_food();
 
@@ -206,6 +247,26 @@ impl StepBehaviour for OldAgeBehaviour {
       generation.creatures.iter_mut()
         .filter(|c| c.is_alive())
         .for_each(|c| self.check_old_age(c, sim));
+    }
+  }
+}
+
+// set the creature's home position to be the nearest point on the nearest edge
+#[derive(Debug, Copy, Clone)]
+pub struct EdgeHomeBehaviour;
+impl EdgeHomeBehaviour {
+  fn set_home(&self, creature : &mut Creature, sim : &Simulation){
+    let home = sim.stage.get_nearest_edge_point(&creature.pos);
+    creature.home_pos = home;
+  }
+}
+
+impl StepBehaviour for EdgeHomeBehaviour {
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation){
+    if let Phase::PRE = phase {
+      generation.creatures.iter_mut()
+        .filter(|c| c.is_alive())
+        .for_each(|c| self.set_home(c, sim));
     }
   }
 }
