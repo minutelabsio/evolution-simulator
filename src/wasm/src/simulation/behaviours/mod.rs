@@ -1,6 +1,9 @@
 use super::*;
 use std::f64::consts::FRAC_PI_4;
 
+mod reproduction;
+pub use reproduction::*;
+
 // Basic behaviour for simple movement
 #[derive(Debug, Copy, Clone)]
 pub struct WanderBehaviour;

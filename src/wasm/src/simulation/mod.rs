@@ -15,6 +15,7 @@ const MAX_STEPS : usize = 1_000_000;
 // what phase of the time step is it?
 #[derive(Debug, Copy, Clone)]
 pub enum Phase {
+  REPRODUCE, // only called when going from previous step
   INIT, // setup
   PRE, // before each step
   ORIENT,
@@ -27,6 +28,10 @@ pub enum Phase {
 pub trait StepBehaviour {
   // if you need &mut self, use Cell or RefCell
   fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation);
+}
+
+pub trait ReproductionBehaviour {
+  fn reproduce(&self, generation : &Generation, sim : &Simulation) -> Vec<Creature>;
 }
 
 // behaviour to reset parameters on step
@@ -51,7 +56,8 @@ pub struct Simulation {
   pub stage : Box<dyn Stage>,
   pub food_per_generation : u32,
   pub generations : Vec<Generation>,
-  pub behaviours : Vec<Box<dyn StepBehaviour>>
+  pub behaviours : Vec<Box<dyn StepBehaviour>>,
+  pub reproduction_behaviour : Box<dyn ReproductionBehaviour>,
 }
 
 // Starting point for creating simulations
@@ -65,6 +71,7 @@ impl Simulation {
       generations,
       food_per_generation,
       behaviours : vec![Box::new(ResetBehaviour)],
+      reproduction_behaviour : Box::new(behaviours::BasicReproductionBehaviour),
       // prepare a deterministic generator:
       rng: Rc::new(RefCell::new(SmallRng::seed_from_u64(seed)))
     }
@@ -72,6 +79,10 @@ impl Simulation {
 
   pub fn add_behavour(&mut self, b : Box<dyn StepBehaviour>){
     self.behaviours.push(b)
+  }
+
+  pub fn set_reproduction_behaviour(&mut self, b : Box<dyn ReproductionBehaviour>){
+    self.reproduction_behaviour = b;
   }
 
   pub fn run(&mut self, creatures: Vec<Creature>, max_generations : u32){
@@ -83,13 +94,18 @@ impl Simulation {
       if !keep_going { break; }
 
       let food_locations = self.generate_food();
-      let next = Generation::from_previous( self, &generation, food_locations );
+      let creatures = self.exec_reproduction(&generation);
+      let next = Generation::new( self, creatures, food_locations );
       self.generations.push(generation);
       generation = next;
       keep_going = generation.has_living_creatures();
     }
 
     self.generations.push(generation);
+  }
+
+  pub fn exec_reproduction(&self, gen : &Generation) -> Vec<Creature> {
+    self.reproduction_behaviour.reproduce(&gen, &self)
   }
 
   pub fn get_random_location(&self) -> Point2<f64> {
@@ -138,20 +154,6 @@ pub struct Generation {
 
 impl Generation {
   pub fn new( sim : &Simulation, creatures: Vec<Creature>, food_locations: Vec<Point2<f64>> ) -> Self {
-
-    Generation::generate(sim, creatures, food_locations)
-  }
-
-  pub fn from_previous( sim : &Simulation, previous : &Generation, food_locations: Vec<Point2<f64>> ) -> Self {
-    let creatures = previous.creatures.iter().filter(|c|
-      c.is_alive()
-    ).flat_map(|c| {
-      let mut rng = sim.rng.borrow_mut();
-      let mut ctrs = c.reproduce(&mut rng);
-      let grown = c.grow_older();
-      ctrs.push(grown);
-      ctrs
-    }).collect();
 
     Generation::generate(sim, creatures, food_locations)
   }

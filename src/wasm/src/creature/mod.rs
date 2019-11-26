@@ -5,6 +5,27 @@ use rand::{rngs::SmallRng};
 mod mutatable;
 use mutatable::*;
 
+// r1, r2. Points defining line segment
+// https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation
+fn distance_to_line(r1 : &Point2<f64>, r2 : &Point2<f64>, p : &Point2<f64>) -> Option<f64> {
+  let a = r1;
+  let v = r2 - r1;
+  let n = v.normalize();
+  // vector from the point to first point on line
+  let pa = a - p;
+  // projection of pa onto the line
+  let z = pa.dot(&n) * n;
+
+  // if the distance of that projection is less that the distance between given
+  // line points... then we have a closest point
+  if z.norm() <= v.norm() {
+    let d = pa - z;
+    Some(d.norm())
+  } else {
+    None
+  }
+}
+
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 enum CreatureState {
   DEAD,
@@ -87,26 +108,20 @@ impl Creature {
     ret
   }
 
-  pub fn reproduce(&self, rng : &mut RefMut<SmallRng>) -> Vec<Self> {
-    // TODO could implement multiple children in future
-    if self.will_reproduce() {
-      let child = Creature {
-        speed: self.speed.get_mutated(rng),
-        sense_range: self.sense_range.get_mutated(rng),
-        reach: self.reach.get_mutated(rng),
-        life_span: self.life_span.get_mutated(rng),
-        energy: self.energy,
+  // mutate the creature properties and return a new instance
+  pub fn mutate(&self, rng : &mut RefMut<SmallRng>) -> Self {
+    Creature {
+      speed: self.speed.get_mutated(rng),
+      sense_range: self.sense_range.get_mutated(rng),
+      reach: self.reach.get_mutated(rng),
+      life_span: self.life_span.get_mutated(rng),
+      energy: self.energy,
 
-        ..Creature::new(&self.home_pos)
-      };
-
-      vec![child]
-    } else {
-      vec![]
+      ..Creature::new(&self.home_pos)
     }
   }
 
-  // copy self, but increase age. might die so optional
+  // copy self, but increase age.
   pub fn grow_older(&self) -> Self {
     let Creature {
       speed,
@@ -197,10 +212,6 @@ impl Creature {
     self.target = None;
   }
 
-  pub fn will_reproduce(&self) -> bool {
-    self.foods_eaten > 1
-  }
-
   pub fn eat_food(&mut self){
     self.foods_eaten += 1;
   }
@@ -230,6 +241,17 @@ impl Creature {
   }
 
   pub fn can_reach(&self, pt : &Point2<f64>) -> bool {
+    if self.can_reach_now(&pt) { return true; }
+
+    let last = self.get_last_position();
+    if last.is_none() { return false }
+
+    distance_to_line(&self.get_position(), &last.unwrap(), pt)
+      .map(|d| d <= self.get_reach())
+      .unwrap_or(false)
+  }
+
+  pub fn can_reach_now(&self, pt : &Point2<f64>) -> bool {
     (pt - self.pos).norm() <= self.get_reach()
   }
 
