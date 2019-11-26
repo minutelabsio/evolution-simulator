@@ -21,8 +21,8 @@ impl BasicReproductionBehaviour {
 }
 
 impl ReproductionBehaviour for BasicReproductionBehaviour {
-  fn reproduce(&self, generation : &Generation, sim : &Simulation) -> Vec<Creature> {
-    generation.creatures.iter().filter(|c|
+  fn reproduce(&self, creatures : &Vec<Creature>, sim : &Simulation) -> Vec<Creature> {
+    creatures.iter().filter(|c|
       c.is_alive()
     ).flat_map(|c| {
       let mut rng = sim.rng.borrow_mut();

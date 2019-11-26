@@ -140,7 +140,7 @@ pub fn continue_simulation( cfg : &JsValue, creature_cfg: Vec<JsValue> ) -> Resu
   let creatures = parse_creatures( creature_cfg )?;
   let mut sim = create_simulation( &sim_cfg )?;
 
-  sim.run(creatures, sim_cfg.max_generations);
+  sim.run(sim.exec_reproduction(&creatures), sim_cfg.max_generations);
 
   let results : SimulationResults = sim.into();
   Ok(JsValue::from_serde(&results).unwrap())

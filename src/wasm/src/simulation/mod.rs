@@ -31,7 +31,7 @@ pub trait StepBehaviour {
 }
 
 pub trait ReproductionBehaviour {
-  fn reproduce(&self, generation : &Generation, sim : &Simulation) -> Vec<Creature>;
+  fn reproduce(&self, creatures : &Vec<Creature>, sim : &Simulation) -> Vec<Creature>;
 }
 
 // behaviour to reset parameters on step
@@ -94,7 +94,7 @@ impl Simulation {
       if !keep_going { break; }
 
       let food_locations = self.generate_food();
-      let creatures = self.exec_reproduction(&generation);
+      let creatures = self.exec_reproduction(&generation.creatures);
       let next = Generation::new( self, creatures, food_locations );
       self.generations.push(generation);
       generation = next;
@@ -104,8 +104,8 @@ impl Simulation {
     self.generations.push(generation);
   }
 
-  pub fn exec_reproduction(&self, gen : &Generation) -> Vec<Creature> {
-    self.reproduction_behaviour.reproduce(&gen, &self)
+  pub fn exec_reproduction(&self, creatures : &Vec<Creature>) -> Vec<Creature> {
+    self.reproduction_behaviour.reproduce(&creatures, &self)
   }
 
   pub fn get_random_location(&self) -> Point2<f64> {
