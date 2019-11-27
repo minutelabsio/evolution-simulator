@@ -87,6 +87,12 @@ function runSimulation( config = {}, creatures = [] ){
   }, creatures)
 }
 
+function continueSimulation( config = {}, creatures = [] ){
+  return worker.continueSimulation({
+    ...config
+  }, creatures)
+}
+
 export const simulation = {
   namespaced: true
   , state: initialState

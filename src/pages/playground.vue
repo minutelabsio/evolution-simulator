@@ -6,6 +6,19 @@
         .results
           canvas.stage(ref="canvas", v-bind="simulationProps")
 
+        .controls
+          AudioScrubber(:progress="time/totalTime * 100", @scrub="onScrub")
+          br/
+          b-field(grouped, position="is-centered")
+            b-field
+              b-button.btn-dark(@click="prevGeneration()")
+                b-icon(icon="skip-previous")
+            b-field
+              b-button.btn-dark(@click="togglePlay()")
+                b-icon(:icon="paused ? 'play' : 'pause'")
+            b-field
+              b-button.btn-dark(@click="nextGeneration()")
+                b-icon(icon="skip-next")
 
               //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
               //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
@@ -66,14 +79,8 @@
   .bottom-drawer
     .columns.is-marginless(v-if="simulation")
       .column
-        b-field(grouped)
-          b-field
-            b-button.btn-dark(@click="togglePlay()")
-              b-icon(:icon="paused ? 'play' : 'pause'")
-          b-field
-            b-button.btn-dark(@click="nextGeneration()")
-              b-icon(icon="skip-next")
-          b-slider(@input="updateTime", :value="time", :max="totalTime", rounded)
+
+
 
     Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
@@ -85,13 +92,16 @@
         , :topPetal="topPetal"
         , @dataSelect="genIndex === $event.generation && propertySelect($event.selected.index)"
       )
+        template(v-if="canContinue", #after)
+          b-button.btn-dark(@click="continueSimulation") Load More
 </template>
 
 <script>
-// import _times from 'lodash/times'
+// import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
 import chroma from 'chroma-js'
 import Copilot from 'copilot'
+import AudioScrubber from '@/components/audio-scrubber'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
@@ -164,6 +174,7 @@ export default {
     , FlowerChart
     , FlowerTimeline
     , Legend
+    , AudioScrubber
   }
   , data: () => ({
     paused: true
@@ -401,8 +412,17 @@ export default {
     run(){
       this.$store.dispatch('simulation/run')
     }
+    , continueSimulation(){
+      this.$store.dispatch('simulation/continue')
+    }
     , togglePlay(){
       this.paused = !this.paused
+    }
+    , prevGeneration(){
+      if ( this.genIndex <= 0 ){ return }
+      this.player.togglePause(true)
+      this.player.seek(0)
+      this.genIndex -= 1
     }
     , nextGeneration(){
       if ( this.genIndex >= (this.simulation.generations.length - 1) ){ return }
@@ -414,6 +434,9 @@ export default {
       if ( time !== this.player.time ){
         this.player.seek(time)
       }
+    }
+    , onScrub(progress){
+      this.updateTime(progress * this.totalTime / 100)
     }
     , draw(){
       if (!this.generation){ return }
@@ -496,7 +519,7 @@ export default {
 .generation-selector.is-finished
   >>> .flower-timeline .inner:after
     content: ''
-    background: center center url(https://cdn0.iconfinder.com/data/icons/nature-and-environment-1/64/skeleton-pirate-crossbones-danger-deadly-skull-512.png) no-repeat
+    background: center center url('https://cdn0.iconfinder.com/data/icons/nature-and-environment-1/64/skeleton-pirate-crossbones-danger-deadly-skull-512.png') no-repeat
     background-size: contain
     width: 120px
     flex: 0 0 auto

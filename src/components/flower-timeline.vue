@@ -16,6 +16,7 @@
         , @select="onFlowerSelect($event, index)"
       )
       .gen-label.no-select {{ index + 1 }}
+    slot(name="after")
 </template>
 
 <script>
