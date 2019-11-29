@@ -3,22 +3,24 @@
   .upper
     .columns.is-gapless
       .column(ref="resultsContainer")
-        .results
-          canvas.stage(ref="canvas", v-bind="simulationProps")
+        .viewer
+          .screen
+            canvas.stage(ref="canvas", v-bind="simulationProps")
+            GenerationViewer.viewer(:generation="generation || {}", :time="time", :step-time="stepTime")
 
-        .controls
-          AudioScrubber(:progress="time/totalTime * 100", @scrub="onScrub")
-          br/
-          b-field(grouped, position="is-centered")
-            b-field
-              b-button.btn-dark(@click="prevGeneration()")
-                b-icon(icon="skip-previous")
-            b-field
-              b-button.btn-dark(@click="togglePlay()")
-                b-icon(:icon="paused ? 'play' : 'pause'")
-            b-field
-              b-button.btn-dark(@click="nextGeneration()")
-                b-icon(icon="skip-next")
+          .controls
+            AudioScrubber(:progress="time/totalTime * 100", @scrub="onScrub")
+            br/
+            b-field(grouped, position="is-centered")
+              b-field
+                b-button.btn-dark(@click="prevGeneration()")
+                  b-icon(icon="skip-previous")
+              b-field
+                b-button.btn-dark(@click="togglePlay()")
+                  b-icon(:icon="paused ? 'play' : 'pause'")
+              b-field
+                b-button.btn-dark(@click="nextGeneration()")
+                  b-icon(icon="skip-next")
 
               //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
               //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
@@ -77,11 +79,6 @@
 
 
   .bottom-drawer
-    .columns.is-marginless(v-if="simulation")
-      .column
-
-
-
     Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
@@ -105,6 +102,7 @@ import AudioScrubber from '@/components/audio-scrubber'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
+import GenerationViewer from '@/components/generation-viewer'
 import Legend from '@/components/legend'
 import { RunningStatistics } from '@/lib/math'
 
@@ -175,6 +173,7 @@ export default {
     , FlowerTimeline
     , Legend
     , AudioScrubber
+    , GenerationViewer
   }
   , data: () => ({
     paused: true
@@ -475,7 +474,14 @@ export default {
   background: $black-ter
   border-top: 1px solid $black
   min-height: 261px
+.viewer
+  display: flex
+  height: 100%
+  flex-direction: column
+  .screen
+    flex-grow: 1
 .stage
+  display: none
   position: relative
   // border: 1px solid rgba(255, 255, 255, 0.4)
   overflow: hidden
