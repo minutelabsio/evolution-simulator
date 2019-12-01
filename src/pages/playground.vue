@@ -220,7 +220,7 @@ export default {
 
     this.player.on('animate', () => {
       this.time = this.player.time
-      this.draw()
+      // this.draw()
     })
     this.player.on('togglePause', () => {
       if ( this.player.paused !== this.paused ){
