@@ -122,7 +122,7 @@ export default {
   , props: {
     generation: {
       type: Object
-      , default: {}
+      , default: () => ({})
     }
     , time: Number
     , stepTime: Number
