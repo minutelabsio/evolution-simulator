@@ -62,7 +62,7 @@ $progress-color: $blue
     left: 0px
     width: 100%
     z-index: 1
-    wil-change: transform
+    will-change: transform
     // transition: transform 0.01s ease-in
     &:after
       content: ''
@@ -85,7 +85,7 @@ $progress-color: $blue
     width: 100%
     height: 100%
     background: $progress-color
-    wil-change: transform
+    will-change: transform
     // border-radius: 0 6px 6px 0
     // transition: transform 0.01s ease-in
   &.drag
