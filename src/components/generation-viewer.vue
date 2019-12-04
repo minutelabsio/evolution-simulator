@@ -29,10 +29,11 @@
 
       Food(v-for="food in foods", v-bind="food")
       v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
-        Creature(v-for="c in generation.creatures", :creature="c", :size="3", :time="time", :step-time="stepTime")
+        Creature(v-for="c in generation.creatures", :creature="c", :size="3", :step-time="stepTime")
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import * as THREE from 'three'
 import v3Renderer from '@/components/three-vue/v3-renderer'
 import v3Scene from '@/components/three-vue/v3-scene'
@@ -71,6 +72,13 @@ const computed = {
       }
     })
   }
+  , generation(){
+    if ( !this.results ){ return {} }
+    return this.results.generations[this.generationIndex]
+  }
+  , ...mapGetters('simulation', {
+    'results': 'results'
+  })
 }
 
 const watch = {
@@ -103,6 +111,7 @@ const methods = {
     controls.maxPolarAngle = Math.PI - epsilon
   }
   , draw(){
+    this.time = this.getTime()
     this.controls.update()
     this.$refs.renderer.draw()
   }
@@ -120,19 +129,20 @@ const methods = {
 export default {
   name: 'GenerationViewer'
   , props: {
-    generation: {
-      type: Object
-      , default: () => ({})
+    generationIndex: {
+      type: Number
+      , default: 0
     }
-    , time: Number
     , stepTime: Number
   }
+  , inject: [ 'getTime' ]
   , data: () => ({
     viewWidth: 500
     , viewHeight: 500
     , gridSize: 500
     , origin: [0, 0, 0]
     , orthCameraPos: [1000, 500, 1000]
+    , time: 0
   })
   , components
   , computed

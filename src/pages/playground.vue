@@ -5,11 +5,11 @@
       .column(ref="resultsContainer")
         .viewer
           .screen
-            canvas.stage(ref="canvas", v-bind="simulationProps")
-            GenerationViewer.viewer(:generation="generation || {}", :time="time", :step-time="stepTime")
+            //- canvas.stage(ref="canvas", v-bind="simulationProps")
+            GenerationViewer.viewer(:generation-index="genIndex", :step-time="stepTime")
 
           .controls
-            AudioScrubber(:progress="time/totalTime * 100", @scrub="onScrub")
+            AudioScrubber(:progress="progress", @scrub="onScrub")
             br/
             b-field(grouped, position="is-centered")
               b-field
@@ -175,6 +175,12 @@ export default {
     , AudioScrubber
     , GenerationViewer
   }
+  , provide(){
+    const self = this
+    return {
+      getTime(){ return self.time }
+    }
+  }
   , data: () => ({
     paused: true
     , canvasScale: 1
@@ -206,6 +212,7 @@ export default {
     , genIndex: 0
 
     , time: 0
+    , progress: 0
     // , traitToColor: 'speed'
   })
   , created(){
@@ -215,11 +222,12 @@ export default {
   }
   , mounted(){
     this.canvasScale = Math.min(this.$refs.resultsContainer.offsetWidth, this.$refs.resultsContainer.offsetHeight) / this.size
-    this.canvas = this.$refs.canvas
-    this.ctx = this.canvas.getContext('2d')
+    // this.canvas = this.$refs.canvas
+    // this.ctx = this.canvas.getContext('2d')
 
     this.player.on('animate', () => {
       this.time = this.player.time
+      this.progress = this.time/this.totalTime * 100
       // this.draw()
     })
     this.player.on('togglePause', () => {
@@ -229,7 +237,7 @@ export default {
     })
 
     this.$nextTick(() => {
-      this.run()
+      // this.run()
     })
   }
   , beforeDestroy(){
@@ -291,9 +299,6 @@ export default {
           , height: this.size * this.canvasScale + 'px'
         }
       }
-    }
-    , currentStep(){
-      return Math.floor(this.time / this.stepTime)
     }
     , traitToColor(){
       return creatureTraits[this.topPetal]

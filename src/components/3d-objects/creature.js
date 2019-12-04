@@ -44,6 +44,7 @@ function creaturePositionAt(creature, stepFrac) {
 export default {
   name: 'creature'
   , mixins: [ THREEObjectMixin ]
+  , inject: [ 'getTime' ]
   , props: {
     ...threeProps
     , ...materialProps
@@ -52,7 +53,6 @@ export default {
       , default: 3
     }
     , creature: Object
-    , time: Number
     , stepTime: Number
   }
   , components: {
@@ -69,13 +69,15 @@ export default {
     geometry(){
       return new THREE.SphereGeometry( this.size, 32, 32 )
     }
-    , creaturePosition(){
+  }
+  , created(){
+    this.beforeDraw(() => {
+      let time = this.getTime()
       let pos = this.v3object.position
-      let stepFrac = this.time / this.stepTime
+      let stepFrac = time / this.stepTime
       let p = creaturePositionAt(this.creature, stepFrac)
       pos.set(p[0], 0, p[1])
-      return pos
-    }
+    })
   }
   , methods: {
     createObject(){
@@ -86,7 +88,6 @@ export default {
     , updateObjects(){
       this.assignProps( this.v3object, threeProps )
       this.assignProps( this.v3object.material, materialProps )
-      this.v3object.position.copy(this.creaturePosition)
     }
   }
 }
