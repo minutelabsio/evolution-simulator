@@ -1,39 +1,49 @@
-<template lang="pug">
-.scrubber(v-drag="onScrub", :class="{ drag }")
-  .nib(:style="{ transform: `translate(${progress}%)`}")
-  .inner
-    .progress-bar(:style="{ transform: `translate(${progress}%)`}")
-</template>
-
 <script>
 export default {
   name: 'AudioScrubber'
+  , functional: true
   , props: {
     progress: Number
   }
-  , components: {}
-  , data: () => ({
-    drag: false
-  })
-  , methods: {
-    onScrub( e ){
-      if ( e.first ){
-        this.drag = true
-      } else if ( e.last ){
-        this.drag = false
+  , render(h, ctx){
+    let currentProgress = ctx.props.progress
+    let style = { transform: `translate(${currentProgress}%)` }
+    const $emit = (name, ...args) => {
+      let cb = ctx.listeners[name]
+      if (cb){
+        cb.apply(null, args)
       }
-      let x = e.layerX
-      let progress = Math.round( x / this.$el.offsetWidth * 100 )
-      progress = Math.min(Math.max(0, progress), 100)
-      if ( e.first ){
-        this.$emit('scrubstart')
-      }
-      if ( e.last ){
-        this.$emit('scrubend')
-      }
-      if ( progress === this.progress ){ return }
-      this.$emit('scrub', progress)
     }
+    return h('div',
+      {
+        class: 'scrubber'
+        , directives: [
+          {
+            name: 'drag'
+            , value: ( e ) => {
+              let el = e.el
+              let x = e.layerX
+              let progress = Math.round( x / el.offsetWidth * 100 )
+              progress = Math.min(Math.max(0, progress), 100)
+              if ( e.first ){
+                $emit('scrubstart')
+              }
+              if ( e.last ){
+                $emit('scrubend')
+              }
+              if ( progress === currentProgress ){ return }
+              $emit('scrub', progress)
+            }
+          }
+        ]
+      }
+      , [
+        h('div', { class: 'nib', style })
+        , h('div', { class: 'inner' }, [
+          h('div', { class: 'progress-bar', style })
+        ])
+      ]
+    )
   }
 }
 </script>
@@ -88,8 +98,4 @@ $progress-color: $blue
     will-change: transform
     // border-radius: 0 6px 6px 0
     // transition: transform 0.01s ease-in
-  &.drag
-    .nib,
-    .progress-bar
-      // transition: transform 0.1s linear
 </style>
