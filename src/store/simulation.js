@@ -40,6 +40,7 @@ const initialState = {
   }
   , creatures: []
   , results: null
+  , getResults: () => {}
 }
 
 function strTypeToNumber( val ){
@@ -98,15 +99,15 @@ export const simulation = {
   , state: initialState
   , getters: {
     isLoading: state => state.isBusy
-    , results: state => state.results
-    , lastGeneration: state => {
-      if (!state.results) { return null }
-      let g = state.results.generations
+    , results: state => state.getResults()
+    , lastGeneration: (state, getters) => {
+      if (!getters.results) { return null }
+      let g = getters.results.generations
       return g[g.length - 1]
     }
-    , canContinue: state => {
-      if ( !state.results ){ return false }
-      let g = state.results.generations
+    , canContinue: (state, getters) => {
+      if ( !getters.results ){ return false }
+      let g = getters.results.generations
       return _some(g[g.length - 1].creatures, c => c.state !== 'DEAD')
     }
     , config: state => state.config
@@ -162,10 +163,14 @@ export const simulation = {
       state.startedAt = 0
     }
     , setResults(state, results){
-      state.results = results
+      // state.results = results
+      state.getResults = () => results
     }
     , appendResults(state, results){
-      state.results.generations = state.results.generations.concat(results.generations)
+      // state.results.generations = state.results.generations.concat(results.generations)
+      let prevResults = state.getResults()
+      prevResults.generations = prevResults.generations.concat(results.generations)
+      state.getResults = () => prevResults
     }
     , setConfig(state, cfg){
       state.config = {
