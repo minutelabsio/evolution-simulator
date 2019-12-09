@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { CSS2DObject } from 'three/examples/js/renderers/CSS2DRenderer' // eslint-disable-line no-unused-vars
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer' // eslint-disable-line no-unused-vars
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 const dummyEl = document.createElement('div')
@@ -30,7 +30,7 @@ export default {
   , created(){
     this.boundingBox = new THREE.Box2()
     // eslint-disable-next-line
-    this.v3object = new THREE.CSS2DObject( dummyEl )
+    this.v3object = new CSS2DObject( dummyEl )
 
     // const vec = this.vec = new THREE.Vector3()
     // const vec2 = this.vec2 = new THREE.Vector2()

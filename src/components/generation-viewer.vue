@@ -27,9 +27,9 @@
         , :color2="0x102b61"
       )
 
-      Food(v-for="food in foods", v-bind="food")
+      Food(v-for="(food, index) in foods", :key="index", v-bind="food")
       v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
-        Creature(v-for="c in generation.creatures", :creature="c", :size="3", :step-time="stepTime")
+        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", :step-time="stepTime")
 </template>
 
 <script>

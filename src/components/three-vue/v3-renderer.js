@@ -1,16 +1,17 @@
 import * as THREE from 'three'
 /* eslint-disable no-unused-vars */
-import { CSS2DRenderer } from 'three/examples/js/renderers/CSS2DRenderer'
-import { EffectComposer } from 'three/examples/js/postprocessing/EffectComposer'
-import { CopyShader } from 'three/examples/js/shaders/CopyShader'
-// import { FXAAShader } from 'three/examples/js/shaders/FXAAShader'
-import { RenderPass } from 'three/examples/js/postprocessing/RenderPass'
-import { ShaderPass } from 'three/examples/js/postprocessing/ShaderPass'
-import { OutlinePass } from 'three/examples/js/postprocessing/OutlinePass'
+import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader'
+// import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader'
+import { Pass } from 'three/examples/jsm/postprocessing/Pass'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass'
 /* eslint-enable no-unused-vars */
 /* eslint-disable comma-style */
 // BUG fix for memory leak....
-THREE.Pass.FullScreenQuad = ( function () {
+Pass.FullScreenQuad = ( function () {
 
 	var camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
 
@@ -91,8 +92,8 @@ export default {
     this.cssRenderer = new CSS2DRenderer({})
 
     // https://threejs.org/examples/webgl_postprocessing_outline.html
-    let composer = this.composer = new THREE.EffectComposer( this.renderer )
-    let renderPass = this.renderPass = new THREE.RenderPass( null, null )
+    let composer = this.composer = new EffectComposer( this.renderer )
+    let renderPass = this.renderPass = new RenderPass( null, null )
     composer.addPass( renderPass )
 
     // let effectFXAA = new THREE.ShaderPass( THREE.FXAAShader )
@@ -201,7 +202,7 @@ export default {
           this.outlinePass.dispose()
         }
         const dims = new THREE.Vector2( this.width, this.height )
-        let outlinePass = this.outlinePass = new THREE.OutlinePass( dims, this.scene, this.camera )
+        let outlinePass = this.outlinePass = new OutlinePass( dims, this.scene, this.camera )
 
         outlinePass.edgeStrength = 3
         outlinePass.edgeThickness = 1

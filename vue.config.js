@@ -1,5 +1,5 @@
 const path = require('path')
-const ThreeWebpackPlugin = require('@wildpeaks/three-webpack-plugin')
+// const ThreeWebpackPlugin = require('@wildpeaks/three-webpack-plugin')
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
 const labConfig = require('./lab-config')
 
@@ -13,14 +13,14 @@ module.exports = {
       __dirname: true
     }
     , plugins: [
-  		new ThreeWebpackPlugin()
-      , new WasmPackPlugin({
+  		new WasmPackPlugin({
           crateDirectory: path.resolve(__dirname, 'src/wasm')
           , watchDirectories: [
             path.resolve(__dirname, 'src/wasm/src')
           ]
           , forceMode: 'production'
       })
+      // , new ThreeWebpackPlugin()
   	]
     , output: {
       globalObject: 'this'

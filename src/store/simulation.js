@@ -164,7 +164,7 @@ export const simulation = {
     }
     , setResults(state, results){
       // state.results = results
-      state.getResults = () => results
+      state.getResults = () => Object.freeze(results)
     }
     , appendResults(state, results){
       // state.results.generations = state.results.generations.concat(results.generations)
