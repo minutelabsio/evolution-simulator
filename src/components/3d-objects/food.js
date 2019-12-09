@@ -29,7 +29,7 @@ const geometryProps = {
 const materialProps = {
   color: {
     type: Number
-    , default: 0xffffff
+    , default: 0x6E8044
   }
   , transparent: {
     type: Boolean

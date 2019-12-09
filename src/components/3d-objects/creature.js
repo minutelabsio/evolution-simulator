@@ -16,7 +16,7 @@ const threeProps = {
 const materialProps = {
   color: {
     type: Number
-    , default: 0x6E8044
+    , default: 0x476B81
   }
   , transparent: {
     type: Boolean
@@ -95,6 +95,10 @@ export default {
       let t = Math.min(stepFrac / this.steps, 1)
       this.spline.getPoint(t, this.tmpV2)
       pos.set(this.tmpV2.x, 0, this.tmpV2.y)
+
+      let rot = this.v3object.rotation
+      let ang = this.spline.getTangent(t).angle()
+      rot.set(0, -ang, 0)
     })
   }
   , methods: {
@@ -117,7 +121,12 @@ export default {
       effect.addBall(0.515, 0.58, 0.5, strength/4, 10)
 
       this.v3object = new THREE.Group()
-      this.v3object.add(effect)
+      // this.v3object.add(effect)
+
+      let geo = effect.generateBufferGeometry()
+      let cached = new THREE.Mesh( geo, material )
+      cached.scale.set(size, size, size)
+      this.v3object.add(cached)
 
       // eyes
       let x = 0.082

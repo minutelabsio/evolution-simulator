@@ -24,8 +24,8 @@
       v3-grid(
         :size="gridSize"
         , :divisions="50"
-        , :color1="0x001e44"
-        , :color2="0x102b61"
+        , :color1="0xAAAAAA"
+        , :color2="0x444444"
       )
 
       Food(v-for="(food, index) in foods", :key="index", v-bind="food")
