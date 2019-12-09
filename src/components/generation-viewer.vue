@@ -20,6 +20,7 @@
         , :look-at="origin"
       )
       v3-light(type="ambient", :intensity="0.7")
+      v3-light(type="directional", :intensity="0.5", :position="[0, 1, 0]")
       v3-grid(
         :size="gridSize"
         , :divisions="50"
@@ -75,6 +76,9 @@ const computed = {
   , generation(){
     if ( !this.results ){ return {} }
     return this.results.generations[this.generationIndex]
+  }
+  , steps(){
+    return this.generation.steps
   }
   , ...mapGetters('simulation', {
     'results': 'results'
