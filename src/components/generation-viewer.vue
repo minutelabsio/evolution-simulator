@@ -30,7 +30,8 @@
 
       Food(v-for="(food, index) in foods", :key="index", v-bind="food")
       v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
-        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", :step-time="stepTime")
+        keep-alive(v-for="(c, index) in generation.creatures", :key="index")
+          Creature(:creature="c", :size="3", :step-time="stepTime")
 </template>
 
 <script>
