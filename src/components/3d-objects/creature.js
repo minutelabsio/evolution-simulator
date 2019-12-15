@@ -79,6 +79,9 @@ export default {
         return new THREE.Vector2(p[0], p[1])
       }))
     }
+    , willDie(){
+      return this.creature.state === "DEAD"
+    }
   }
   , created(){
     this.beforeDraw(() => {
@@ -91,6 +94,10 @@ export default {
       let rot = this.v3object.rotation
       let ang = this.spline.getTangent(t).angle()
       rot.set(0, -ang, 0)
+
+      let deadState = (t >= 1 && this.willDie)
+      rot.x = deadState ? Math.PI / 2 : 0
+      this.blobMaterial.opacity = deadState ? 0.3 : 1
     })
   }
   , methods: {
@@ -100,6 +107,7 @@ export default {
       let blob = this.v3object.getObjectByName('blob')
       blob.material = blob.material.clone()
       this.blobMaterial = blob.material
+      this.blobMaterial.transparent = true
       this.registerDisposables(blob.material)
 
       // Path

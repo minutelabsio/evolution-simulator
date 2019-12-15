@@ -82,6 +82,8 @@ impl SatisfiedBehaviour {
   fn how_homesick(&self, creature : &Creature) -> Option<ObjectiveIntensity> {
 
     match creature.foods_eaten {
+      // if no food... keep going
+      x if x == 0 => None,
       // if more than 1 foods... go home
       x if x > 1 => Some(ObjectiveIntensity::MajorCraving),
       _ => HomesickBehaviour::how_homesick(&creature),
@@ -141,7 +143,7 @@ impl ScavengeBehaviour {
 
         // how hungry is it?
         let intensity = match creature.foods_eaten {
-          0 => ObjectiveIntensity::MajorCraving,
+          0 => ObjectiveIntensity::VitalCraving,
           1 => ObjectiveIntensity::ModerateCraving,
           _ => ObjectiveIntensity::MinorCraving,
         };
