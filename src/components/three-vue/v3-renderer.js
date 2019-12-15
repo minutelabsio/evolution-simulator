@@ -88,7 +88,7 @@ export default {
     })
 
 		this.renderer.shadowMap.enabled = this.shadows
-		this.renderer.shadowMap.type = THREE.PCFShadowMap
+		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
     this.renderer.setPixelRatio( window.devicePixelRatio )
     // this.renderer.toneMapping = THREE.ReinhardToneMapping
 
