@@ -5,6 +5,7 @@ import {
   , PointLight
   , RectAreaLight
   , SpotLight
+  // , CameraHelper
   // , Vector3
 } from 'three'
 import THREEObjectMixin from './v3-object.mixin'
@@ -71,6 +72,27 @@ export default {
   })
   , created(){
     const light = this.lightConstructor( this )
+    // if (this.type === 'directional'){
+    //   light.castShadow = true
+    //   light.shadow.mapSize.width = 512
+    //   light.shadow.mapSize.height = 512
+    //
+    //   light.shadow.camera.near = 10
+    //   light.shadow.camera.far = 500
+    //   let d = 100
+    //   light.shadow.camera.left = -d
+    //   light.shadow.camera.right = d
+    //   light.shadow.camera.top = d
+    //   light.shadow.camera.bottom = -d
+    //   light.shadow.bias = 1
+    //
+    //   let helper = new CameraHelper( light.shadow.camera )
+    //   this.$parent.v3object.add( helper )
+    //   this.$on('hook:beforeDestroy', () => {
+    //     this.$parent.v3object.remove( helper )
+    //   })
+    // }
+
     this.v3object = light
   }
   , watch: {

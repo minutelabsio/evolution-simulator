@@ -20,9 +20,9 @@ const geometryProps = {
     type: Number
     , default: 10
   }
-  , segments: {
+  , depth: {
     type: Number
-    , default: 1
+    , default: 10
   }
 }
 
@@ -42,7 +42,7 @@ const materialProps = {
 }
 
 export default {
-  name: 'v3-plane'
+  name: 'v3-box'
   , mixins: [ THREEObjectMixin ]
   , props: {
     ...threeProps
@@ -61,15 +61,15 @@ export default {
   }
   , computed: {
     geometry(){
-      return new THREE.PlaneGeometry( this.width, this.height, this.segments )
+      return new THREE.BoxGeometry(this.width, this.height, this.depth)
     }
   }
   , methods: {
     createObject(){
       let options = _pick(this, Object.keys(materialProps))
-      let material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, ...options })
-      let plane = new THREE.Mesh( this.geometry, material )
-      this.v3object = plane
+      let material = new THREE.MeshLambertMaterial({ ...options })
+      let box = new THREE.Mesh( this.geometry, material )
+      this.v3object = box
     }
     , updateObjects(){
       this.assignProps( this.v3object, threeProps )

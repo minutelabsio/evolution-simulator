@@ -4,6 +4,7 @@
     ref="renderer"
     , :width="viewWidth"
     , :height="viewHeight"
+    , :shadows="true"
   )
     v3-scene
       v3-camera(
@@ -20,14 +21,16 @@
         , :look-at="origin"
       )
       v3-light(type="ambient", :intensity="0.7")
-      v3-light(type="directional", :intensity="0.5", :position="[100, 100, 0]", :cast-shadow="true")
-      //- v3-grid(
-      //-   :size="gridSize"
-      //-   , :divisions="50"
-      //-   , :color1="0xAAAAAA"
-      //-   , :color2="0x444444"
-      //- )
-      v3-plane(:width="gridSize", :height="gridSize", :color="0xEEEEEE", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      v3-light(type="directional", :intensity="0.5", :position="[100, 100, -10]", :cast-shadow="true")
+      v3-grid(
+        :size="gridSize - 10"
+        , :position="[0, 0.02, 0]",
+        , :divisions="50"
+        , :color1="0x999999"
+        , :color2="0x999999"
+      )
+      v3-plane(:width="gridSize - 10", :height="gridSize - 10", :position="[0, 0.01, 0]", :color="0xEEEEEE", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -5, 0]", :color="0xCCCCCC", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
@@ -45,6 +48,7 @@ import v3Group from '@/components/three-vue/v3-group'
 import v3Dom from '@/components/three-vue/v3-dom'
 import v3Grid from '@/components/three-vue/v3-grid'
 import v3Plane from '@/components/three-vue/v3-plane'
+import v3Box from '@/components/three-vue/v3-box'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 const OrbitControls = require('three-orbit-controls')(THREE)
@@ -58,6 +62,7 @@ const components = {
   , v3Dom
   , v3Grid
   , v3Plane
+  , v3Box
 
   , Food
   , Creature

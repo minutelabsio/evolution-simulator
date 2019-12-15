@@ -70,6 +70,7 @@ export default {
     , updateObjects(){
       this.assignProps( this.v3object, threeProps )
       this.assignProps( this.v3object.material, materialProps )
+      this.v3object.geometry = this.geometry
     }
   }
 }
