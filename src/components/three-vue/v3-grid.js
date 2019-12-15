@@ -8,22 +8,6 @@ const threeProps = {
   , rotation: {
     default: () => [0, 0, 0]
   }
-  , size: {
-    type: Number
-    , default: 10
-  }
-  , divisions: {
-    type: Number
-    , default: 64
-  }
-  , color1: {
-    type: Number
-    , default: 0x444444
-  }
-  , color2: {
-    type: Number
-    , default: 0x888888
-  }
 }
 
 export default {
@@ -31,6 +15,22 @@ export default {
   , mixins: [ THREEObjectMixin ]
   , props: {
     ...threeProps
+    , size: {
+      type: Number
+      , default: 10
+    }
+    , divisions: {
+      type: Number
+      , default: 64
+    }
+    , color1: {
+      type: Number
+      , default: 0x444444
+    }
+    , color2: {
+      type: Number
+      , default: 0x888888
+    }
   }
   , components: {
   }
@@ -53,6 +53,7 @@ export default {
       obj.material = this.v3object.material
       obj.geometry = this.v3object.geometry
       this.v3object = obj
+      this.assignProps( this.v3object, threeProps )
     }
   }
 }
