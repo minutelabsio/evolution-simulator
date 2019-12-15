@@ -169,7 +169,7 @@ impl Generation {
     let mut gen = Generation {
       creatures,
       food,
-      steps: 0,
+      steps: 1,
     };
 
     gen.run_phase(Phase::INIT, sim);
@@ -195,7 +195,7 @@ impl Generation {
 
   pub fn mark_food_eaten(&mut self, food : &Food){
     if let Some(index) = self.food.iter().position(|f| *f == *food) {
-      self.food[index].status = FoodStatus::Eaten(self.steps);
+      self.food[index].status = FoodStatus::Eaten(self.steps + 1);
     }
   }
 
