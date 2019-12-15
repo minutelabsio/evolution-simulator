@@ -5,7 +5,7 @@ import {
   , PointLight
   , RectAreaLight
   , SpotLight
-  , CameraHelper
+  // , CameraHelper
   , Vector2
 } from 'three'
 import _mapKeys from 'lodash/mapKeys'

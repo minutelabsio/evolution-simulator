@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
 const threeProps = {
   color: {
