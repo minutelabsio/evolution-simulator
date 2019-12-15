@@ -86,7 +86,7 @@ export default {
       let stepFrac = this.getStep()
       let t = Math.min(stepFrac / this.steps, 1)
       this.spline.getPoint(t, this.tmpV2)
-      pos.set(this.tmpV2.x, 0, this.tmpV2.y)
+      pos.set(this.tmpV2.x, 3, this.tmpV2.y)
 
       let rot = this.v3object.rotation
       let ang = this.spline.getTangent(t).angle()
@@ -101,6 +101,20 @@ export default {
       blob.material = blob.material.clone()
       this.blobMaterial = blob.material
       this.registerDisposables(blob.material)
+
+      // Path
+      // let points = new THREE.BufferGeometry()
+      // let line = new THREE.Points(points)
+      // this.$parent.v3object.add(line)
+      // this.$watch('spline', () => {
+      //   let vertices = this.spline.points.reduce((r, p) => r.push(p.x, 0, p.y) && r, [])
+      //   points.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
+      //   points.attributes.position.needsUpdate = true
+      // }, { immediate: true })
+      //
+      // this.$on('hook:beforeDestroy', () => {
+      //   this.$parent.v3object.remove(line)
+      // })
     }
   }
 }

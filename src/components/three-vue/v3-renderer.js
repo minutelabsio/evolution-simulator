@@ -66,6 +66,7 @@ export default {
       type: Number
       , default: 0x666666
     }
+		, shadows: Boolean
   }
   , components: {
   }
@@ -86,6 +87,8 @@ export default {
       // , canvas: this.$el
     })
 
+		this.renderer.shadowMap.enabled = this.shadows
+		this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.setPixelRatio( window.devicePixelRatio )
     // this.renderer.toneMapping = THREE.ReinhardToneMapping
 
@@ -138,6 +141,9 @@ export default {
     , outlineColorBehind(){
       this.outlinePass.hiddenEdgeColor.set(this.outlineColorBehind)
     }
+		, shadows(){
+			this.renderer.shadowMap.enabled = this.shadows
+		}
   }
   , methods: {
     draw(){

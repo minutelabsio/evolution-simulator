@@ -20,17 +20,18 @@
         , :look-at="origin"
       )
       v3-light(type="ambient", :intensity="0.7")
-      v3-light(type="directional", :intensity="0.5", :position="[0, 1, 0]")
-      v3-grid(
-        :size="gridSize"
-        , :divisions="50"
-        , :color1="0xAAAAAA"
-        , :color2="0x444444"
-      )
-      v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
-        Food(v-for="(food, index) in generation.food", :key="index", :food="food")
-      v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
-        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3")
+      v3-light(type="directional", :intensity="0.5", :position="[100, 100, 0]", :cast-shadow="true")
+      //- v3-grid(
+      //-   :size="gridSize"
+      //-   , :divisions="50"
+      //-   , :color1="0xAAAAAA"
+      //-   , :color2="0x444444"
+      //- )
+      v3-plane(:width="gridSize", :height="gridSize", :color="0xEEEEEE", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+        Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true")
+      v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", :cast-shadow="true")
 </template>
 
 <script>
@@ -43,6 +44,7 @@ import v3Light from '@/components/three-vue/v3-light'
 import v3Group from '@/components/three-vue/v3-group'
 import v3Dom from '@/components/three-vue/v3-dom'
 import v3Grid from '@/components/three-vue/v3-grid'
+import v3Plane from '@/components/three-vue/v3-plane'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 const OrbitControls = require('three-orbit-controls')(THREE)
@@ -55,6 +57,7 @@ const components = {
   , v3Group
   , v3Dom
   , v3Grid
+  , v3Plane
 
   , Food
   , Creature

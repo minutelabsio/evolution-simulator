@@ -23,7 +23,7 @@ export default {
             , value: ( e ) => {
               let el = e.el
               let x = e.layerX
-              let progress = Math.round( x / el.offsetWidth * 100 )
+              let progress = x / el.offsetWidth * 100
               progress = Math.min(Math.max(0, progress), 100)
               if ( e.first ){
                 $emit('scrubstart')

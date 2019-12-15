@@ -195,7 +195,7 @@ impl Generation {
 
   pub fn mark_food_eaten(&mut self, food : &Food){
     if let Some(index) = self.food.iter().position(|f| *f == *food) {
-      self.food[index].status = FoodStatus::Eaten(self.steps + 1);
+      self.food[index].status = FoodStatus::Eaten(self.steps);
     }
   }
 

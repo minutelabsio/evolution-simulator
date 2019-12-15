@@ -13,17 +13,17 @@ fn distance_to_line(r1 : &Point2<f64>, r2 : &Point2<f64>, p : &Point2<f64>) -> O
   let n = v.normalize();
   // vector from the point to first point on line
   let pa = a - p;
+  let pb = r2 - p;
+  // this means we're outside the line segment
+  if pa.dot(&pb) > 0. {
+    return None
+  }
+
   // projection of pa onto the line
   let z = pa.dot(&n) * n;
 
-  // if the distance of that projection is less that the distance between given
-  // line points... then we have a closest point
-  if z.norm() <= v.norm() {
-    let d = pa - z;
-    Some(d.norm())
-  } else {
-    None
-  }
+  let d = pa - z;
+  Some(d.norm())
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
@@ -244,7 +244,7 @@ impl Creature {
     if self.can_reach_now(&pt) { return true; }
 
     let last = self.get_last_position();
-    if last.is_none() { return false }
+    if last.is_none() { return false; }
 
     distance_to_line(&self.get_position(), &last.unwrap(), pt)
       .map(|d| d <= self.get_reach())

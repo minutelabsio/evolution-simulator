@@ -13,6 +13,14 @@ export default {
       type: Boolean
       , default: true
     }
+    , castShadow: {
+      type: Boolean
+      , default: false
+    }
+    , receiveShadow: {
+      type: Boolean
+      , default: false
+    }
   }
   , inject: [ 'threeVue' ]
   , created(){
@@ -49,6 +57,8 @@ export default {
     this.updateObjects()
     this.v3object.name = this.name
     this.v3object.visible = this.visible
+    this.v3object.castShadow = this.castShadow
+    this.v3object.receiveShadow = this.receiveShadow
     return h(
       'div'
       , this.visible ? this.$slots.default : []
