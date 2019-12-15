@@ -7,23 +7,29 @@
     , :shadows="true"
   )
     v3-scene
+      //- v3-camera(
+      //-   ref="camera"
+      //-   , type="orthographic"
+      //-   , :left="-viewWidth/2"
+      //-   , :right="viewWidth/2"
+      //-   , :top="viewHeight/2"
+      //-   , :bottom="-viewHeight/2"
+      //-   , :zoom="2"
+      //-   , :near="0.01"
+      //-   , :far="5000"
+      //-   , :position="orthCameraPos"
+      //-   , :look-at="origin"
+      //- )
       v3-camera(
         ref="camera"
-        , type="orthographic"
-        , :left="-viewWidth/2"
-        , :right="viewWidth/2"
-        , :top="viewHeight/2"
-        , :bottom="-viewHeight/2"
-        , :zoom="2"
-        , :near="0.01"
+        , :position="persCameraPos"
         , :far="5000"
-        , :position="orthCameraPos"
-        , :look-at="origin"
+        , :aspect="viewWidth / viewHeight"
       )
-      v3-light(type="ambient", :intensity="0.8")
+      v3-light(type="ambient", :intensity="1")
       v3-light(
         type="directional"
-        , :intensity="0.5"
+        , :intensity="0.3"
         , :position="[100, 200, -10]"
         , :cast-shadow="true"
         , :shadow-camera="shadowCamera"
@@ -33,10 +39,10 @@
       )
       v3-light(
         type="directional"
-        , :intensity="0.1"
+        , :intensity="0.05"
         , :position="[10, 200, 100]"
       )
-      v3-fog(:near="1000", :far="3000", :color="0x555555")
+      v3-fog(:near="1000", :far="3000", :color="0xFFFFFF")
       //- v3-grid(
       //-   :size="gridSize - 10"
       //-   , :position="[0, 0.01, 0]",
@@ -44,7 +50,7 @@
       //-   , :color1="0x999999"
       //-   , :color2="0x999999"
       //- )
-      v3-plane(:width="gridSize - 10", :height="gridSize - 10", :position="[0, 0.01, 0]", :color="0xEEEEEE", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      v3-plane(:width="gridSize", :height="gridSize", :position="[0, 0.2, 0]", :color="0xBBBBBB", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -5, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
@@ -123,6 +129,7 @@ const methods = {
     controls.dampingFactor = 0.1
     controls.minZoom = 1
     controls.maxZoom = 500
+    controls.maxDistance = 2500
     let epsilon = 0.001
     controls.minPolarAngle = epsilon
     controls.maxPolarAngle = Math.PI - epsilon
@@ -158,7 +165,8 @@ export default {
     , viewHeight: 500
     , gridSize: 500
     , origin: [0, 0, 0]
-    , orthCameraPos: [1000, 500, 1000]
+    , persCameraPos: [600, 300, 600]
+    , orthCameraPos: [100, 50, 100]
     , time: 0
     , shadowCamera: {
       near: 10
