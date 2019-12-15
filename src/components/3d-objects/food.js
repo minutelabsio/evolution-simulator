@@ -1,78 +1,38 @@
 import * as THREE from 'three'
-import _pick from 'lodash/pick'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
-
-const threeProps = {
-  position: {
-    default: () => [0, 0, 0]
-  }
-  , rotation: {
-    default: () => [0, 0, 0]
-  }
-}
-
-const geometryProps = {
-  radius: {
-    type: Number
-    , default: 1
-  }
-  , widthSegments: {
-    type: Number
-    , default: 64
-  }
-  , heightSegments: {
-    type: Number
-    , default: 64
-  }
-}
-
-const materialProps = {
-  color: {
-    type: Number
-    , default: 0x6E8044
-  }
-  , transparent: {
-    type: Boolean
-    , default: false
-  }
-  , opacity: {
-    type: Number
-    , default: 1
-  }
-}
 
 export default {
   name: 'food'
   , mixins: [ THREEObjectMixin ]
+  , inject: [ 'getStep' ]
   , props: {
-    ...threeProps
-    , ...geometryProps
-    , ...materialProps
-  }
-  , components: {
+    food: Object
   }
   , data: () => ({
+    color: 0x6E8044
   })
-  , watch: {
-    geometry( geometry, oldGeometry ){
-      // cleanup
-      oldGeometry.dispose()
-    }
-  }
-  , computed: {
-    geometry(){
-      return new THREE.SphereGeometry( this.radius, this.widthSegments, this.heightSegments )
-    }
+  , created(){
+    this.beforeDraw(() => {
+      let step = this.getStep()
+      let isEaten = step > this.food.status.Eaten
+      this.v3object.visible = !isEaten
+      // this.v3object.material.opacity = isEaten ? 0.2 : 1
+    })
   }
   , methods: {
     createObject(){
-      let options = _pick(this, Object.keys(materialProps))
-      let material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, ...options })
-      this.v3object = new THREE.Mesh( this.geometry, material )
+      let material = new THREE.MeshBasicMaterial({
+        side: THREE.DoubleSide
+        , transparent: true
+      })
+      let geometry = new THREE.SphereGeometry( 1, 64, 64 )
+      this.v3object = new THREE.Mesh( geometry, material )
+
     }
     , updateObjects(){
-      this.assignProps( this.v3object, threeProps )
-      this.assignProps( this.v3object.material, materialProps )
+      this.v3object.material.color = new THREE.Color(this.color)
+      let pos = this.food.position
+      this.v3object.position.set(pos[0], 1, pos[1])
     }
   }
 }

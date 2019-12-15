@@ -179,6 +179,7 @@ export default {
     const self = this
     return {
       getTime(){ return self.time }
+      , getStep(){ return self.time / self.stepTime }
     }
   }
   , data: () => ({
@@ -237,10 +238,11 @@ export default {
     })
 
     this.$nextTick(() => {
-      // this.run()
+      this.run()
     })
   }
   , beforeDestroy(){
+    this.player.togglePause(true)
     this.player.off(true)
   }
   , watch: {
@@ -272,11 +274,16 @@ export default {
     }
     , genIndex(){
       this.player.seek(0)
-      this.paused = false
+      this.$nextTick(() => {
+        this.paused = false
+      })
     }
     , simulation(){
       this.genIndex = 0
-      this.paused = false
+      this.player.seek(0)
+      this.$nextTick(() => {
+        this.paused = false
+      })
     }
   }
   , computed: {

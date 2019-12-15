@@ -27,11 +27,10 @@
         , :color1="0xAAAAAA"
         , :color2="0x444444"
       )
-
-      Food(v-for="(food, index) in foods", :key="index", v-bind="food")
       v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
-        keep-alive(v-for="(c, index) in generation.creatures", :key="index")
-          Creature(:creature="c", :size="3", :step-time="stepTime")
+        Food(v-for="(food, index) in generation.food", :key="index", :food="food")
+      v3-group(:position="[-gridSize * 0.5, 3, -gridSize * 0.5]")
+        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3")
 </template>
 
 <script>
@@ -62,19 +61,7 @@ const components = {
 }
 
 const computed = {
-  foods(){
-    if (!this.generation.food){ return [] }
-    return this.generation.food.map(f => {
-      let radius = 1
-      let position = this.toViewCoords(f.position[0], f.position[1])
-      position[1] += radius
-      return {
-        position
-        , radius
-      }
-    })
-  }
-  , generation(){
+  generation(){
     if ( !this.results ){ return {} }
     return this.results.generations[this.generationIndex]
   }

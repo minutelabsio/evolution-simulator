@@ -64,6 +64,7 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
       sim.add_behavour(Box::new(behaviours::WanderBehaviour));
       sim.add_behavour(Box::new(behaviours::ScavengeBehaviour));
       sim.add_behavour(Box::new(behaviours::SatisfiedBehaviour));
+      // sim.add_behavour(Box::new(behaviours::HomesickBehaviour));
       sim.add_behavour(Box::new(behaviours::EdgeHomeBehaviour));
       sim.add_behavour(Box::new(behaviours::StarveBehaviour));
     }

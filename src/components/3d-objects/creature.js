@@ -1,22 +1,8 @@
 import * as THREE from 'three'
-import _pick from 'lodash/pick'
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
-const materialProps = {
-  color: {
-    type: Number
-    , default: 0x476B81
-  }
-  , transparent: {
-    type: Boolean
-    , default: false
-  }
-  , opacity: {
-    type: Number
-    , default: 1
-  }
-}
+const blobColor = 0x476B81
 
 function makeEye(size){
   let geo = new THREE.SphereGeometry( size, 16, 16, Math.PI / 2, Math.PI )
@@ -24,7 +10,7 @@ function makeEye(size){
   return new THREE.Mesh( geo, material )
 }
 
-function createBlobCreatureParts( materialOptions = {} ){
+function createBlobCreatureParts(){
   const size = 40
   const resolution = 60
   const isolation = 300
@@ -39,10 +25,11 @@ function createBlobCreatureParts( materialOptions = {} ){
   effect.addBall(0.515, 0.58, 0.5, strength/4, 10)
 
   let geo = effect.generateBufferGeometry()
-  let material = new THREE.MeshLambertMaterial(materialOptions)
+  let material = new THREE.MeshLambertMaterial({ color: blobColor })
   let blob = new THREE.Mesh( geo, material )
   blob.name = 'blob'
   blob.scale.set(size, size, size)
+  blob.position.y = 1
 
   // eyes
   let x = 0.082
@@ -71,15 +58,13 @@ const createBlob = () => cachedBlobParts.reduce(
 export default {
   name: 'creature'
   , mixins: [ THREEObjectMixin ]
-  , inject: [ 'getTime' ]
+  , inject: [ 'getStep' ]
   , props: {
-    ...materialProps
-    , size: {
+    size: {
       type: Number
       , default: 3
     }
     , creature: Object
-    , stepTime: Number
   }
   , components: {
   }
@@ -97,11 +82,8 @@ export default {
   }
   , created(){
     this.beforeDraw(() => {
-      let time = this.getTime()
       let pos = this.v3object.position
-      let stepFrac = time / this.stepTime
-      // let p = creaturePositionAt(this.creature, stepFrac)
-      // pos.set(p[0], 0, p[1])
+      let stepFrac = this.getStep()
       let t = Math.min(stepFrac / this.steps, 1)
       this.spline.getPoint(t, this.tmpV2)
       pos.set(this.tmpV2.x, 0, this.tmpV2.y)
@@ -119,9 +101,6 @@ export default {
       blob.material = blob.material.clone()
       this.blobMaterial = blob.material
       this.registerDisposables(blob.material)
-    }
-    , updateObjects(){
-      this.assignProps( this.blobMaterial, materialProps )
     }
   }
 }
