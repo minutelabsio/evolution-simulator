@@ -5,9 +5,10 @@ import {
   , PointLight
   , RectAreaLight
   , SpotLight
-  // , CameraHelper
-  // , Vector3
+  , CameraHelper
+  , Vector2
 } from 'three'
+import _mapKeys from 'lodash/mapKeys'
 import THREEObjectMixin from './v3-object.mixin'
 
 const Types = {
@@ -19,7 +20,7 @@ const Types = {
   , spotlight: ({ color, intensity, distance, angle, penumbra, decay }) => new SpotLight( color, intensity, distance, angle, penumbra, decay )
 }
 
-const watchableProps = {
+const lightProps = {
   color: {
     type: Number
     , default: 0xffffff
@@ -57,6 +58,19 @@ const watchableProps = {
   }
 }
 
+const shadowProps = {
+  shadowBias: {
+    type: Number
+    , default: 0
+  }
+  , shadowRadius: {
+    type: Number
+    , default: 1
+  }
+}
+
+const shadowPropsNoPrefix = _mapKeys(shadowProps, (v, k) => k[6].toLowerCase() + k.substr(7))
+
 export default {
   name: 'v3-light'
   , mixins: [ THREEObjectMixin ]
@@ -64,7 +78,16 @@ export default {
     type: String
     , target: String
 
-    , ...watchableProps
+    , ...lightProps
+    , ...shadowProps
+    , shadowMapSizePower: {
+      type: Number
+      , default: 0
+    }
+    , shadowCamera: {
+      type: Object
+      , default: () => ({})
+    }
   }
   , components: {
   }
@@ -72,26 +95,15 @@ export default {
   })
   , created(){
     const light = this.lightConstructor( this )
-    // if (this.type === 'directional'){
-    //   light.castShadow = true
-    //   light.shadow.mapSize.width = 512
-    //   light.shadow.mapSize.height = 512
-    //
-    //   light.shadow.camera.near = 10
-    //   light.shadow.camera.far = 500
-    //   let d = 100
-    //   light.shadow.camera.left = -d
-    //   light.shadow.camera.right = d
-    //   light.shadow.camera.top = d
-    //   light.shadow.camera.bottom = -d
-    //   light.shadow.bias = 1
-    //
-    //   let helper = new CameraHelper( light.shadow.camera )
-    //   this.$parent.v3object.add( helper )
-    //   this.$on('hook:beforeDestroy', () => {
-    //     this.$parent.v3object.remove( helper )
-    //   })
-    // }
+
+    // let shadowHelper = new CameraHelper( light.shadow.camera )
+    // this.$parent.v3object.add( shadowHelper )
+    // this.beforeDraw(() => {
+    //   shadowHelper.update()
+    // })
+    // this.$on('hook:beforeDestroy', () => {
+    //   this.$parent.v3object.remove( shadowHelper )
+    // })
 
     this.v3object = light
   }
@@ -113,7 +125,17 @@ export default {
   }
   , methods: {
     updateObjects(){
-      this.assignProps( this.v3object, watchableProps )
+      this.assignProps( this.v3object, lightProps )
+      if ( this.castShadow ){
+        this.assignProps( this.v3object.shadow, shadowPropsNoPrefix )
+        this.v3object.shadow.mapSize = new Vector2(512, 512)
+        this.v3object.shadow.mapSize.multiplyScalar(Math.pow(2, this.shadowMapSizePower))
+        if ( this.v3object.shadow.map ){
+          this.v3object.shadow.map.dispose()
+          this.v3object.shadow.map = null
+        }
+        Object.assign(this.v3object.shadow.camera, this.shadowCamera)
+      }
     }
   }
 }

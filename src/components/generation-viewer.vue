@@ -20,21 +20,36 @@
         , :position="orthCameraPos"
         , :look-at="origin"
       )
-      v3-light(type="ambient", :intensity="0.7")
-      v3-light(type="directional", :intensity="0.5", :position="[100, 100, -10]", :cast-shadow="true")
-      v3-grid(
-        :size="gridSize - 10"
-        , :position="[0, 0.02, 0]",
-        , :divisions="50"
-        , :color1="0x999999"
-        , :color2="0x999999"
+      v3-light(type="ambient", :intensity="0.8")
+      v3-light(
+        type="directional"
+        , :intensity="0.5"
+        , :position="[100, 200, -10]"
+        , :cast-shadow="true"
+        , :shadow-camera="shadowCamera"
+        , :shadow-bias="0.0001"
+        , :shadow-radius="0"
+        , :shadow-map-size-power="4"
       )
+      v3-light(
+        type="directional"
+        , :intensity="0.1"
+        , :position="[10, 200, 100]"
+      )
+      v3-fog(:near="1000", :far="3000", :color="0x555555")
+      //- v3-grid(
+      //-   :size="gridSize - 10"
+      //-   , :position="[0, 0.01, 0]",
+      //-   , :divisions="50"
+      //-   , :color1="0x999999"
+      //-   , :color2="0x999999"
+      //- )
       v3-plane(:width="gridSize - 10", :height="gridSize - 10", :position="[0, 0.01, 0]", :color="0xEEEEEE", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
-      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -5, 0]", :color="0xCCCCCC", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -5, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true")
+        Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", :cast-shadow="true")
+        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3")
 </template>
 
 <script>
@@ -49,6 +64,7 @@ import v3Dom from '@/components/three-vue/v3-dom'
 import v3Grid from '@/components/three-vue/v3-grid'
 import v3Plane from '@/components/three-vue/v3-plane'
 import v3Box from '@/components/three-vue/v3-box'
+import v3Fog from '@/components/three-vue/v3-fog'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 const OrbitControls = require('three-orbit-controls')(THREE)
@@ -63,6 +79,7 @@ const components = {
   , v3Grid
   , v3Plane
   , v3Box
+  , v3Fog
 
   , Food
   , Creature
@@ -143,6 +160,14 @@ export default {
     , origin: [0, 0, 0]
     , orthCameraPos: [1000, 500, 1000]
     , time: 0
+    , shadowCamera: {
+      near: 10
+      , far: 500
+      , left: -300
+      , right: 300
+      , top: 300
+      , bottom: -300
+    }
   })
   , components
   , computed

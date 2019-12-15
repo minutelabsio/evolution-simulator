@@ -12,7 +12,7 @@ function makeEye(size){
 
 function createBlobCreatureParts(){
   const size = 40
-  const resolution = 60
+  const resolution = 160
   const isolation = 300
   const effect = new MarchingCubes(resolution, new THREE.MeshBasicMaterial(), true, true)
   effect.scale.set(size, size, size)
@@ -89,7 +89,7 @@ export default {
       let stepFrac = this.getStep()
       let t = Math.min(stepFrac / this.steps, 1)
       this.spline.getPoint(t, this.tmpV2)
-      pos.set(this.tmpV2.x, 3, this.tmpV2.y)
+      pos.set(this.tmpV2.x, 2.8, this.tmpV2.y)
 
       let rot = this.v3object.rotation
       let ang = this.spline.getTangent(t).angle()
@@ -98,6 +98,7 @@ export default {
       let deadState = (t >= 1 && this.willDie)
       rot.x = deadState ? Math.PI / 2 : 0
       this.blobMaterial.opacity = deadState ? 0.3 : 1
+      this.blob.castShadow = !deadState
     })
   }
   , methods: {
@@ -105,6 +106,7 @@ export default {
       this.tmpV2 = new THREE.Vector2()
       this.v3object = createBlob()
       let blob = this.v3object.getObjectByName('blob')
+      this.blob = blob
       blob.material = blob.material.clone()
       this.blobMaterial = blob.material
       this.blobMaterial.transparent = true

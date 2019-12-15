@@ -67,7 +67,7 @@ export default {
   , methods: {
     createObject(){
       let options = _pick(this, Object.keys(materialProps))
-      let material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, ...options })
+      let material = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, ...options })
       let plane = new THREE.Mesh( this.geometry, material )
       this.v3object = plane
     }
