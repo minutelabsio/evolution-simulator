@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 
+const foodSize = 2
+
 export default {
   name: 'food'
   , mixins: [ THREEObjectMixin ]
@@ -24,13 +26,13 @@ export default {
       let material = new THREE.MeshLambertMaterial({
         transparent: true
       })
-      let geometry = new THREE.SphereGeometry( 1, 64, 64 )
+      let geometry = new THREE.SphereGeometry( foodSize, 64, 64 )
       this.v3object = new THREE.Mesh( geometry, material )
     }
     , updateObjects(){
       this.v3object.material.color = new THREE.Color(this.color)
       let pos = this.food.position
-      this.v3object.position.set(pos[0], 1, pos[1])
+      this.v3object.position.set(pos[0], foodSize, pos[1])
     }
   }
 }
