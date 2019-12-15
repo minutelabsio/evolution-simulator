@@ -255,10 +255,14 @@ impl Creature {
     (pt - self.pos).norm() <= self.get_reach()
   }
 
+  pub fn get_energy_left(&self) -> f64 {
+    (self.energy - self.energy_consumed).max(0.)
+  }
+
   pub fn apply_energy_cost( &mut self, cost : f64 ){
     self.energy_consumed += cost;
 
-    if self.energy_consumed >= self.energy {
+    if self.get_energy_left() <= 0. {
       self.state = CreatureState::DEAD;
     }
   }

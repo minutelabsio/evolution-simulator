@@ -41,7 +41,7 @@ impl HomesickBehaviour {
     let dist = (creature.home_pos - creature.get_position()).norm();
     let cost = creature.get_motion_energy_cost();
     let steps_to_home = dist / creature.get_speed();
-    let homesick_factor = creature.energy / cost - steps_to_home;
+    let homesick_factor = creature.get_energy_left() / cost - steps_to_home;
 
     match homesick_factor {
       // pleanty of energy... can stay out longer
