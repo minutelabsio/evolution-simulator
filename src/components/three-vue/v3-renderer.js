@@ -66,6 +66,14 @@ export default {
       type: Number
       , default: 0x666666
     }
+		, clearColor: {
+			type: Number
+			, default: 0x000000
+		}
+		, clearAlpha: {
+			type: Number
+			, default: 0
+		}
 		, shadows: Boolean
   }
   , components: {
@@ -96,7 +104,7 @@ export default {
 
     // https://threejs.org/examples/webgl_postprocessing_outline.html
     let composer = this.composer = new EffectComposer( this.renderer )
-    let renderPass = this.renderPass = new RenderPass( null, null )
+    let renderPass = this.renderPass = new RenderPass( null, null, null, new THREE.Color(this.clearColor), this.clearAlpha )
     composer.addPass( renderPass )
 
     // let effectFXAA = new THREE.ShaderPass( THREE.FXAAShader )
@@ -143,6 +151,12 @@ export default {
     }
 		, shadows(){
 			this.renderer.shadowMap.enabled = this.shadows
+		}
+		, clearColor(){
+			this.renderPass.clearColor = new THREE.Color(this.clearColor)
+		}
+		, clearAlpha(){
+			this.renderPass.clearAlpha = this.clearAlpha
 		}
   }
   , methods: {

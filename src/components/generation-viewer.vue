@@ -26,7 +26,7 @@
         , :far="5000"
         , :aspect="viewWidth / viewHeight"
       )
-      v3-light(type="ambient", :intensity="1")
+      v3-light(type="ambient", :intensity="0.9")
       v3-light(
         type="directional"
         , :intensity="0.3"
@@ -182,7 +182,7 @@ export default {
   , watch
   , methods
   , mounted(){
-    // TODO resizing
+    this.$onResize(() => this.onResize())
     this.onResize()
     this.initCamera()
     this.debug()
@@ -207,4 +207,5 @@ export default {
 .generation-viewer
   width: 100%
   height: 100%
+  background: #333333
 </style>

@@ -5,6 +5,7 @@ import router from '@/router'
 import store from '@/store'
 import Filters from '@/plugins/filters'
 import Gestures from '@/plugins/gestures'
+import onResize from '@/plugins/on-resize'
 import Buefy from 'buefy'
 import VueCircleSlider from 'vue-circle-slider'
 import Copilot from 'copilot'
@@ -56,6 +57,7 @@ Vue.use(VueCircleSlider)
 // Vue.use(ElementComponents)
 Vue.use(Filters)
 Vue.use(Gestures)
+Vue.use(onResize)
 
 Vue.config.productionTip = false
 

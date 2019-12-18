@@ -112,6 +112,21 @@ export default {
       this.blobMaterial.transparent = true
       this.registerDisposables(blob.material)
 
+      // const scene = this.threeVue.scene
+      // let light = this.light = new THREE.SpotLight( 0xFFFFFF, 1, 0, Math.PI / 24 )
+      // light.penumbra = 0.2
+      // light.target = blob
+      // scene.add(light)
+      //
+      // this.beforeDraw(() => {
+      //   blob.getWorldPosition(light.position)
+      //   light.position.y += 200
+      // })
+      //
+      // this.$on('hook:beforeDestroy', () => {
+      //   scene.remove(light)
+      // })
+
       // Path
       // let points = new THREE.BufferGeometry()
       // let line = new THREE.Points(points)

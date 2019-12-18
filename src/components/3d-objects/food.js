@@ -32,7 +32,7 @@ export default {
     , updateObjects(){
       this.v3object.material.color = new THREE.Color(this.color)
       let pos = this.food.position
-      this.v3object.position.set(pos[0], foodSize, pos[1])
+      this.v3object.position.set(pos[0], foodSize + 0.2, pos[1])
     }
   }
 }

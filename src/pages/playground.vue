@@ -492,6 +492,7 @@ export default {
   flex-direction: column
   .screen
     flex-grow: 1
+    overflow: hidden
 .stage
   display: none
   position: relative
