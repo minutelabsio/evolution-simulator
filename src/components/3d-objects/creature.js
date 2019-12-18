@@ -10,6 +10,18 @@ function makeEye(size){
   return new THREE.Mesh( geo, material )
 }
 
+function makeDeadEye(size){
+  let material = new THREE.MeshBasicMaterial({ color: 0x888888 })
+  let thickness = size / 8
+  let h = new THREE.Mesh(new THREE.PlaneGeometry(size, thickness), material)
+  h.rotation.set(0, Math.PI/2, 0)
+  let v = new THREE.Mesh(new THREE.PlaneGeometry(thickness, size), material)
+  v.rotation.set(0, Math.PI/2, 0)
+  let g = new THREE.Group()
+  g.add(h, v)
+  return g
+}
+
 function createBlobCreatureParts(){
   const size = 40
   const resolution = 160
@@ -25,6 +37,7 @@ function createBlobCreatureParts(){
   effect.addBall(0.515, 0.58, 0.5, strength/4, 10)
 
   let geo = effect.generateBufferGeometry()
+  effect.material.dispose()
   let material = new THREE.MeshLambertMaterial({ color: blobColor })
   let blob = new THREE.Mesh( geo, material )
   blob.name = 'blob'
@@ -43,9 +56,17 @@ function createBlobCreatureParts(){
   left.position.set(size * x, size / 6, -size / 30)
   left.rotation.set(0.6, 0.6, 0)
 
-  effect.material.dispose()
+  let rightDead = makeDeadEye(size / 40)
+  rightDead.name = 'right-dead-eye'
+  rightDead.position.set(size * x, size / 6, size / 23)
+  rightDead.rotation.set(-0.8, -0.7, -0.35)
 
-  return [blob, left, right]
+  let leftDead = makeDeadEye(size / 40)
+  leftDead.name = 'left-dead-eye'
+  leftDead.position.set(size * x, size / 6, -size / 23)
+  leftDead.rotation.set(0.8, 0.7, -0.35)
+
+  return [blob, left, right, rightDead, leftDead]
 }
 
 const cachedBlobParts = createBlobCreatureParts()
@@ -99,6 +120,11 @@ export default {
       rot.x = deadState ? Math.PI / 2 : 0
       this.blobMaterial.opacity = deadState ? 0.3 : 1
       this.blob.castShadow = !deadState
+
+      this.rightEye.visible = !deadState
+      this.leftEye.visible = !deadState
+      this.rightDeadEye.visible = deadState
+      this.leftDeadEye.visible = deadState
     })
   }
   , methods: {
@@ -111,6 +137,11 @@ export default {
       this.blobMaterial = blob.material
       this.blobMaterial.transparent = true
       this.registerDisposables(blob.material)
+
+      this.leftEye = this.v3object.getObjectByName('left-eye')
+      this.rightEye = this.v3object.getObjectByName('right-eye')
+      this.leftDeadEye = this.v3object.getObjectByName('left-dead-eye')
+      this.rightDeadEye = this.v3object.getObjectByName('right-dead-eye')
 
       // const scene = this.threeVue.scene
       // let light = this.light = new THREE.SpotLight( 0xFFFFFF, 1, 0, Math.PI / 24 )
