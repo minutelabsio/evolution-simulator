@@ -50,8 +50,10 @@
       //-   , :color1="0x999999"
       //-   , :color2="0x999999"
       //- )
-      v3-plane(:width="gridSize", :height="gridSize", :position="[0, 0.2, 0]", :color="0xBBBBBB", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
-      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -5, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      //- Board
+      v3-plane(:width="gridSize", :height="gridSize", :position="[0, 0, 0]", :color="0xBBBBBB", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      //- Thick board undernieth
+      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -5.2, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
