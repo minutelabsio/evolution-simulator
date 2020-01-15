@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
@@ -73,16 +74,78 @@ function createBlobCreatureParts(){
 const cachedBlobParts = createBlobCreatureParts()
 
 const createBlob = () => cachedBlobParts.reduce(
-  (group, part) => group.add(part.clone())
+  (group, part) => group.add(part.clone(false))
   , new THREE.Group()
 )
 
-function createCircle(r, color){
+function createCircle(r, color = 'white'){
   let geometry = new THREE.CircleGeometry( r, 64 )
   let material = new THREE.MeshBasicMaterial({ color })
   let circle = new THREE.Mesh( geometry, material )
   return circle
 }
+
+const cachedVisionCircle = (() => {
+  let c = createCircle(1, chroma.mix('#3a85a8', 'white', 0.8).num())
+  c.rotation.x = -Math.PI / 2
+  // c.position.y = 0.05
+  c.material.depthWrite = false
+  c.material.transparent = true
+  c.material.blending = THREE.MultiplyBlending
+  return c
+})()
+
+const cachedEnergyCircle = (() => {
+  let c = createCircle(6)
+  c.rotation.x = -Math.PI / 2
+  // c.position.y = 0.06
+  c.material.depthWrite = false
+  c.material.transparent = true
+  // c.material.blending = THREE.MultiplyBlending
+  return c
+})()
+
+function getChevronShape(t = 0.4, ang = 45){
+  ang *= Math.PI / 180
+  let sin = Math.sin(ang)
+  let cos = Math.cos(ang)
+  let s = new THREE.Shape()
+  s.lineTo(-1 * cos, -1 * sin)
+  s.lineTo(-1 * cos + t * sin, -1 * sin - t * cos)
+  s.lineTo(0, - t / cos)
+  s.lineTo(1 * cos - t * sin, -1 * sin - t * cos)
+  s.lineTo(1 * cos, -1 * sin)
+  s.lineTo(0, 0)
+  return s
+}
+
+const cachedSpeedIndicator = (() => {
+  let g = new THREE.ShapeGeometry( getChevronShape(0.35, 30) )
+  let m = new THREE.MeshBasicMaterial({ color: chroma.mix('#c4635d', 'white', 0.15).num() })
+  // m.depthWrite = false
+  // m.transparent = true
+  // m.blending = THREE.MultiplyBlending
+  m.depthFunc = THREE.AlwaysDepth
+  let obj = new THREE.Group()
+  _times(4, n => {
+    let growth = 1
+    let spaceBetween = 2
+    let chev = new THREE.Mesh(g, m)
+    let c = n + 1
+    let s = Math.sqrt(c) * c * growth + 1
+    chev.rotation.set(-Math.PI / 2, 0, -Math.PI / 2)
+    chev.position.set(s * spaceBetween - 4, 0, 0)
+    chev.scale.set(s, s, s)
+    obj.add(chev)
+  })
+
+  return obj
+})()
+
+const getSpeedIndicator = () => cachedSpeedIndicator.children.reduce(
+  (group, part) => group.add(part.clone(false))
+  , new THREE.Group()
+)
 
 const energyColorScale = chroma.scale(['rgba(255, 200, 29, 0.8)', 'rgba(76, 69, 49, 0.1)']).mode('lab')
 function getEnergyColor(creature, progress){
@@ -90,6 +153,13 @@ function getEnergyColor(creature, progress){
   let end = creature.energy_consumed / creature.energy
   let s = THREE.Math.lerp(start, end, progress)
   return energyColorScale(s)
+}
+
+function getSpeedIndicatorCount(creature){
+  let speed = creature.speed[0]
+  let maxSpeed = 50
+  let s = speed / maxSpeed
+  return THREE.Math.lerp(1, 4, s) | 0
 }
 
 export default {
@@ -165,25 +235,19 @@ export default {
       this.rightDeadEye = this.creatureObject.getObjectByName('right-dead-eye')
 
       // vision radius
-      let visionRadius = this.visionRadius = createCircle( 1, 0xe2ebef )
-      this.registerDisposables([ visionRadius, visionRadius.material, visionRadius.geometry ])
-      visionRadius.rotation.x = -Math.PI / 2
-      visionRadius.position.y = 0.05
-      visionRadius.material.depthWrite = false
-      visionRadius.material.transparent = true
-      visionRadius.material.blending = THREE.MultiplyBlending
-      this.v3object.add(visionRadius)
+      // material and geometry are reused between creatures
+      let visionIndicator = this.visionIndicator = cachedVisionCircle.clone(false) // createCircle( 1, 0xe2ebef )
+      this.v3object.add(visionIndicator)
 
-      // energy indicator
-      let energyIndicator = this.energyIndicator = createCircle( 8, 0xfff2aa )
-      this.registerDisposables([ energyIndicator, energyIndicator.material, energyIndicator.geometry ])
-      energyIndicator.rotation.x = -Math.PI / 2
-      energyIndicator.position.y = 0.06
-      energyIndicator.material.depthWrite = false
-      energyIndicator.material.transparent = true
-      // energyIndicator.material.blending = THREE.Normal
+      // energy indicator (geometry reused)
+      let energyIndicator = this.energyIndicator = cachedEnergyCircle.clone(false)
+      energyIndicator.material = cachedEnergyCircle.material.clone()
+      this.registerDisposables([ energyIndicator, energyIndicator.material ])
       this.v3object.add(energyIndicator)
 
+      let speedIndicator = this.speedIndicator = getSpeedIndicator() //cachedSpeedIndicator.clone(false)
+      speedIndicator.position.set(9, 0.05, 0)
+      this.v3object.add(speedIndicator)
 
       // const scene = this.threeVue.scene
       // let light = this.light = new THREE.SpotLight( 0xFFFFFF, 1, 0, Math.PI / 24 )
@@ -216,8 +280,14 @@ export default {
     }
     , updateObjects(){
       let vision = this.creature.sense_range[0]
-      this.visionRadius.scale.set(vision, vision, vision)
-      this.visionRadius.visible = true //this.showSenseRange
+      this.visionIndicator.scale.set(vision, vision, vision)
+      this.visionIndicator.visible = true //this.showSenseRange
+
+      // speed indication
+      let chevN = getSpeedIndicatorCount(this.creature)
+      this.speedIndicator.children.forEach((c, n) => {
+        c.visible = (n < chevN)
+      })
     }
   }
 }

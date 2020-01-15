@@ -21,6 +21,14 @@ export default {
       type: Boolean
       , default: false
     }
+    , depthTest: {
+      type: Boolean
+      , default: true
+    }
+    , depthWrite: {
+      type: Boolean
+      , default: true
+    }
   }
   , inject: [ 'threeVue' ]
   , created(){
@@ -55,10 +63,16 @@ export default {
       this.createObject()
     }
     this.updateObjects()
-    this.v3object.name = this.name
-    this.v3object.visible = this.visible
-    this.v3object.castShadow = this.castShadow
-    this.v3object.receiveShadow = this.receiveShadow
+    let obj = this.v3object
+    let material = obj.material
+    obj.name = this.name
+    obj.visible = this.visible
+    obj.castShadow = this.castShadow
+    obj.receiveShadow = this.receiveShadow
+    if ( material ){
+      material.depthTest = this.depthTest
+      material.depthWrite = this.depthWrite
+    }
     return h(
       'div'
       , this.visible ? this.$slots.default : []
