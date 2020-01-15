@@ -53,10 +53,10 @@ pub enum ObjectiveIntensity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
-  speed : Mutatable<f64>, // how far can it move in one step?
-  sense_range : Mutatable<f64>, // how far can it see?
-  reach : Mutatable<f64>, // how far can it interact with something?
-  life_span: Mutatable<f64>,
+  speed : PositiveMutatable<f64>, // how far can it move in one step?
+  sense_range : PositiveMutatable<f64>, // how far can it see?
+  reach : PositiveMutatable<f64>, // how far can it interact with something?
+  life_span: PositiveMutatable<f64>,
 
   // other
   pub foods_eaten : u32,
@@ -79,10 +79,10 @@ impl Creature {
   pub fn new( pos : &Point2<f64> ) -> Self {
     Creature {
       state: CreatureState::ACTIVE,
-      speed: Mutatable(5.0, 0.1),
-      sense_range: Mutatable(50.0, 10.0),
-      reach: Mutatable(5.0, 1.0),
-      life_span: Mutatable(4.0, 1.0),
+      speed: PositiveMutatable(5.0, 0.1),
+      sense_range: PositiveMutatable(50.0, 10.0),
+      reach: PositiveMutatable(5.0, 1.0),
+      life_span: PositiveMutatable(4.0, 1.0),
       energy: 500.0,
 
       foods_eaten: 0,

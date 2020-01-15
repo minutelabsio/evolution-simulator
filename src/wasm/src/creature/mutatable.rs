@@ -13,3 +13,15 @@ where T: std::convert::From<f64>, f64: std::convert::From<T> {
     Self(v.into(), self.1)
   }
 }
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+pub struct PositiveMutatable<T>(pub T, pub f64);
+impl<T> PositiveMutatable<T>
+where T: std::convert::From<f64>, f64: std::convert::From<T> {
+  pub fn get_mutated(self, rng : &mut RefMut<SmallRng>) -> Self {
+    let normal = Normal::new(self.0.into(), self.1);
+    let v = normal.sample(&mut **rng).max(0.);
+
+    Self(v.into(), self.1)
+  }
+}

@@ -99,7 +99,7 @@ export const simulation = {
   , state: initialState
   , getters: {
     isLoading: state => state.isBusy
-    , results: state => state.getResults()
+    , getResults: state => state.getResults
     , lastGeneration: (state, getters) => {
       if (!getters.results) { return null }
       let g = getters.results.generations

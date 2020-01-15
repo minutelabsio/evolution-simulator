@@ -22,8 +22,8 @@ impl Stage for SquareStage {
   fn can_move_to(&self, to : &Point2<f64>, _creature : &Creature ) -> bool {
     to.x >= 0. &&
     to.y >= 0. &&
-    to.x < self.0 &&
-    to.y < self.0
+    to.x <= self.0 &&
+    to.y <= self.0
   }
 
   fn get_center(&self) -> Point2<f64> { 0.5 * Point2::new(self.0, self.0) }

@@ -95,14 +95,15 @@ const components = {
 
 const computed = {
   generation(){
-    if ( !this.results ){ return {} }
-    return this.results.generations[this.generationIndex]
+    let results = this.getResults()
+    if ( !results ){ return {} }
+    return results.generations[this.generationIndex]
   }
   , steps(){
     return this.generation.steps
   }
   , ...mapGetters('simulation', {
-    'results': 'results'
+    'getResults': 'getResults'
   })
 }
 

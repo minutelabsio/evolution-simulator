@@ -158,7 +158,7 @@ function drawCreatures(ctx, stepTime, now, creatures, traitName, scale){
 
 function getTrait(creature, trait){
   let value = creature[trait]
-  return value[0] || value
+  return value[0] !== undefined || value
 }
 
 const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
@@ -287,7 +287,10 @@ export default {
     }
   }
   , computed: {
-    size(){ return this.cfg.size }
+    simulation(){
+      return this.getResults()
+    }
+    , size(){ return this.cfg.size }
     , simulationCfg(){
       return {
         size: this.cfg.size
@@ -412,7 +415,7 @@ export default {
       return this.stepTime * this.generation.steps
     }
     , ...mapGetters('simulation', {
-      simulation: 'results'
+      getResults: 'getResults'
       , canContinue: 'canContinue'
       , isLoading: 'isLoading'
       , config: 'config'
