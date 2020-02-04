@@ -1,85 +1,65 @@
 <template lang="pug">
 .playground
+  .simulation-controls(:class="{ collapsed: !toolbar }")
+    button.collapse-bar(@click="toolbar = !toolbar")
+      b-icon(:icon="toolbar ? 'menu-right' : 'menu-left'")
+
+    h4.title.is-size-5 Initial Creature Properties
+    b-field(grouped)
+      b-field(label="Energy")
+        b-input(v-model="creatureProps.energy", type="number", min="0", step="any")
+    b-field(grouped)
+      b-field(label="Speed")
+        b-input(v-model="creatureProps.speed[0]", type="number", min="0", step="any")
+      b-field(label="Speed mutation variance")
+        b-input(v-model="creatureProps.speed[1]", type="number", min="0", step="any")
+    b-field(grouped)
+      b-field(label="Sense")
+        b-input(v-model="creatureProps.sense_range[0]", type="number", min="0", step="any")
+      b-field(label="Sense mutation variance")
+        b-input(v-model="creatureProps.sense_range[1]", type="number", min="0", step="any")
+    b-field(grouped)
+      b-field(label="Reach")
+        b-input(v-model="creatureProps.reach[0]", type="number", min="0", step="any")
+      b-field(label="Reach mutation variance")
+        b-input(v-model="creatureProps.reach[1]", type="number", min="0", step="any")
+    b-field(grouped)
+      b-field(label="Avg Lifespan")
+        b-input(v-model="creatureProps.life_span[0]", type="number", min="0", step="any")
+      b-field(label="Avg Lifespan mutation variance")
+        b-input(v-model="creatureProps.life_span[1]", type="number", min="0", step="any")
+
+    b-field(grouped)
+      b-field(label="Number of Creatures")
+        b-input(v-model="creatureCount", type="number", min="1", step="1")
+      b-field(label="Food Per Generation")
+        b-input(v-model="cfg.food_per_generation", type="number", min="0", step="1")
+    b-field(grouped)
+      b-field(label="Random Seed")
+        b-input(v-model="cfg.seed", type="number", min="0", step="1")
+      b-field(label="Max Generations")
+        b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
+    b-field
+      b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
+
   .upper
-    .columns.is-gapless
-      .column(ref="resultsContainer")
-        .viewer
-          .screen
-            //- canvas.stage(ref="canvas", v-bind="simulationProps")
-            GenerationViewer.viewer(:generation-index="genIndex", :step-time="stepTime")
-
-          .controls
-            AudioScrubber(:progress="progress", @scrub="onScrub")
-            br/
-            b-field(grouped, position="is-centered")
-              b-field
-                b-button.btn-dark(@click="prevGeneration()")
-                  b-icon(icon="skip-previous")
-              b-field
-                b-button.btn-dark(@click="togglePlay()")
-                  b-icon(:icon="paused ? 'play' : 'pause'")
-              b-field
-                b-button.btn-dark(@click="nextGeneration()")
-                  b-icon(icon="skip-next")
-
-              //- .food(v-for="(food, index) in foodElements", :style="food.style", :class="{'is-eaten': food.isEaten}", :key="'food'+index")
-              //- .creature(v-for="(creature, index) in creatures", :style="creature.style", :key="index")
-
-          //- .columns.is-centered
-          //-   .column
-          //-     h2.is-size-2.has-text-centered Population
-          //-     TraitChart(v-if="simulation", :data="populationData", label="Population")
-          //-
-          //- .columns.is-multiline
-          //-   .column.is-half(v-for="trait in traitData")
-          //-     h2.is-size-2.has-text-centered {{ trait.label }}
-          //-     TraitChart(v-if="simulation", :data="trait.data", :label="trait.label", :key="trait.label")
-
-      .column.is-one-third
-        .section
-          .columns
-            .column
-              h4.title.is-size-5 Initial Creature Properties
-              b-field(grouped)
-                b-field(label="Energy")
-                  b-input(v-model="creatureProps.energy", type="number", min="0", step="any")
-              b-field(grouped)
-                b-field(label="Speed")
-                  b-input(v-model="creatureProps.speed[0]", type="number", min="0", step="any")
-                b-field(label="Speed mutation variance")
-                  b-input(v-model="creatureProps.speed[1]", type="number", min="0", step="any")
-              b-field(grouped)
-                b-field(label="Sense")
-                  b-input(v-model="creatureProps.sense_range[0]", type="number", min="0", step="any")
-                b-field(label="Sense mutation variance")
-                  b-input(v-model="creatureProps.sense_range[1]", type="number", min="0", step="any")
-              b-field(grouped)
-                b-field(label="Reach")
-                  b-input(v-model="creatureProps.reach[0]", type="number", min="0", step="any")
-                b-field(label="Reach mutation variance")
-                  b-input(v-model="creatureProps.reach[1]", type="number", min="0", step="any")
-              b-field(grouped)
-                b-field(label="Avg Lifespan")
-                  b-input(v-model="creatureProps.life_span[0]", type="number", min="0", step="any")
-                b-field(label="Avg Lifespan mutation variance")
-                  b-input(v-model="creatureProps.life_span[1]", type="number", min="0", step="any")
-
-              b-field(grouped)
-                b-field(label="Number of Creatures")
-                  b-input(v-model="creatureCount", type="number", min="1", step="1")
-                b-field(label="Food Per Generation")
-                  b-input(v-model="cfg.food_per_generation", type="number", min="0", step="1")
-              b-field(grouped)
-                b-field(label="Random Seed")
-                  b-input(v-model="cfg.seed", type="number", min="0", step="1")
-                b-field(label="Max Generations")
-                  b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
-              b-field
-                b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
-
+    .viewer
+      .screen
+        GenerationViewer.viewer(:generation-index="genIndex", :step-time="stepTime")
+      .controls
+        b-field.extras(grouped, position="is-centered", :class="{ active: playthrough }")
+          b-field
+            b-icon.clickable(title="play through", icon="redo", @click.native="playthrough = !playthrough")
+        b-field(grouped, position="is-centered")
+          b-field
+            b-icon.clickable(icon="skip-previous", size="is-large", @click.native="prevGeneration()")
+          b-field
+            b-icon.clickable(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
+          b-field
+            b-icon.clickable(icon="skip-next", size="is-large", @click.native="nextGeneration()")
 
   .bottom-drawer
-    Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
+    AudioScrubber(:progress="progress", @scrub="onScrub")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
         v-model="genIndex"
@@ -89,8 +69,12 @@
         , :topPetal="topPetal"
         , @dataSelect="genIndex === $event.generation && propertySelect($event.selected.index)"
       )
+        template(#before)
+          .flower-timeline-spacer
         template(v-if="canContinue", #after)
           b-button.btn-dark(@click="continueSimulation") Load More
+          .flower-timeline-spacer
+    Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
 </template>
 
 <script>
@@ -128,7 +112,8 @@ export default {
   }
   , data: () => ({
     paused: true
-    , canvasScale: 1
+    , playthrough: true
+    , toolbar: true
 
     , flowerColors: {
       center: '#e6e6e6'
@@ -165,7 +150,6 @@ export default {
     this.creatureProps = this.creatureConfig.template
   }
   , mounted(){
-    this.canvasScale = Math.min(this.$refs.resultsContainer.offsetWidth, this.$refs.resultsContainer.offsetHeight) / this.size
     // this.canvas = this.$refs.canvas
     // this.ctx = this.canvas.getContext('2d')
 
@@ -177,6 +161,11 @@ export default {
     this.player.on('togglePause', () => {
       if ( this.player.paused !== this.paused ){
         this.paused = this.player.paused
+      }
+    })
+    this.player.on('end', () => {
+      if ( this.playthrough ){
+        this.nextGeneration()
       }
     })
 
@@ -216,10 +205,11 @@ export default {
       })
     }
     , genIndex(){
+      this.paused = true
       this.player.seek(0)
-      this.$nextTick(() => {
+      setTimeout(() => {
         this.paused = false
-      })
+      }, 500)
     }
   }
   , computed: {
@@ -230,17 +220,6 @@ export default {
         , seed: this.cfg.seed | 0
         , food_per_generation: this.cfg.food_per_generation | 0
         , max_generations: this.cfg.max_generations | 0
-      }
-    }
-    , simulationProps(){
-      const ratio = window.devicePixelRatio * this.canvasScale
-      return {
-        width: this.size * ratio
-        , height: this.size * ratio
-        , style: {
-          width: this.size * this.canvasScale + 'px'
-          , height: this.size * this.canvasScale + 'px'
-        }
       }
     }
     , traitToColor(){
@@ -312,7 +291,7 @@ export default {
       this.$store.dispatch('simulation/run').then(() => {
         setTimeout(() => {
           this.paused = false
-        }, 100)
+        }, 500)
       })
     }
     , continueSimulation(){
@@ -326,14 +305,13 @@ export default {
     }
     , prevGeneration(){
       if ( this.genIndex <= 0 ){ return }
-      this.player.togglePause(true)
-      this.player.seek(0)
       this.genIndex -= 1
+      this.player.seek(0)
     }
     , nextGeneration(){
-      this.player.togglePause(true)
-      this.player.seek(0)
+      if ( this.genIndex >= this.stats.num_generations - 1 ){ return }
       this.genIndex += 1
+      this.player.seek(0)
     }
     , updateTime(time){
       if ( time !== this.player.time ){
@@ -369,38 +347,87 @@ export default {
   border-top: 1px solid $black
   min-height: 261px
 .viewer
+  position: relative
   display: flex
   height: 100%
   flex-direction: column
   .screen
     flex-grow: 1
     overflow: hidden
-.stage
-  display: none
-  position: relative
-  // border: 1px solid rgba(255, 255, 255, 0.4)
-  overflow: hidden
-  background: $black-bis
-  .creature
-    position: absolute
-    top: 0
-    left: 0
-    width: 10px
-    height: 10px
-    background: $red
-  .food
-    position: absolute
-    top: 0
-    left: 0
-    width: 4px
-    height: 4px
-    background: $green
-    &.is-eaten
-      background: $grey
-  .creature,
-  .food
-    border-radius: 50%
+.simulation-controls
+  position: absolute
+  top: 0
+  right: 0
+  margin-top: 10vh
+  z-index: 1
+  width: 460px
+  padding: 1.5em
+  padding-left: 2em
+  border-radius: 4px 0 0 4px
+  border: 1px solid darken($grey, 10)
+  border-right: none
+  background: rgba(0, 0, 0, 0.3)
+  backdrop-filter: blur(3px)
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3)
 
+  transition: transform 0.4s ease
+
+  &.collapsed
+    transform: translate3d(440px, 0, 0)
+
+  .collapse-bar
+    position: absolute
+    top: 0
+    left: 0
+    bottom: 0
+    width: 20px
+    border: none
+    overflow: hidden
+    background: transparentize($background, 0.1)
+    padding: 0
+    border-radius: 4px 0 0 4px
+    color: $text
+    cursor: pointer
+    outline: none
+    transition: background 0.15s ease
+    &:hover
+      background: $background
+    &:active
+      background: lighten($background, 2)
+    .icon
+      width: 100%
+
+.controls
+  position: absolute
+  bottom: 0
+  left: 0
+  right: 0
+  align-items: baseline
+
+  @media(pointer: fine)
+    &
+      opacity: 0.5
+      transition: opacity 0.3s ease
+
+    &:hover
+      opacity: 1
+
+  >>> .field
+    margin-bottom: 0.5em
+  .icon
+    transition: color 0.15s ease
+    color: darken($grey-light, 25)
+    text-shadow: 0 0 1px $black-ter
+    &:hover
+      color: $grey-lighter
+  .active .icon
+    color: $blue
+  .extras
+    margin-bottom: 0
+
+
+>>> .scrubber .inner
+  background: darken($grey-light, 45)
 .scale
   display: flex
   width: 120px
@@ -414,9 +441,28 @@ export default {
 
   .min
     color: $grey-dark
+
 .legend
   justify-content: center
   margin: 0.5em 0
+
+.generation-selector
+  >>> .flower-timeline
+    padding-top: 60px
+
+    .generation.selected
+      position: relative
+      &:before
+        content: ''
+        position: absolute
+        top: -100px
+        left: 50%
+        margin-left: -50px
+        border: 50px solid transparent
+        border-color: transparent transparent transparentize($blue, 0.8) transparent
+  .flower-timeline-spacer
+    flex: 0 0 auto
+    width: calc(50vw - 50px)
 .generation-selector.is-finished
   >>> .flower-timeline .inner:after
     content: ''

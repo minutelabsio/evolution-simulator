@@ -28,4 +28,5 @@ export default {
   width: 1em
   height: 1em
   margin-right: 1ex
+  border-radius: 3px
 </style>

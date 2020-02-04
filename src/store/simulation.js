@@ -142,7 +142,7 @@ export const simulation = {
       }
     }
     , async loadGeneration({ state, commit }, idx){
-      idx = Math.min(idx, state.statistics.num_generations)
+      idx = Math.min(idx, state.statistics.num_generations - 1)
       commit('setGenerationIndex', idx)
       commit('setGeneration', await worker.getGeneration(idx))
     }

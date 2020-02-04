@@ -1,6 +1,7 @@
 <template lang="pug">
 .flower-timeline.scrollbars(@wheel="onScroll")
   .inner
+    slot(name="before")
     .generation(
       v-for="(gen, index) in data"
       , @click="selected = index"
@@ -88,7 +89,7 @@ export default {
   min-height: 148px
   -webkit-overflow-scrolling: touch
   overflow-x: auto
-  border: 1px solid transparentize($grey, 0.8)
+  // border: 1px solid transparentize($grey, 0.8)
 
   .inner
     display: flex

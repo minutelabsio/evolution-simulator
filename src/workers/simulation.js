@@ -39,18 +39,6 @@ async function run( method, ...args ){
 
 // API
 // ---------------------------------------
-export async function runSimulation( cfg, creatures ){
-  return run('run_simulation', cfg, creatures)
-}
-
-export async function continueSimulation( cfg, creatures ){
-  return run('continue_simulation', cfg, creatures)
-}
-
-// export async function initRandomCreatures( cfg, creatureCfg ){
-//   return run('init_random_creatures', cfg, creatureCfg)
-// }
-
 let simulation = null
 export async function initSimulation( cfg, creatureCfg ){
   const wasm = await app
