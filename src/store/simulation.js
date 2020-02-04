@@ -38,9 +38,11 @@ const initialState = {
     count: 50
     , template: DEFAULT_CREATURE_PROPS
   }
-  , creatures: []
-  , results: null
-  , getResults: () => {}
+
+  , canContinue: true
+  , statistics: null
+  , currentGenerationIndex: 0
+  , currentGeneration: null
 }
 
 function strTypeToNumber( val ){
@@ -82,67 +84,67 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
   }
 }
 
-function runSimulation( config = {}, creatures = [] ){
-  return worker.runSimulation({
-    ...config
-  }, creatures)
-}
-
-function continueSimulation( config = {}, creatures = [] ){
-  return worker.continueSimulation({
-    ...config
-  }, creatures)
-}
-
 export const simulation = {
   namespaced: true
   , state: initialState
   , getters: {
     isLoading: state => state.isBusy
-    , getResults: state => state.getResults
-    , lastGeneration: (state, getters) => {
-      if (!getters.results) { return null }
-      let g = getters.results.generations
-      return g[g.length - 1]
-    }
-    , canContinue: (state, getters) => {
-      if ( !getters.results ){ return false }
-      let g = getters.results.generations
-      return _some(g[g.length - 1].creatures, c => c.state !== 'DEAD')
-    }
+    , canContinue: state => state.canContinue
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
+    , currentGeneration: state => state.currentGeneration
+    , currentGenerationIndex: state => state.currentGenerationIndex
+    , statistics: state => state.statistics
   }
   , actions: {
-    run({ state, dispatch, commit }) {
+    async run({ state, dispatch, commit }) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
 
       commit('start')
-      return runSimulation(state.config, {
-        count: state.creatureConfig.count | 0
-        , template: getCreatureTemplate(state.creatureConfig.template)
-      })
-        .then(results => {
-          commit('setResults', results)
+      try {
+        await worker.initSimulation(state.config, {
+          count: state.creatureConfig.count | 0
+          , template: getCreatureTemplate(state.creatureConfig.template)
         })
-        .catch(error => {
-          dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
+
+        await worker.advanceSimulation(state.config.max_generations)
+        commit('setMeta', {
+          canContinue: await worker.canContinue()
         })
-        .finally(() => commit('stop'))
+        commit('setStatistics', await worker.getStatistics())
+
+        await dispatch('loadGeneration', 0)
+
+      } catch ( error ){
+        dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
+      } finally {
+        commit('stop')
+      }
     }
-    , continue({ state, getters, dispatch, commit }) {
+    , async continue({ state, getters, dispatch, commit }) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
       if ( !getters.canContinue ){ return Promise.reject(new Error('No Results')) }
 
       commit('start')
-      return continueSimulation(state.config, getters.lastGeneration.creatures)
-        .then(results => {
-          commit('appendResults', results)
+      try {
+        await worker.advanceSimulation(state.config.max_generations)
+        commit('setMeta', {
+          canContinue: await worker.canContinue()
         })
-        .catch(error => {
-          dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
-        })
-        .finally(() => commit('stop'))
+        commit('setStatistics', await worker.getStatistics())
+
+        await dispatch('loadGeneration', state.currentGenerationIndex)
+
+      } catch ( error ){
+        dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
+      } finally {
+        commit('stop')
+      }
+    }
+    , async loadGeneration({ state, commit }, idx){
+      idx = Math.min(idx, state.statistics.num_generations)
+      commit('setGenerationIndex', idx)
+      commit('setGeneration', await worker.getGeneration(idx))
     }
     , setConfig({ commit }, config = {}){
       commit('setConfig', _cloneDeep(config))
@@ -162,15 +164,19 @@ export const simulation = {
       state.computeTime = performance.now() - state.startedAt
       state.startedAt = 0
     }
-    , setResults(state, results){
-      // state.results = results
-      state.getResults = () => Object.freeze(results)
+    , setGenerationIndex(state, idx){
+      state.currentGenerationIndex = idx | 0
     }
-    , appendResults(state, results){
-      // state.results.generations = state.results.generations.concat(results.generations)
-      let prevResults = state.getResults()
-      prevResults.generations = prevResults.generations.concat(results.generations)
-      state.getResults = () => prevResults
+    , setMeta(state, meta){
+      Object.keys(meta).forEach(k => {
+        state[k] = meta[k]
+      })
+    }
+    , setStatistics(state, stats){
+      state.statistics = Object.freeze(stats)
+    }
+    , setGeneration(state, gen){
+      state.currentGeneration = Object.freeze(gen)
     }
     , setConfig(state, cfg){
       state.config = {
@@ -183,9 +189,6 @@ export const simulation = {
         ...state.creatureConfig
         , ...cfg
       }
-    }
-    , setCreatures(state, creatures){
-      state.creatures = creatures
     }
   }
 }

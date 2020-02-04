@@ -29,5 +29,8 @@ pub mod stage;
 pub mod creature;
 pub mod simulation;
 
+mod math;
+pub use math::*;
+
 mod api;
 pub use api::*;

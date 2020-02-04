@@ -210,7 +210,6 @@ export default {
     , creatureCount: 50
 
     , stepTime: 100 // ms
-    , genIndex: 0
 
     , time: 0
     , progress: 0
@@ -278,19 +277,9 @@ export default {
         this.paused = false
       })
     }
-    , simulation(){
-      this.genIndex = 0
-      this.player.seek(0)
-      this.$nextTick(() => {
-        this.paused = false
-      })
-    }
   }
   , computed: {
-    simulation(){
-      return this.getResults()
-    }
-    , size(){ return this.cfg.size }
+    size(){ return this.cfg.size }
     , simulationCfg(){
       return {
         size: this.cfg.size
@@ -316,86 +305,32 @@ export default {
     , traitColor(){
       return this.flowerColors.petals[this.topPetal]
     }
-    , traitScale(){
-      let scale = chroma.scale(['white', this.traitColor])
-      if ( this.simulation ){
-        let stat = this.stats[this.traitToColor]
-        let min = stat.min()
-        let max = stat.max()
-        return scale.domain([min, max])
-      }
-      return scale
-    }
-    , traitData(){
-      if (!this.simulation){ return [] }
-      return creatureTraits.map(t => {
-        return {
-          label: t
-          , data: this.generationStats.map(gs => gs[t].mean())
-        }
-      })
-    }
     , generationStats(){
-      if (!this.simulation){ return [] }
-
-      return this.simulation.generations.map(g => {
-        let stats = {}
-        creatureTraits.forEach(t => {
-          stats[t] = RunningStatistics()
-        })
-
-        g.creatures.forEach(c => {
-          creatureTraits.forEach(t => stats[t].push(getTrait(c, t)))
-        })
-
-        return stats
-      })
-    }
-    , stats(){
-
-      const generationStats = this.generationStats
-      let population = RunningStatistics()
-      let stats = { population }
-      creatureTraits.forEach(t => {
-        stats[t] = RunningStatistics()
-      })
-
-      if (!this.simulation){ return stats }
-
-      this.simulation.generations.forEach((g, i) => {
-        population.push(g.creatures.length)
-        let s = generationStats[i]
-        creatureTraits.forEach(t => {
-          stats[t].push(s[t].mean())
-        })
-      })
-
-      return stats
-    }
-    , populationData(){
-      if (!this.simulation){ return [] }
-      return this.simulation.generations.map(g => g.creatures.length)
+      if ( !this.stats ){ return [] }
+      return this.stats.generation_statistics
     }
     , flowerData(){
-      if (!this.simulation){ return {} }
+      if (!this.stats){ return {} }
+      let g = this.generationStats[this.genIndex]
       return {
-        center: this.generation.creatures.length
-        , petals: Object.values(this.generationStats[this.genIndex]).map(s => s.mean())
+        center: g.population
+        , petals: creatureTraits.map(k => g[k].mean)
       }
     }
     , flowerTimelineData(){
-      if (!this.simulation){ return [] }
+      if (!this.stats){ return [] }
       let stats = this.generationStats
-      return this.simulation.generations.map((g, i) => ({
-        center: g.creatures.length
-        , petals: Object.values(stats[i]).map(s => s.mean())
+      return stats.map(v => ({
+        center: v.population
+        , petals: creatureTraits.map(k => v[k].mean)
       }))
     }
     , flowerRanges(){
-      let { population, ...traits } = this.stats
+      if ( !this.stats ){ return {} }
+      let { population } = this.stats
       return {
-        center: [population.min(), population.max()]
-        , petals: Object.values(traits).map(t => [t.min(), t.max()])
+        center: [population.min, population.max]
+        , petals: creatureTraits.map(k => this.stats[k]).map(t => [t.min, t.max])
       }
     }
     , flowerLegend(){
@@ -406,28 +341,41 @@ export default {
           , color: this.flowerColors.center
         }])
     }
-    , generation(){
-      if ( !this.simulation ){ return null }
-      return this.simulation.generations[this.genIndex]
-    }
     , totalTime(){
       if ( !this.generation ){ return 1 }
       return this.stepTime * this.generation.steps
     }
+    , genIndex: {
+      get(){
+        return this.generationIndex
+      }
+      , set(v){
+        this.loadGeneration(v)
+      }
+    }
     , ...mapGetters('simulation', {
-      getResults: 'getResults'
-      , canContinue: 'canContinue'
+      canContinue: 'canContinue'
       , isLoading: 'isLoading'
       , config: 'config'
       , creatureConfig: 'creatureConfig'
+      , generation: 'currentGeneration'
+      , generationIndex: 'currentGenerationIndex'
+      , stats: 'statistics'
     })
   }
   , methods: {
     run(){
-      this.$store.dispatch('simulation/run')
+      this.$store.dispatch('simulation/run').then(() => {
+        setTimeout(() => {
+          this.paused = false
+        }, 100)
+      })
     }
     , continueSimulation(){
       this.$store.dispatch('simulation/continue')
+    }
+    , loadGeneration(v){
+      this.$store.dispatch('simulation/loadGeneration', v)
     }
     , togglePlay(){
       this.paused = !this.paused
@@ -439,7 +387,6 @@ export default {
       this.genIndex -= 1
     }
     , nextGeneration(){
-      if ( this.genIndex >= (this.simulation.generations.length - 1) ){ return }
       this.player.togglePause(true)
       this.player.seek(0)
       this.genIndex += 1
@@ -451,18 +398,6 @@ export default {
     }
     , onScrub(progress){
       this.updateTime(progress * this.totalTime / 100)
-    }
-    , draw(){
-      if (!this.generation){ return }
-      const ctx = this.ctx
-      const step = this.currentStep
-      const gen = this.generation
-      const ratio = window.devicePixelRatio
-      const scale = ratio * this.canvasScale
-      ctx.clearRect(0, 0, this.size, this.size)
-      ctx.setTransform(scale, 0, 0, scale, 0, 0);
-      drawFood(ctx, step, gen.food)
-      drawCreatures(ctx, this.stepTime, this.time, gen.creatures, this.traitToColor, this.traitScale)
     }
     , propertySelect(index){
       if ( index !== undefined && index < creatureTraits.length ){

@@ -50,3 +50,35 @@ export async function continueSimulation( cfg, creatures ){
 // export async function initRandomCreatures( cfg, creatureCfg ){
 //   return run('init_random_creatures', cfg, creatureCfg)
 // }
+
+let simulation = null
+export async function initSimulation( cfg, creatureCfg ){
+  const wasm = await app
+  simulation = wasm.SquareWorld.new(
+    cfg.size
+    , cfg.seed
+    , cfg.food_per_generation
+    , creatureCfg
+    , cfg.preset
+  )
+}
+
+export function advanceSimulation( numGens ){
+  return simulation.run( numGens )
+}
+
+export function canContinue(){
+  return simulation.can_continue()
+}
+
+export function getResults(){
+  return simulation.get_results()
+}
+
+export function getGeneration(index){
+  return simulation.get_generation(index)
+}
+
+export function getStatistics(){
+  return simulation.get_statistics()
+}

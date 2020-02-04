@@ -54,9 +54,9 @@
       v3-plane(:width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       //- Thick board undernieth
       v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
-      v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+      v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
-      v3-group(:position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+      v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3")
 </template>
 
@@ -94,16 +94,11 @@ const components = {
 }
 
 const computed = {
-  generation(){
-    let results = this.getResults()
-    if ( !results ){ return {} }
-    return results.generations[this.generationIndex]
-  }
-  , steps(){
+  steps(){
     return this.generation.steps
   }
   , ...mapGetters('simulation', {
-    'getResults': 'getResults'
+    'generation': 'currentGeneration'
   })
 }
 
