@@ -104,62 +104,6 @@ import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
 import GenerationViewer from '@/components/generation-viewer'
 import Legend from '@/components/legend'
-import { RunningStatistics } from '@/lib/math'
-
-function lerpArray(from, to, t){
-  return Copilot.Interpolators.Array(from, to, t)
-}
-
-const creaturePositionAt = stepFrac => creature => {
-  let step = Math.floor(stepFrac)
-  let frac = stepFrac % Math.max(1, step)
-  let from = creature.movement_history[step] || creature.movement_history[creature.movement_history.length - 1]
-  let to = creature.movement_history[step + 1]
-
-  if ( !to ){ return from }
-  // frac = Copilot.Easing.Quadratic.InOut(frac)
-  return lerpArray(from, to, frac)
-}
-
-function drawCircle(ctx, {x, y}, radius, color = 'white'){
-  ctx.beginPath()
-  ctx.arc(x, y, radius, 0, 2 * Math.PI, false)
-  ctx.fillStyle = color
-  ctx.fill()
-}
-
-function drawFood(ctx, step, food){
-  food.forEach(f => {
-    let [x,y] = f.position
-    let isEaten = f.status.Eaten < step
-    drawCircle(ctx, {x, y}, 2, isEaten ? '#111' : '#666')
-  })
-}
-
-function drawCreatures(ctx, stepTime, now, creatures, traitName, scale){
-  let stepFrac = now / stepTime
-  const getCreaturePosition = creaturePositionAt(stepFrac)
-
-  creatures.forEach(c => {
-    let [x,y] = getCreaturePosition(c)
-    let trait = getTrait(c, traitName)
-    let color = scale(trait).css()
-
-    drawCircle(ctx, {x, y}, 5, color)
-  })
-}
-
-// function getAverageTraitValue(generation, trait){
-//   let len = generation.creatures.length
-//   return generation.creatures.reduce((avg, c) => {
-//     return avg + getTrait(c, trait)/len
-//   }, 0)
-// }
-
-function getTrait(creature, trait){
-  let value = creature[trait]
-  return value[0] !== undefined || value
-}
 
 const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
 

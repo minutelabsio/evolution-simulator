@@ -1,5 +1,5 @@
 import _cloneDeep from 'lodash/cloneDeep'
-import _some from 'lodash/some'
+// import _some from 'lodash/some'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
