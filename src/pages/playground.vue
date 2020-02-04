@@ -276,12 +276,15 @@ export default {
         this.loadGeneration(v)
       }
     }
+    , generation(){
+      return this.getCurrentGeneration()
+    }
     , ...mapGetters('simulation', {
       canContinue: 'canContinue'
       , isLoading: 'isLoading'
       , config: 'config'
       , creatureConfig: 'creatureConfig'
-      , generation: 'currentGeneration'
+      , getCurrentGeneration: 'getCurrentGeneration'
       , generationIndex: 'currentGenerationIndex'
       , stats: 'statistics'
     })

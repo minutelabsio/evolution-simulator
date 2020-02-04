@@ -42,7 +42,7 @@ const initialState = {
   , canContinue: true
   , statistics: null
   , currentGenerationIndex: 0
-  , currentGeneration: null
+  , getCurrentGeneration: () => null
 }
 
 function strTypeToNumber( val ){
@@ -92,7 +92,7 @@ export const simulation = {
     , canContinue: state => state.canContinue
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
-    , currentGeneration: state => state.currentGeneration
+    , getCurrentGeneration: state => state.getCurrentGeneration
     , currentGenerationIndex: state => state.currentGenerationIndex
     , statistics: state => state.statistics
   }
@@ -176,7 +176,8 @@ export const simulation = {
       state.statistics = Object.freeze(stats)
     }
     , setGeneration(state, gen){
-      state.currentGeneration = Object.freeze(gen)
+      let generation = Object.freeze(gen)
+      state.getCurrentGeneration = () => generation
     }
     , setConfig(state, cfg){
       state.config = {

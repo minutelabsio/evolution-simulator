@@ -97,8 +97,11 @@ const computed = {
   steps(){
     return this.generation.steps
   }
+  , generation(){
+    return this.getCurrentGeneration()
+  }
   , ...mapGetters('simulation', {
-    'generation': 'currentGeneration'
+    'getCurrentGeneration': 'getCurrentGeneration'
   })
 }
 
