@@ -3,6 +3,7 @@ import App from '@/app'
 import VueAnalytics from 'vue-analytics'
 import router from '@/router'
 import store from '@/store'
+import { sync } from 'vuex-router-sync'
 import Filters from '@/plugins/filters'
 import Gestures from '@/plugins/gestures'
 import onResize from '@/plugins/on-resize'
@@ -14,6 +15,9 @@ import * as THREE from 'three'
 import '@mdi/font/css/materialdesignicons.css'
 // require styles
 import './styles/main.scss'
+
+// sync router and store
+sync(store, router)
 
 Copilot.registerType({
   type: 'Vector3'

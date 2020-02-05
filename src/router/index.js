@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import PlayerUI from '@/pages/player-ui'
 import About from '@/pages/about'
-import Playground from '@/pages/playground'
+import Simulation from '@/pages/simulation'
+import ViewScreen from '@/components/view-screen'
 
 // const CDN = 'https://cdn.minutelabs.io/what-is-a-day/audio'
 //
@@ -21,7 +22,7 @@ export default new Router({
       path: '/'
       , name: 'home'
       , component: PlayerUI
-      , redirect: { name: 'playground' }
+      , redirect: { name: 'simulation' }
       , meta: {
         // music: {
         //   maxVolume: 0.7
@@ -44,9 +45,20 @@ export default new Router({
       ]
     }
     , {
-      path: '/playground'
-      , name: 'playground'
-      , component: Playground
+      path: '/s'
+      , name: 'simulation'
+      , redirect: { name: 'viewscreen' }
+      , component: Simulation
+      , props(route){
+        return { ...route.params, generationIndex: +route.params.generationIndex }
+      }
+      , children: [
+        {
+          path: '/viewer/:generationIndex?'
+          , name: 'viewscreen'
+          , component: ViewScreen
+        }
+      ]
     }
     , {
       path: '/about'
@@ -55,7 +67,7 @@ export default new Router({
     }
     , {
       path: '*'
-      , redirect: 'home'
+      , redirect: { name: 'viewscreen' }
     }
   ]
 })

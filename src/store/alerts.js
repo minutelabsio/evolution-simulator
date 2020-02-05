@@ -21,6 +21,7 @@ export const alerts = {
   , actions: {
     error({ commit }, { error, context, timeout }) {
       commit('addError', { error, context, timeout })
+      console.error(context, error)
       return error
     }
     , clearError({ commit }, { id }){

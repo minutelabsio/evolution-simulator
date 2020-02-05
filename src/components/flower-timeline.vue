@@ -103,6 +103,7 @@ export default {
       background-color: rgba(255, 255, 255, 0.05)
     &:active,
     &.selected
+      transition: none
       background-color: transparentize($blue, 0.8)
   .gen-label
     margin-bottom: 1em

@@ -43,23 +43,9 @@
       b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
 
   .upper
-    .viewer
-      .screen
-        GenerationViewer.viewer(:generation-index="genIndex", :step-time="stepTime")
-      .controls
-        b-field.extras(grouped, position="is-centered", :class="{ active: playthrough }")
-          b-field
-            b-icon.clickable(title="play through", icon="redo", @click.native="playthrough = !playthrough")
-        b-field(grouped, position="is-centered")
-          b-field
-            b-icon.clickable(icon="skip-previous", size="is-large", @click.native="prevGeneration()")
-          b-field
-            b-icon.clickable(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
-          b-field
-            b-icon.clickable(icon="skip-next", size="is-large", @click.native="nextGeneration()")
+    router-view
 
   .bottom-drawer
-    AudioScrubber(:progress="progress", @scrub="onScrub")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
         v-model="genIndex"
@@ -81,18 +67,15 @@
 // import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
 import chroma from 'chroma-js'
-import Copilot from 'copilot'
-import AudioScrubber from '@/components/audio-scrubber'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
-import GenerationViewer from '@/components/generation-viewer'
 import Legend from '@/components/legend'
 
 const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
 
 export default {
-  name: 'Playground'
+  name: 'Simulation'
   , props: {
   }
   , components: {
@@ -100,20 +83,9 @@ export default {
     , FlowerChart
     , FlowerTimeline
     , Legend
-    , AudioScrubber
-    , GenerationViewer
-  }
-  , provide(){
-    const self = this
-    return {
-      getTime(){ return self.time }
-      , getStep(){ return self.time / self.stepTime }
-    }
   }
   , data: () => ({
-    paused: true
-    , playthrough: true
-    , toolbar: true
+    toolbar: true
 
     , flowerColors: {
       center: '#e6e6e6'
@@ -137,54 +109,19 @@ export default {
     }
 
     , creatureCount: 50
-
-    , stepTime: 100 // ms
-
-    , time: 0
-    , progress: 0
     // , traitToColor: 'speed'
   })
   , created(){
-    this.player = Copilot.Player({ totalTime: 1 })
     this.cfg = this.config
     this.creatureProps = this.creatureConfig.template
   }
   , mounted(){
-    // this.canvas = this.$refs.canvas
-    // this.ctx = this.canvas.getContext('2d')
-
-    this.player.on('animate', () => {
-      this.time = this.player.time
-      this.progress = this.time/this.totalTime * 100
-      // this.draw()
-    })
-    this.player.on('togglePause', () => {
-      if ( this.player.paused !== this.paused ){
-        this.paused = this.player.paused
-      }
-    })
-    this.player.on('end', () => {
-      if ( this.playthrough ){
-        this.nextGeneration()
-      }
-    })
-
     this.$nextTick(() => {
       this.run()
     })
   }
-  , beforeDestroy(){
-    this.player.togglePause(true)
-    this.player.off(true)
-  }
   , watch: {
-    totalTime(){
-      this.player.totalTime = this.totalTime
-    }
-    , paused(){
-      this.player.togglePause(this.paused)
-    }
-    , simulationCfg: {
+    simulationCfg: {
       handler(cfg){
         this.$store.dispatch('simulation/setConfig', cfg)
       }
@@ -204,13 +141,7 @@ export default {
         , template: this.creatureProps
       })
     }
-    , genIndex(){
-      this.paused = true
-      this.player.seek(0)
-      setTimeout(() => {
-        this.paused = false
-      }, 500)
-    }
+
   }
   , computed: {
     size(){ return this.cfg.size }
@@ -264,10 +195,6 @@ export default {
           , color: this.flowerColors.center
         }])
     }
-    , totalTime(){
-      if ( !this.generation ){ return 1 }
-      return this.stepTime * this.generation.steps
-    }
     , genIndex: {
       get(){
         return this.generationIndex
@@ -291,38 +218,13 @@ export default {
   }
   , methods: {
     run(){
-      this.$store.dispatch('simulation/run').then(() => {
-        setTimeout(() => {
-          this.paused = false
-        }, 500)
-      })
+      this.$store.dispatch('simulation/run')
     }
     , continueSimulation(){
       this.$store.dispatch('simulation/continue')
     }
     , loadGeneration(v){
       this.$store.dispatch('simulation/loadGeneration', v)
-    }
-    , togglePlay(){
-      this.paused = !this.paused
-    }
-    , prevGeneration(){
-      if ( this.genIndex <= 0 ){ return }
-      this.genIndex -= 1
-      this.player.seek(0)
-    }
-    , nextGeneration(){
-      if ( this.genIndex >= this.stats.num_generations - 1 ){ return }
-      this.genIndex += 1
-      this.player.seek(0)
-    }
-    , updateTime(time){
-      if ( time !== this.player.time ){
-        this.player.seek(time)
-      }
-    }
-    , onScrub(progress){
-      this.updateTime(progress * this.totalTime / 100)
     }
     , propertySelect(index){
       if ( index !== undefined && index < creatureTraits.length ){
@@ -341,22 +243,13 @@ export default {
   flex-direction: column
 .upper
   flex: 1
-  overflow: hidden
-
-  .columns
-    height: 100%
+  // overflow: hidden
+  background: #333333
 .bottom-drawer
   background: $black-ter
   border-top: 1px solid $black
   min-height: 261px
-.viewer
-  position: relative
-  display: flex
-  height: 100%
-  flex-direction: column
-  .screen
-    flex-grow: 1
-    overflow: hidden
+
 .simulation-controls
   position: absolute
   top: 0
@@ -400,37 +293,6 @@ export default {
     .icon
       width: 100%
 
-.controls
-  position: absolute
-  bottom: 0
-  left: 0
-  right: 0
-  align-items: baseline
-
-  @media(pointer: fine)
-    &
-      opacity: 0.5
-      transition: opacity 0.3s ease
-
-    &:hover
-      opacity: 1
-
-  >>> .field
-    margin-bottom: 0.5em
-  .icon
-    transition: color 0.15s ease
-    color: darken($grey-light, 25)
-    text-shadow: 0 0 1px $black-ter
-    &:hover
-      color: $grey-lighter
-  .active .icon
-    color: $blue
-  .extras
-    margin-bottom: 0
-
-
->>> .scrubber .inner
-  background: darken($grey-light, 45)
 .scale
   display: flex
   width: 120px

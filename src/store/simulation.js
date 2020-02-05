@@ -1,3 +1,4 @@
+import router from '../router'
 import _cloneDeep from 'lodash/cloneDeep'
 // import _some from 'lodash/some'
 import createWorker from '@/workers/simulation'
@@ -41,7 +42,7 @@ const initialState = {
 
   , canContinue: true
   , statistics: null
-  , currentGenerationIndex: 0
+  , currentGenerationIndex: -1
   , getCurrentGeneration: () => null
 }
 
@@ -93,7 +94,8 @@ export const simulation = {
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
     , getCurrentGeneration: state => state.getCurrentGeneration
-    , currentGenerationIndex: state => state.currentGenerationIndex
+    , currentGenerationIndex: (state, getters, rootState) =>
+      rootState.route ? +rootState.route.params.generationIndex - 1 : 0
     , statistics: state => state.statistics
   }
   , actions: {
@@ -133,7 +135,7 @@ export const simulation = {
         })
         commit('setStatistics', await worker.getStatistics())
 
-        await dispatch('loadGeneration', state.currentGenerationIndex)
+        await dispatch('loadGeneration', getters.currentGenerationIndex)
 
       } catch ( error ){
         dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
@@ -141,8 +143,15 @@ export const simulation = {
         commit('stop')
       }
     }
-    , async loadGeneration({ state, commit }, idx){
-      idx = Math.min(idx, state.statistics.num_generations - 1)
+    , async loadGeneration({ state, commit, getters }, idx){
+      if (!state.statistics) { return }
+      idx = Math.max(0, Math.min(idx, state.statistics.num_generations - 1))
+
+      if ( idx !== getters.currentGenerationIndex ){
+        let params = router.route ? router.route.params : {}
+        router.replace({ params: { ...params, generationIndex: idx + 1 }})
+      }
+
       commit('setGenerationIndex', idx)
       commit('setGeneration', await worker.getGeneration(idx))
     }
