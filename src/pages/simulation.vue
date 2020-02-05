@@ -1,46 +1,10 @@
 <template lang="pug">
 .playground
+  .logo
+    img(src="@/assets/logo-dark.png")
   .simulation-controls(:class="{ collapsed: !toolbar }")
     button.collapse-bar(@click="toolbar = !toolbar")
       b-icon(:icon="toolbar ? 'menu-right' : 'menu-left'")
-
-    h4.title.is-size-5 Initial Creature Properties
-    b-field(grouped)
-      b-field(label="Energy")
-        b-input(v-model="creatureProps.energy", type="number", min="0", step="any")
-    b-field(grouped)
-      b-field(label="Speed")
-        b-input(v-model="creatureProps.speed[0]", type="number", min="0", step="any")
-      b-field(label="Speed mutation variance")
-        b-input(v-model="creatureProps.speed[1]", type="number", min="0", step="any")
-    b-field(grouped)
-      b-field(label="Sense")
-        b-input(v-model="creatureProps.sense_range[0]", type="number", min="0", step="any")
-      b-field(label="Sense mutation variance")
-        b-input(v-model="creatureProps.sense_range[1]", type="number", min="0", step="any")
-    b-field(grouped)
-      b-field(label="Reach")
-        b-input(v-model="creatureProps.reach[0]", type="number", min="0", step="any")
-      b-field(label="Reach mutation variance")
-        b-input(v-model="creatureProps.reach[1]", type="number", min="0", step="any")
-    b-field(grouped)
-      b-field(label="Avg Lifespan")
-        b-input(v-model="creatureProps.life_span[0]", type="number", min="0", step="any")
-      b-field(label="Avg Lifespan mutation variance")
-        b-input(v-model="creatureProps.life_span[1]", type="number", min="0", step="any")
-
-    b-field(grouped)
-      b-field(label="Number of Creatures")
-        b-input(v-model="creatureCount", type="number", min="1", step="1")
-      b-field(label="Food Per Generation")
-        b-input(v-model="cfg.food_per_generation", type="number", min="0", step="1")
-    b-field(grouped)
-      b-field(label="Random Seed")
-        b-input(v-model="cfg.seed", type="number", min="0", step="1")
-      b-field(label="Max Generations")
-        b-input(v-model="cfg.max_generations", type="number", min="0", step="1")
-    b-field
-      b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
 
   .upper
     router-view
@@ -92,28 +56,8 @@ export default {
       , petals: chroma.scale('Set1').colors(8)
     }
     , topPetal: 0
-
-    , cfg: {
-      seed: 118
-      , food_per_generation: 50
-      , max_generations: 50
-      , size: 500
-    }
-
-    , creatureProps: {
-      speed: [6, 1]
-      , sense_range: [50, 10]
-      , reach: [5, 1]
-      , life_span: [4, 1]
-      , energy: 500
-    }
-
-    , creatureCount: 50
-    // , traitToColor: 'speed'
   })
   , created(){
-    this.cfg = this.config
-    this.creatureProps = this.creatureConfig.template
   }
   , mounted(){
     this.$nextTick(() => {
@@ -121,39 +65,10 @@ export default {
     })
   }
   , watch: {
-    simulationCfg: {
-      handler(cfg){
-        this.$store.dispatch('simulation/setConfig', cfg)
-      }
-    }
-    , creatureProps: {
-      handler(cfg){
-        this.$store.dispatch('simulation/setCreatureConfig', {
-          count: this.creatureCount
-          , template: cfg
-        })
-      }
-      , deep: true
-    }
-    , creatureCount(){
-      this.$store.dispatch('simulation/setCreatureConfig', {
-        count: this.creatureCount
-        , template: this.creatureProps
-      })
-    }
 
   }
   , computed: {
-    size(){ return this.cfg.size }
-    , simulationCfg(){
-      return {
-        size: this.cfg.size
-        , seed: this.cfg.seed | 0
-        , food_per_generation: this.cfg.food_per_generation | 0
-        , max_generations: this.cfg.max_generations | 0
-      }
-    }
-    , traitToColor(){
+    traitToColor(){
       return creatureTraits[this.topPetal]
     }
     , traitColor(){
@@ -209,8 +124,6 @@ export default {
     , ...mapGetters('simulation', {
       canContinue: 'canContinue'
       , isLoading: 'isLoading'
-      , config: 'config'
-      , creatureConfig: 'creatureConfig'
       , getCurrentGeneration: 'getCurrentGeneration'
       , generationIndex: 'currentGenerationIndex'
       , stats: 'statistics'
@@ -241,6 +154,17 @@ export default {
   height: 100%
   display: flex
   flex-direction: column
+.logo
+  position: absolute
+  top: 1em
+  left: 1em
+  pointer-events: none
+  z-index: 1
+  opacity: 0.7
+  height: 40px
+  overflow: hidden
+  img
+    width: 48px
 .upper
   flex: 1
   // overflow: hidden

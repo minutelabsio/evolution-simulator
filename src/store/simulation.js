@@ -93,6 +93,8 @@ export const simulation = {
     , canContinue: state => state.canContinue
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
+    , creatureTemplate: state => state.creatureConfig.template
+    , creatureCount: state => state.creatureConfig.count
     , getCurrentGeneration: state => state.getCurrentGeneration
     , currentGenerationIndex: (state, getters, rootState) =>
       rootState.route ? +rootState.route.params.generationIndex - 1 : 0
@@ -161,6 +163,12 @@ export const simulation = {
     , setCreatureConfig({ commit }, config = {}){
       commit('setCreatureConfig', _cloneDeep(config))
     }
+    , setCreatureTemplate({ commit }, config = {}){
+      commit('setCreatureTemplate', _cloneDeep(config))
+    }
+    , setCreatureCount({ commit }, count){
+      commit('setCreatureCount', count | 0)
+    }
   }
   , mutations: {
     start(state){
@@ -198,6 +206,21 @@ export const simulation = {
       state.creatureConfig = {
         ...state.creatureConfig
         , ...cfg
+      }
+    }
+    , setCreatureTemplate(state, cfg){
+      state.creatureConfig = {
+        ...state.creatureConfig
+        , template: {
+          ...state.creatureConfig.template
+          , ...cfg
+        }
+      }
+    }
+    , setCreatureCount(state, count){
+      state.creatureConfig = {
+        ...state.creatureConfig
+        , count
       }
     }
   }

@@ -50,13 +50,23 @@ export default new Router({
       , redirect: { name: 'viewscreen' }
       , component: Simulation
       , props(route){
-        return { ...route.params, generationIndex: +route.params.generationIndex }
+        return {
+          ...route.params
+          , showConfig: true
+          , generationIndex: +route.params.generationIndex
+        }
       }
       , children: [
         {
-          path: '/viewer/:generationIndex?'
+          path: 'viewer/:generationIndex?/:cfg?'
           , name: 'viewscreen'
           , component: ViewScreen
+          , props(route){
+            return {
+              ...route.params
+              , showConfig: !!route.params.cfg
+            }
+          }
         }
       ]
     }

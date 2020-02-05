@@ -7,7 +7,15 @@ export default {
     Vue.prototype.$onResize = function( fn, throttleTime = 50 ){
       const cb = _throttle(fn, throttleTime)
       listeners.push(cb)
+      this.$on('hook:activated', () => {
+        _pull(listeners, cb)
+        listeners.push(cb)
+        cb()
+      })
       this.$on('hook:beforeDestroy', () => {
+        _pull(listeners, cb)
+      })
+      this.$on('hook:deactivated', () => {
         _pull(listeners, cb)
       })
     }

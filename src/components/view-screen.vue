@@ -1,8 +1,12 @@
 <template lang="pug">
 .viewer
+  SimulationConfig.cfg(v-if="showConfig", @close="showConfig = false")
+  .top-controls(v-show="!showConfig")
+    router-link.config(:to="{ params: { ...$route.params, cfg: 'c' } }")
+      b-icon(icon="cogs", size="is-large")
   .screen
-    GenerationViewer.viewer(:generation-index="genIndex", :step-time="stepTime")
-  .controls
+    GenerationViewer(:generation-index="genIndex", :step-time="stepTime")
+  .controls(v-show="!showConfig")
     .inner
       b-field.extras(grouped, position="is-centered", :class="{ active: playthrough }")
         b-field
@@ -22,10 +26,12 @@ import { mapGetters } from 'vuex'
 import Copilot from 'copilot'
 import AudioScrubber from '@/components/audio-scrubber'
 import GenerationViewer from '@/components/generation-viewer'
+import SimulationConfig from '@/components/simulation-config'
 
 export default {
   name: 'ViewScreen'
   , props: {
+    showConfig: Boolean
   }
   , provide(){
     const self = this
@@ -44,9 +50,13 @@ export default {
   , components: {
     AudioScrubber
     , GenerationViewer
+    , SimulationConfig
   }
   , created(){
     this.player = Copilot.Player({ totalTime: 1 })
+  }
+  , deactivated(){
+    this.player.togglePause(true)
   }
   , beforeDestroy(){
     this.player.togglePause(true)
@@ -145,6 +155,20 @@ export default {
   .screen
     flex-grow: 1
     overflow: hidden
+.cfg
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 1
+  background: rgba(0, 0, 0, 0.35)
+  backdrop-filter: blur(5px)
+.top-controls
+  position: absolute
+  top: 1em
+  right: 1em
+  z-index: 1
 .controls
   position: absolute
   bottom: 0
@@ -162,6 +186,13 @@ export default {
 
   >>> .field
     margin-bottom: 0.5em
+
+  .extras
+  margin-bottom: 0
+
+.top-controls,
+.controls,
+>>> .cfg
   .icon
     transition: color 0.15s ease
     color: darken($grey-light, 25)
@@ -170,8 +201,6 @@ export default {
       color: $grey-lighter
   .active .icon
     color: $blue
-  .extras
-    margin-bottom: 0
 
 >>> .scrubber .inner
   background: darken($grey-light, 45)
