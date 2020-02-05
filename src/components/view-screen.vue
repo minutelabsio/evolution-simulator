@@ -188,7 +188,7 @@ export default {
     margin-bottom: 0.5em
 
   .extras
-  margin-bottom: 0
+    margin-bottom: 0
 
 .top-controls,
 .controls,
