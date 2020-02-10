@@ -115,7 +115,7 @@ const computed = {
 }
 
 const watch = {
-  followCreatureIndex(idx){
+  followCreatureIndex(){
     this.checkFollowCreature()
   }
 }
@@ -158,7 +158,7 @@ const methods = {
     let goal = this.$refs.cameraGoal && this.$refs.cameraGoal[0]
     let focusGoal = this.$refs.cameraFocusGoal && this.$refs.cameraFocusGoal[0]
     if (!goal){ return }
-    let creature = this.$refs.v3Creatures[this.followCreatureIndex]
+    // let creature = this.$refs.v3Creatures[this.followCreatureIndex]
     this.cameraGoal.setFromMatrixPosition(goal.v3object.matrixWorld)
     tmpV.setFromMatrixPosition(focusGoal.v3object.matrixWorld)
     this.cameraFocusGoal.lerp(tmpV, 0.05)
