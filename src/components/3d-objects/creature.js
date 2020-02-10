@@ -167,8 +167,10 @@ export default {
   , mixins: [ THREEObjectMixin ]
   , inject: [ 'getStep' ]
   , props: {
-    showSenseRange: Boolean
-    , creature: Object
+    creature: Object
+    , showSightIndicator: Boolean
+    , showSpeedIndicator: Boolean
+    , showEnergyIndicator: Boolean
   }
   , components: {
   }
@@ -281,13 +283,18 @@ export default {
     , updateObjects(){
       let vision = this.creature.sense_range[0]
       this.visionIndicator.scale.set(vision, vision, vision)
-      this.visionIndicator.visible = true //this.showSenseRange
+      this.visionIndicator.visible = this.showSightIndicator
 
       // speed indication
-      let chevN = getSpeedIndicatorCount(this.creature)
-      this.speedIndicator.children.forEach((c, n) => {
-        c.visible = (n < chevN)
-      })
+      this.speedIndicator.visible = this.showSpeedIndicator
+      if (this.showSpeedIndicator){
+        let chevN = getSpeedIndicatorCount(this.creature)
+        this.speedIndicator.children.forEach((c, n) => {
+          c.visible = (n < chevN)
+        })
+      }
+
+      this.energyIndicator.visible = this.showEnergyIndicator
     }
   }
 }

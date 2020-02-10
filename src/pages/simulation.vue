@@ -2,10 +2,6 @@
 .playground
   .logo
     img(src="@/assets/logo-dark.png")
-  .simulation-controls(:class="{ collapsed: !toolbar }")
-    button.collapse-bar(@click="toolbar = !toolbar")
-      b-icon(:icon="toolbar ? 'menu-right' : 'menu-left'")
-
   .upper
     router-view
 
@@ -34,6 +30,7 @@ import chroma from 'chroma-js'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
+import Drawer from '@/components/drawer'
 import Legend from '@/components/legend'
 
 const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
@@ -47,6 +44,7 @@ export default {
     , FlowerChart
     , FlowerTimeline
     , Legend
+    , Drawer
   }
   , data: () => ({
     toolbar: true
@@ -173,49 +171,6 @@ export default {
   background: $black-ter
   border-top: 1px solid $black
   min-height: 261px
-
-.simulation-controls
-  position: absolute
-  top: 0
-  right: 0
-  margin-top: 10vh
-  z-index: 1
-  width: 460px
-  padding: 1.5em
-  padding-left: 2em
-  border-radius: 4px 0 0 4px
-  border: 1px solid darken($grey, 10)
-  border-right: none
-  background: rgba(0, 0, 0, 0.3)
-  backdrop-filter: blur(3px)
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3)
-
-  transition: transform 0.4s ease
-
-  &.collapsed
-    transform: translate3d(440px, 0, 0)
-
-  .collapse-bar
-    position: absolute
-    top: 0
-    left: 0
-    bottom: 0
-    width: 20px
-    border: none
-    overflow: hidden
-    background: transparentize($background, 0.1)
-    padding: 0
-    border-radius: 4px 0 0 4px
-    color: $text
-    cursor: pointer
-    outline: none
-    transition: background 0.15s ease
-    &:hover
-      background: $background
-    &:active
-      background: lighten($background, 2)
-    .icon
-      width: 100%
 
 .scale
   display: flex

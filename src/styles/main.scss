@@ -126,6 +126,21 @@ a:hover {
   user-select: none;
 }
 
+.icon-btn {
+  @extend .clickable;
+
+  transition: color 0.15s ease;
+  color: darken($grey-light, 25);
+  text-shadow: 0 0 1px $black-ter;
+  &:hover {
+    color: $grey-lighter;
+  }
+  .active &,
+  &.active {
+    color: $blue;
+  }
+}
+
 .scrollbars {
   &::-webkit-scrollbar {
     -webkit-appearance: none;

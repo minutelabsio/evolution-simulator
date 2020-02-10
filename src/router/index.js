@@ -58,13 +58,13 @@ export default new Router({
       }
       , children: [
         {
-          path: 'viewer/:generationIndex?/:cfg?'
+          path: 'viewer/:generationIndex?'
           , name: 'viewscreen'
           , component: ViewScreen
           , props(route){
             return {
               ...route.params
-              , showConfig: !!route.params.cfg
+              , showConfig: !!route.query.cfg
             }
           }
         }

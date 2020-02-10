@@ -1,23 +1,42 @@
 <template lang="pug">
 .viewer
-  SimulationConfig.cfg(v-if="showConfig", @close="showConfig = false")
+  SimulationConfig.cfg(v-if="showConfig")
   .top-controls(v-show="!showConfig")
-    router-link.config(:to="{ params: { ...$route.params, cfg: 'c' } }")
-      b-icon(icon="cogs", size="is-large")
+    FloatingPanel(size="is-medium", :close-on-click="false")
+      template(#activator)
+        b-icon.icon-btn(icon="feature-search", size="is-medium")
+      .item
+        b-tooltip(label="Toggle sight range indicators", position="is-left")
+          b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native="showSightIndicator = !showSightIndicator")
+      .item
+        b-tooltip(label="Toggle speed indicators", position="is-left")
+          b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native="showSpeedIndicator = !showSpeedIndicator")
+      .item
+        b-tooltip(label="Toggle energy indicators", position="is-left")
+          b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native="showEnergyIndicator = !showEnergyIndicator")
+
+    router-link.config(:to="{ params: $route.params, query: { cfg: '1' } }")
+      b-icon.icon-btn(icon="cogs", size="is-medium")
   .screen
-    GenerationViewer(:generation-index="genIndex", :step-time="stepTime")
+    GenerationViewer(
+      :generation-index="genIndex"
+      , :step-time="stepTime"
+      , :sight-indicators="showSightIndicator"
+      , :speed-indicators="showSpeedIndicator"
+      , :energy-indicators="showEnergyIndicator"
+    )
   .controls(v-show="!showConfig")
     .inner
       b-field.extras(grouped, position="is-centered", :class="{ active: playthrough }")
         b-field
-          b-icon.clickable(title="play through", icon="redo", @click.native="playthrough = !playthrough")
+          b-icon.icon-btn(title="play through", icon="redo", @click.native="playthrough = !playthrough")
       b-field(grouped, position="is-centered")
         b-field
-          b-icon.clickable(icon="skip-previous", size="is-large", @click.native="prevGeneration()")
+          b-icon.icon-btn(icon="skip-previous", size="is-large", @click.native="prevGeneration()")
         b-field
-          b-icon.clickable(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
+          b-icon.icon-btn(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
         b-field
-          b-icon.clickable(icon="skip-next", size="is-large", @click.native="nextGeneration()")
+          b-icon.icon-btn(icon="skip-next", size="is-large", @click.native="nextGeneration()")
     AudioScrubber(:progress="progress", @scrub="onScrub")
 </template>
 
@@ -27,6 +46,7 @@ import Copilot from 'copilot'
 import AudioScrubber from '@/components/audio-scrubber'
 import GenerationViewer from '@/components/generation-viewer'
 import SimulationConfig from '@/components/simulation-config'
+import FloatingPanel from '@/components/floating-panel'
 
 export default {
   name: 'ViewScreen'
@@ -46,11 +66,15 @@ export default {
     , stepTime: 100 // ms
     , time: 0
     , progress: 0
+    , showSightIndicator: false
+    , showSpeedIndicator: false
+    , showEnergyIndicator: false
   })
   , components: {
     AudioScrubber
     , GenerationViewer
     , SimulationConfig
+    , FloatingPanel
   }
   , created(){
     this.player = Copilot.Player({ totalTime: 1 })
@@ -169,6 +193,11 @@ export default {
   top: 1em
   right: 1em
   z-index: 1
+
+  > *
+    display: inline-block
+    &:not(:first-child)
+      margin-left: 1em
 .controls
   position: absolute
   bottom: 0
@@ -189,18 +218,6 @@ export default {
 
   .extras
     margin-bottom: 0
-
-.top-controls,
-.controls,
->>> .cfg
-  .icon
-    transition: color 0.15s ease
-    color: darken($grey-light, 25)
-    text-shadow: 0 0 1px $black-ter
-    &:hover
-      color: $grey-lighter
-  .active .icon
-    color: $blue
 
 >>> .scrubber .inner
   background: darken($grey-light, 45)

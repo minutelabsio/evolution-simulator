@@ -57,7 +57,7 @@
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3")
+        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
 </template>
 
 <script>
@@ -99,6 +99,13 @@ const computed = {
   }
   , generation(){
     return this.getCurrentGeneration()
+  }
+  , creatureIndicators(){
+    return {
+      showSightIndicator: this.sightIndicators
+      , showSpeedIndicator: this.speedIndicators
+      , showEnergyIndicator: this.energyIndicators
+    }
   }
   , ...mapGetters('simulation', {
     'getCurrentGeneration': 'getCurrentGeneration'
@@ -159,6 +166,9 @@ export default {
       , default: 0
     }
     , stepTime: Number
+    , sightIndicators: Boolean
+    , speedIndicators: Boolean
+    , energyIndicators: Boolean
   }
   , inject: [ 'getTime' ]
   , data: () => ({
