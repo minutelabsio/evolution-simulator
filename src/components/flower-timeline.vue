@@ -93,6 +93,7 @@ export default {
 
   .inner
     display: flex
+    min-height: 146px
     // flex-wrap: nowrap
   .generation
     flex: 0 0 auto

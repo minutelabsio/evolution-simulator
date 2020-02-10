@@ -230,7 +230,7 @@ export default {
     this.$onResize(() => this.onResize())
     this.onResize()
     this.initCamera()
-    this.debug()
+    // this.debug()
     this.checkFollowCreature()
 
     // Initialize drawing

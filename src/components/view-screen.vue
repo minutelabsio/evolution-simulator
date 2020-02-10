@@ -35,11 +35,11 @@
           b-icon.icon-btn(title="play through", icon="redo", @click.native="playthrough = !playthrough")
       b-field(grouped, position="is-centered")
         b-field
-          b-icon.icon-btn(icon="skip-previous", size="is-large", @click.native="prevGeneration()")
+          b-icon.icon-btn(icon="chevron-left", size="is-large", @click.native="prevGeneration()")
         b-field
           b-icon.icon-btn(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
         b-field
-          b-icon.icon-btn(icon="skip-next", size="is-large", @click.native="nextGeneration()")
+          b-icon.icon-btn(icon="chevron-right", size="is-large", @click.native="nextGeneration()")
     AudioScrubber(:progress="progress", @scrub="onScrub")
 </template>
 

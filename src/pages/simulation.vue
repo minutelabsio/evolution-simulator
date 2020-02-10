@@ -6,6 +6,7 @@
     router-view
 
   .bottom-drawer
+    Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
         v-model="genIndex"
@@ -20,7 +21,6 @@
         template(v-if="canContinue", #after)
           b-button.btn-dark(@click="continueSimulation") Load More
           .flower-timeline-spacer
-    Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
 </template>
 
 <script>
@@ -157,20 +157,36 @@ export default {
   top: 1em
   left: 1em
   pointer-events: none
-  z-index: 1
+  z-index: 10
   opacity: 0.7
   height: 40px
   overflow: hidden
   img
     width: 48px
 .upper
+  position: relative
+  z-index: 2
   flex: 1
   // overflow: hidden
   background: #333333
 .bottom-drawer
+  position: relative
   background: $black-ter
   border-top: 1px solid $black
-  min-height: 261px
+  // min-height: 213px
+  .legend
+    position: absolute
+    top: 2px
+    bottom: 8px
+    left: 0
+    padding: 3.5em 2em 2.5em
+    width: 20em
+    z-index: 1
+    background: transparentize($black-ter, 0.3)
+    backdrop-filter: blur(5px)
+    pointer-events: none
+    >>> li
+      pointer-events: all
 
 .scale
   display: flex
@@ -185,10 +201,6 @@ export default {
 
   .min
     color: $grey-dark
-
-.legend
-  justify-content: center
-  margin: 0.5em 0
 
 .generation-selector
   >>> .flower-timeline
@@ -207,6 +219,9 @@ export default {
   .flower-timeline-spacer
     flex: 0 0 auto
     width: calc(50vw - 50px)
+    display: flex
+    justify-content: center
+
 .generation-selector.is-finished
   >>> .flower-timeline .inner:after
     content: ''
