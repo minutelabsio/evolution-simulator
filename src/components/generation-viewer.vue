@@ -57,7 +57,9 @@
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Creature(v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
+        Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
+          v3-group(v-if="index === followCreatureIndex", :position="[-100, 50, 0]", ref="cameraGoal")
+          v3-group(v-if="index === followCreatureIndex", :position="[0, 30, 0]", ref="cameraFocusGoal")
 </template>
 
 <script>
@@ -113,18 +115,21 @@ const computed = {
 }
 
 const watch = {
+  followCreatureIndex(idx){
+    this.checkFollowCreature()
+  }
 }
 
+const tmpV = new THREE.Vector3()
 const methods = {
   debug(){
-    const scene = this.$refs.renderer.scene
     // The X axis is red. The Y axis is green. The Z axis is blue.
     var axesHelper = new THREE.AxesHelper( 5 )
-    scene.add( axesHelper )
+    this.scene.add( axesHelper )
   }
   , initCamera(){
     const renderer = this.$refs.renderer.renderer
-    const camera = this.$refs.camera.v3object
+    const camera = this.camera = this.$refs.camera.v3object
     // controls
     let controls = this.controls = new OrbitControls( camera, renderer.domElement )
     controls.rotateSpeed = 0.2
@@ -143,9 +148,28 @@ const methods = {
     controls.maxPolarAngle = Math.PI - epsilon
   }
   , draw(){
-    this.time = this.getTime()
     this.controls.update()
+    this.followCreature()
+    this.camera.position.lerp(this.cameraGoal, 0.05)
+    this.camera.lookAt( this.cameraFocusGoal )
     this.$refs.renderer.draw()
+  }
+  , followCreature(){
+    let goal = this.$refs.cameraGoal && this.$refs.cameraGoal[0]
+    let focusGoal = this.$refs.cameraFocusGoal && this.$refs.cameraFocusGoal[0]
+    if (!goal){ return }
+    let creature = this.$refs.v3Creatures[this.followCreatureIndex]
+    this.cameraGoal.setFromMatrixPosition(goal.v3object.matrixWorld)
+    tmpV.setFromMatrixPosition(focusGoal.v3object.matrixWorld)
+    this.cameraFocusGoal.lerp(tmpV, 0.05)
+  }
+  , checkFollowCreature(){
+    let active = this.followCreatureIndex !== undefined
+    this.controls.enabled = !active
+    if (!active){
+      this.cameraGoal.fromArray(this.persCameraPos)
+      this.cameraFocusGoal.copy(this.scene.position)
+    }
   }
   , onResize(){
     let el = this.$el
@@ -169,6 +193,7 @@ export default {
     , sightIndicators: Boolean
     , speedIndicators: Boolean
     , energyIndicators: Boolean
+    , followCreatureIndex: Number
   }
   , inject: [ 'getTime' ]
   , data: () => ({
@@ -178,7 +203,6 @@ export default {
     , origin: [0, 0, 0]
     , persCameraPos: [600, 300, 600]
     , orthCameraPos: [100, 50, 100]
-    , time: 0
     , shadowCamera: {
       near: 10
       , far: 500
@@ -187,16 +211,21 @@ export default {
       , top: 300
       , bottom: -300
     }
+    , cameraGoal: new THREE.Vector3()
+    , cameraFocusGoal: new THREE.Vector3()
   })
   , components
   , computed
   , watch
   , methods
   , mounted(){
+    this.scene = this.$refs.renderer.scene
+
     this.$onResize(() => this.onResize())
     this.onResize()
     this.initCamera()
     this.debug()
+    this.checkFollowCreature()
 
     // Initialize drawing
     let stop = false

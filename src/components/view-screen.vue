@@ -15,6 +15,8 @@
         b-tooltip(label="Toggle energy indicators", position="is-left")
           b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native="showEnergyIndicator = !showEnergyIndicator")
 
+    b-icon.icon-btn(:icon="followCreature ? 'video-account': 'video-image'", :class="{ active: followCreature }", size="is-medium", @click.native="followCreature = !followCreature")
+
     router-link.config(:to="{ params: $route.params, query: { cfg: '1' } }")
       b-icon.icon-btn(icon="cogs", size="is-medium")
   .screen
@@ -24,6 +26,7 @@
       , :sight-indicators="showSightIndicator"
       , :speed-indicators="showSpeedIndicator"
       , :energy-indicators="showEnergyIndicator"
+      , :followCreatureIndex="followCreature ? 0 : undefined"
     )
   .controls(v-show="!showConfig")
     .inner
@@ -69,6 +72,7 @@ export default {
     , showSightIndicator: false
     , showSpeedIndicator: false
     , showEnergyIndicator: false
+    , followCreature: false
   })
   , components: {
     AudioScrubber
@@ -195,7 +199,6 @@ export default {
   z-index: 1
 
   > *
-    display: inline-block
     &:not(:first-child)
       margin-left: 1em
 .controls
