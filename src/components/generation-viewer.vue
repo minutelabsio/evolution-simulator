@@ -150,7 +150,9 @@ const methods = {
   , draw(){
     this.controls.update()
     this.followCreature()
-    this.camera.position.lerp(this.cameraGoal, 0.05)
+    if ( this.transitionCamera ){
+      this.camera.position.lerp(this.cameraGoal, 0.05)
+    }
     this.camera.lookAt( this.cameraFocusGoal )
     this.$refs.renderer.draw()
   }
@@ -166,9 +168,13 @@ const methods = {
   , checkFollowCreature(){
     let active = this.followCreatureIndex !== undefined
     this.controls.enabled = !active
+    this.transitionCamera = true
     if (!active){
       this.cameraGoal.fromArray(this.persCameraPos)
       this.cameraFocusGoal.copy(this.scene.position)
+      setTimeout(() => {
+        this.transitionCamera = false
+      }, 1500)
     }
   }
   , onResize(){
