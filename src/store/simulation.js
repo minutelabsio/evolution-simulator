@@ -150,8 +150,10 @@ export const simulation = {
       idx = Math.max(0, Math.min(idx, state.statistics.num_generations - 1))
 
       if ( idx !== getters.currentGenerationIndex ){
-        let params = router.route ? router.route.params : {}
-        router.replace({ params: { ...params, generationIndex: idx + 1 }})
+        let route = router.history.current
+        let params = route ? route.params : {}
+        let query = route ? route.query : {}
+        router.replace({ params: { ...params, generationIndex: idx + 1 }, query })
       }
 
       commit('setGenerationIndex', idx)
