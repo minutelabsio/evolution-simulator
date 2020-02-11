@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import PlayerUI from '@/pages/player-ui'
 import About from '@/pages/about'
 import Simulation from '@/pages/simulation'
+import SimulationStatistics from '@/components/simulation-statistics'
 import ViewScreen from '@/components/view-screen'
 
 // const CDN = 'https://cdn.minutelabs.io/what-is-a-day/audio'
@@ -45,28 +46,29 @@ export default new Router({
       ]
     }
     , {
-      path: '/s'
+      path: '/s/:generationIndex?'
       , name: 'simulation'
       , redirect: { name: 'viewscreen' }
       , component: Simulation
       , props(route){
         return {
           ...route.params
-          , showConfig: true
+          , showConfig: !!route.query.cfg
           , generationIndex: +route.params.generationIndex
         }
       }
       , children: [
         {
-          path: 'viewer/:generationIndex?'
+          path: 'viewer'
           , name: 'viewscreen'
           , component: ViewScreen
-          , props(route){
-            return {
-              ...route.params
-              , showConfig: !!route.query.cfg
-            }
-          }
+          , props: true
+        }
+        , {
+          path: 'stats'
+          , name: 'stats'
+          , component: SimulationStatistics
+          , props: true
         }
       ]
     }

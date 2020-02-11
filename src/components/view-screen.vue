@@ -1,6 +1,5 @@
 <template lang="pug">
 .viewer
-  SimulationConfig.cfg(v-if="showConfig")
   .top-controls(v-show="!showConfig")
     FloatingPanel(size="is-medium", :close-on-click="false")
       template(#activator)
@@ -17,8 +16,6 @@
 
     b-icon.icon-btn(:icon="followCreature ? 'video-account': 'video-image'", :class="{ active: followCreature }", size="is-medium", @click.native="followCreature = !followCreature")
 
-    router-link.config(:to="{ params: $route.params, query: { cfg: '1' } }")
-      b-icon.icon-btn(icon="cogs", size="is-medium")
   .screen
     GenerationViewer(
       :generation-index="genIndex"
@@ -48,7 +45,6 @@ import { mapGetters } from 'vuex'
 import Copilot from 'copilot'
 import AudioScrubber from '@/components/audio-scrubber'
 import GenerationViewer from '@/components/generation-viewer'
-import SimulationConfig from '@/components/simulation-config'
 import FloatingPanel from '@/components/floating-panel'
 
 export default {
@@ -77,7 +73,6 @@ export default {
   , components: {
     AudioScrubber
     , GenerationViewer
-    , SimulationConfig
     , FloatingPanel
   }
   , created(){
@@ -183,19 +178,11 @@ export default {
   .screen
     flex-grow: 1
     overflow: hidden
-.cfg
-  position: absolute
-  top: 0
-  left: 0
-  right: 0
-  bottom: 0
-  z-index: 1
-  background: rgba(0, 0, 0, 0.35)
-  backdrop-filter: blur(5px)
+
 .top-controls
   position: absolute
-  top: 1em
-  right: 1em
+  top: 1.5em
+  right: 4.5em
   z-index: 1
 
   > *

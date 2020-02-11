@@ -1,12 +1,23 @@
 <template lang="pug">
 .playground
-  .logo
-    img(src="@/assets/logo-dark.png")
+  SimulationConfig.cfg(v-if="showConfig")
+
+  .top-bar
+    .logo
+      img(src="@/assets/logo-dark.png")
+    router-link(v-if="!showConfig", :to="{ params: $route.params, name: 'viewscreen' }")
+      span Viewer
+    router-link(v-if="!showConfig", :to="{ params: $route.params, name: 'stats' }")
+      span Stats
+  router-link.config-link(v-if="!showConfig", :to="{ params: $route.params, query: { cfg: '1' } }")
+    b-icon.icon-btn(icon="cogs", size="is-medium")
   .upper
-    router-view
+    keep-alive(includes="ViewScreen")
+      router-view
 
   .bottom-drawer
-    Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
+    Drawer.legend-drawer(direction="right", start-open)
+      Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
         v-model="genIndex"
@@ -32,12 +43,14 @@ import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
 import Drawer from '@/components/drawer'
 import Legend from '@/components/legend'
+import SimulationConfig from '@/components/simulation-config'
 
 const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
 
 export default {
   name: 'Simulation'
   , props: {
+    showConfig: Boolean
   }
   , components: {
     TraitChart
@@ -45,6 +58,7 @@ export default {
     , FlowerTimeline
     , Legend
     , Drawer
+    , SimulationConfig
   }
   , data: () => ({
     toolbar: true
@@ -152,17 +166,49 @@ export default {
   height: 100%
   display: flex
   flex-direction: column
-.logo
+.cfg
   position: absolute
-  top: 1em
-  left: 1em
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 4
+  background: rgba(0, 0, 0, 0.35)
+  backdrop-filter: blur(5px)
+  padding-top: 6rem
+.top-bar
+  position: absolute
+  top: 1.25em
+  left: 1.75em
   pointer-events: none
   z-index: 10
   opacity: 0.7
-  height: 40px
-  overflow: hidden
-  img
-    width: 48px
+  display: flex
+  align-items: center
+  > *
+    pointer-events: all
+    margin-right: 1rem
+  .logo
+    margin-right: 0.75rem
+    overflow: hidden
+    height: 30px
+
+    img
+      width: 40px
+  a
+    color: lighten($grey, 10)
+    font-size: 24px
+    transition: color .15s ease
+    &.router-link-active,
+    &:hover
+      color: $grey-lighter
+.config-link
+  position: absolute
+  top: 1.5rem
+  right: 1.5rem
+  display: flex
+  align-items: center
+  z-index: 3
 .upper
   position: relative
   z-index: 2
@@ -174,16 +220,25 @@ export default {
   background: $black-ter
   border-top: 1px solid $black
   // min-height: 213px
-  .legend
-    position: absolute
+  .legend-drawer
+    // position: absolute
     top: 2px
     bottom: 8px
     left: 0
-    padding: 3.5em 2em 2.5em
-    width: 20em
-    z-index: 1
-    background: transparentize($black-ter, 0.3)
+    display: flex
+    box-shadow: none
+    border: none
+    background: transparentize(black, 0.3)
     backdrop-filter: blur(5px)
+    >>> .collapse-bar
+      border-right: 1px solid $grey-darker
+      border-radius: 0
+  .legend
+    align-self: center
+    padding: 8px 2em 0
+    width: 18em
+    z-index: 1
+
     pointer-events: none
     >>> li
       pointer-events: all
