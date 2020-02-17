@@ -40,6 +40,7 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
 struct GenerationStatistics {
   population: usize,
   speed : RunningStatisticsResults,
+  size : RunningStatisticsResults,
   sense_range : RunningStatisticsResults,
   reach : RunningStatisticsResults,
   life_span : RunningStatisticsResults,
@@ -52,6 +53,7 @@ struct SimulationStatistics {
 
   population : RunningStatisticsResults,
   speed : RunningStatisticsResults,
+  size : RunningStatisticsResults,
   sense_range : RunningStatisticsResults,
   reach : RunningStatisticsResults,
   life_span : RunningStatisticsResults,
@@ -63,6 +65,7 @@ struct SimulationStatistics {
 pub fn get_statistics(sim : &Simulation) -> JsValue {
   let mut population = RunningStatistics::new();
   let mut tot_speed = RunningStatistics::new();
+  let mut tot_size = RunningStatistics::new();
   let mut tot_sense_range = RunningStatistics::new();
   let mut tot_reach = RunningStatistics::new();
   let mut tot_life_span = RunningStatistics::new();
@@ -71,6 +74,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
   // every generation
   let generation_statistics = sim.generations.iter().map(|g| {
     let mut speed = RunningStatistics::new();
+    let mut size = RunningStatistics::new();
     let mut sense_range = RunningStatistics::new();
     let mut reach = RunningStatistics::new();
     let mut life_span = RunningStatistics::new();
@@ -78,6 +82,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
 
     g.creatures.iter().for_each(|c|{
       speed.push(c.get_speed());
+      size.push(c.get_size());
       sense_range.push(c.get_sense_range());
       reach.push(c.get_reach());
       life_span.push(c.get_life_span());
@@ -86,6 +91,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
 
     population.push(g.creatures.len() as f64);
     tot_speed.push(speed.mean());
+    tot_size.push(size.mean());
     tot_sense_range.push(sense_range.mean());
     tot_reach.push(reach.mean());
     tot_life_span.push(life_span.mean());
@@ -94,6 +100,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
     GenerationStatistics {
       population: g.creatures.len(),
       speed: speed.as_results(),
+      size: size.as_results(),
       sense_range: sense_range.as_results(),
       reach: reach.as_results(),
       life_span: life_span.as_results(),
@@ -106,6 +113,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
 
     population: population.as_results(),
     speed: tot_speed.as_results(),
+    size: tot_size.as_results(),
     sense_range: tot_sense_range.as_results(),
     reach: tot_reach.as_results(),
     life_span: tot_life_span.as_results(),

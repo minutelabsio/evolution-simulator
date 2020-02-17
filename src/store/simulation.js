@@ -14,10 +14,11 @@ const worker = createWorker()
 
 const DEFAULT_CREATURE_PROPS = {
   speed: [10, 1]
+  , size: [10, 0.1]
   , sense_range: [20, 0.5]
   , reach: [1, 0]
   , life_span: [1e4, 0]
-  , energy: 5000
+  , energy: 5000000
 }
 
 const initialState = {

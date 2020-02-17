@@ -1,6 +1,6 @@
 <template lang="pug">
 .playground
-  SimulationConfig.cfg(v-if="showConfig")
+  SimulationConfig.cfg.scrollbars(v-if="showConfig")
 
   .top-bar
     .logo
@@ -45,7 +45,7 @@ import Drawer from '@/components/drawer'
 import Legend from '@/components/legend'
 import SimulationConfig from '@/components/simulation-config'
 
-const creatureTraits = ['speed', 'sense_range', 'reach', 'life_span', 'age']
+const creatureTraits = ['speed', 'sense_range', 'size', 'life_span', 'age']
 
 export default {
   name: 'Simulation'
@@ -176,6 +176,8 @@ export default {
   background: rgba(0, 0, 0, 0.35)
   backdrop-filter: blur(5px)
   padding-top: 6rem
+  overflow: auto
+
 .top-bar
   position: absolute
   top: 1.25em

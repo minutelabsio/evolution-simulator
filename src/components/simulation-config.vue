@@ -12,6 +12,11 @@
     b-field(label="Speed mutation variance")
       b-input(v-model="speedVariance", type="number", min="0", step="any")
   b-field(grouped)
+    b-field(label="Size")
+      b-input(v-model="sizeValue", type="number", min="0", step="any")
+    b-field(label="Size mutation variance")
+      b-input(v-model="sizeVariance", type="number", min="0", step="any")
+  b-field(grouped)
     b-field(label="Sense")
       b-input(v-model="sense_rangeValue", type="number", min="0", step="any")
     b-field(label="Sense mutation variance")
@@ -94,7 +99,7 @@ export default {
       , set(v){ this.$store.dispatch('simulation/setCreatureCount', v) }
     }
     , energy: storeParam('energy', 'creatureTemplate', 'simulation/setCreatureTemplate')
-    , ...creatureProps(['speed', 'sense_range', 'reach', 'life_span'])
+    , ...creatureProps(['speed', 'size', 'sense_range', 'reach', 'life_span'])
   }
   , watch: {
   }
@@ -105,7 +110,7 @@ export default {
       })
     }
     , close(){
-      this.$router.replace({ params: { ...this.$route.params, cfg: undefined } })
+      this.$router.replace({ params: this.$route.params, query: {...this.$route.query, cfg: ""} })
     }
   }
 }
