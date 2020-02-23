@@ -12,6 +12,7 @@ pub trait Stage {
   // generate a location from a u64 seed. used to randomly place food within boundaries
   fn get_random_location(&self, rng : &mut RefMut<SmallRng>) -> Point2<f64>;
   fn get_nearest_edge_point(&self, pos : &Point2<f64>) -> Point2<f64>;
+  fn constrain_within(&self, pos : &Point2<f64>) -> Point2<f64>;
 }
 
 
@@ -45,5 +46,12 @@ impl Stage for SquareStage {
     } else {
       Point2::new(pos.x, y)
     }
+  }
+
+  fn constrain_within(&self, pos : &Point2<f64>) -> Point2<f64> {
+    let mut ret = pos.clone();
+    ret.x = ret.x.max(0.).min(self.0);
+    ret.y = ret.y.max(0.).min(self.0);
+    ret
   }
 }

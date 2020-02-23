@@ -27,6 +27,7 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
       // default
       sim.add_behavour(Box::new(behaviours::BasicMoveBehaviour));
       sim.add_behavour(Box::new(behaviours::WanderBehaviour));
+      sim.add_behavour(Box::new(behaviours::CannibalismBehaviour { size_ratio: 0.8 }));
       sim.add_behavour(Box::new(behaviours::ScavengeBehaviour));
       sim.add_behavour(Box::new(behaviours::SatisfiedBehaviour));
       // sim.add_behavour(Box::new(behaviours::HomesickBehaviour));

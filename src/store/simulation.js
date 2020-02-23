@@ -17,6 +17,7 @@ const DEFAULT_CREATURE_PROPS = {
   , size: [10, 0.1]
   , sense_range: [20, 0.5]
   , reach: [1, 0]
+  , flee_distance: [1e12, 0] // for now flee within sight range
   , life_span: [1e4, 0]
   , energy: 5000000
 }
@@ -29,7 +30,7 @@ const initialState = {
   , config: {
     seed: 118
     , food_per_generation: 50
-    , max_generations: 50
+    , max_generations: 10
     , size: 500
     , preset: {
       name: 'default'
@@ -37,7 +38,7 @@ const initialState = {
     }
   }
   , creatureConfig: {
-    count: 50
+    count: 10
     , template: DEFAULT_CREATURE_PROPS
   }
 

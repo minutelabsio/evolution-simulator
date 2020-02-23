@@ -57,6 +57,7 @@ pub struct Creature {
   size : PositiveNonZeroMutatable<f64>,
   sense_range : PositiveMutatable<f64>, // how far can it see?
   reach : PositiveNonZeroMutatable<f64>, // how far can it interact with something?
+  flee_distance : PositiveMutatable<f64>,
   life_span: PositiveNonZeroMutatable<f64>,
 
   // other
@@ -84,6 +85,7 @@ impl Creature {
       size: PositiveNonZeroMutatable(1.0, 1.),
       sense_range: PositiveMutatable(1.0, 1.0),
       reach: PositiveNonZeroMutatable(1.0, 1.0),
+      flee_distance: PositiveMutatable(1.0, 1.0),
       life_span: PositiveNonZeroMutatable(1.0, 1.0),
       energy: 500.0,
 
@@ -117,6 +119,7 @@ impl Creature {
       size: self.size.get_mutated(rng),
       sense_range: self.sense_range.get_mutated(rng),
       reach: self.reach.get_mutated(rng),
+      flee_distance: self.flee_distance.get_mutated(rng),
       life_span: self.life_span.get_mutated(rng),
       energy: self.energy,
 
@@ -131,6 +134,7 @@ impl Creature {
       size,
       sense_range,
       reach,
+      flee_distance,
       life_span,
       energy,
       ..
@@ -141,6 +145,7 @@ impl Creature {
       size,
       sense_range,
       reach,
+      flee_distance,
       life_span,
       energy,
       age: self.age + 1,
@@ -205,9 +210,25 @@ impl Creature {
   }
 
   pub fn add_objective(&mut self, target_pos : Point2<f64>, intensity : ObjectiveIntensity){
-    if self.target.map(|t| intensity > t.1).unwrap_or(true) {
-      self.target = Some((target_pos, intensity));
-    }
+    self.target = match self.target {
+      // if not yet set
+      None => Some((target_pos, intensity)),
+      // if the new thing is more intense
+      Some(t) if intensity > t.1 => Some((target_pos, intensity)),
+      // if new thing is same intensity, choose the closer one
+      Some(t) if intensity == t.1 => {
+        let pos = self.get_position();
+        let dist_to_old = (pos - t.0).norm();
+        let dist_to_new = (pos - target_pos).norm();
+        if dist_to_new > dist_to_old {
+          Some((target_pos, intensity))
+        } else {
+          self.target
+        }
+      },
+      // stick with what you know
+      Some(_) => self.target
+    };
   }
 
   pub fn reset_objective(&mut self){
@@ -251,6 +272,15 @@ impl Creature {
     distance_to_line(&self.get_position(), &last.unwrap(), pt)
       .map(|d| d <= self.get_reach())
       .unwrap_or(false)
+  }
+
+  pub fn within_flee_distance(&self, pt : &Point2<f64>) -> bool {
+    if self.can_see(pt) {
+      let d = (self.get_position() - pt).norm();
+      d < self.flee_distance.0
+    } else {
+      false
+    }
   }
 
   pub fn can_reach_now(&self, pt : &Point2<f64>) -> bool {

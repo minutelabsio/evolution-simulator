@@ -4,6 +4,14 @@ use std::f64::consts::FRAC_PI_4;
 mod reproduction;
 pub use reproduction::*;
 
+fn for_creature_pairs(creatures : &mut Vec<Creature>, func : &mut dyn FnMut(&mut Creature, &mut Creature)){
+  for i in 0..creatures.len(){
+    let mut first = creatures.remove(i);
+    creatures.iter_mut().for_each(|mut second| func(&mut first, &mut second));
+    creatures.insert(i, first);
+  }
+}
+
 // Basic behaviour for simple movement
 #[derive(Debug, Copy, Clone)]
 pub struct WanderBehaviour;
@@ -116,19 +124,22 @@ impl StepBehaviour for SatisfiedBehaviour {
 #[derive(Debug, Copy, Clone)]
 pub struct BasicMoveBehaviour;
 impl BasicMoveBehaviour {
-  fn move_creature(&self, creature : &mut Creature){
+  fn move_creature(&self, creature : &mut Creature, stage : &dyn Stage){
     // move
-    let new_pos = creature.get_position() + creature.get_speed() * creature.get_direction().as_ref();
-    creature.move_to( new_pos );
+    let pos = creature.get_position();
+    let new_pos = pos + creature.get_speed() * creature.get_direction().as_ref();
+    let constrained = stage.constrain_within(&new_pos);
+
+    creature.move_to( constrained );
   }
 }
 
 impl StepBehaviour for BasicMoveBehaviour {
-  fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation){
     if let Phase::MOVE = phase {
       generation.creatures.iter_mut()
         .filter(|c| c.is_active())
-        .for_each(|c| self.move_creature(c));
+        .for_each(|c| self.move_creature(c, &*sim.stage));
     }
   }
 }
@@ -297,20 +308,67 @@ impl StepBehaviour for EdgeHomeBehaviour {
   }
 }
 
-// // Bigger creatures eat smaller ones
-// pub struct CannibalismBehaviour {
-//   // controls nutritional value of a grotesque meal
-//   pub multiplier: f64,
-//   // within this radius, one can eat another
-//   pub interaction_range: f64,
-// }
-//
-// impl StepBehaviour for CannibalismBehaviour {
-//   fn apply(&mut self, phase : Phase, generation : &mut generation, stage : &Simulation){
-//     if let Phase::ACT = phase {
-//       generation.creatures.iter().copied()
-//         .filter(|c| c.is_alive())
-//         .for_each(|c| );
-//     }
-//   }
-// }
+// Bigger creatures eat smaller ones
+pub struct CannibalismBehaviour {
+  pub size_ratio : f64, // size ratio for which larger blobs eat smaller blobs
+}
+
+impl CannibalismBehaviour {
+  fn for_pred_prey_pair(&self, creatures: &mut Vec<Creature>, func: &mut dyn FnMut(&mut Creature, &mut Creature)) {
+    for_creature_pairs(creatures, &mut |predator, prey| {
+      let (predator, prey) = if predator.get_size() > prey.get_size() {
+        (predator, prey)
+      } else {
+        (prey, predator)
+      };
+
+      if !predator.is_active() || !prey.is_active() { return }
+      if predator.get_size() * self.size_ratio < prey.get_size() { return }
+
+      func(predator, prey);
+    });
+  }
+}
+
+impl StepBehaviour for CannibalismBehaviour {
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation){
+    // Chase...
+    if let Phase::ORIENT = phase {
+      self.for_pred_prey_pair(&mut generation.creatures, &mut |predator, prey| {
+        if prey.within_flee_distance(&predator.get_position()) {
+          let ang = sim.get_random_float(-FRAC_PI_4, FRAC_PI_4);
+          let rot = na::Rotation2::new(ang);
+          let dir = predator.get_position() - prey.get_position();
+          // this is roughly the position of the predator, but a bit fuzzy
+          // to add an element of randomness
+          let noisy = prey.get_position() + rot * dir;
+          prey.add_objective(noisy, ObjectiveIntensity::VitalAversion);
+        }
+
+        if !predator.can_see(&prey.get_position()) {
+          // predator can't see prey
+          return;
+        }
+
+        let intensity = match predator.foods_eaten {
+          0 => ObjectiveIntensity::VitalCraving,
+          1 => ObjectiveIntensity::ModerateCraving,
+          _ => ObjectiveIntensity::MinorCraving,
+        };
+
+        predator.add_objective(prey.get_position(), intensity);
+      });
+    }
+
+    // Eat...
+    if let Phase::ACT = phase {
+      self.for_pred_prey_pair(&mut generation.creatures, &mut |predator, prey| {
+        if !predator.can_reach(&prey.get_position()) { return }
+
+        // now we can canibalize
+        predator.eat_food();
+        prey.kill();
+      });
+    }
+  }
+}
