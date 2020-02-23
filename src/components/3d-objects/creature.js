@@ -294,6 +294,9 @@ export default {
         })
       }
 
+      let scale = this.creature.size[0] / 10
+      this.v3object.scale.set(scale, scale, scale)
+
       this.energyIndicator.visible = this.showEnergyIndicator
     }
   }

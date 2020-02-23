@@ -53,10 +53,11 @@ pub enum ObjectiveIntensity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
-  speed : PositiveMutatable<f64>, // how far can it move in one step?
+  speed : PositiveNonZeroMutatable<f64>, // how far can it move in one step?
+  size : PositiveNonZeroMutatable<f64>,
   sense_range : PositiveMutatable<f64>, // how far can it see?
-  reach : PositiveMutatable<f64>, // how far can it interact with something?
-  life_span: PositiveMutatable<f64>,
+  reach : PositiveNonZeroMutatable<f64>, // how far can it interact with something?
+  life_span: PositiveNonZeroMutatable<f64>,
 
   // other
   pub foods_eaten : u32,
@@ -76,13 +77,14 @@ pub struct Creature {
 }
 
 impl Creature {
-  pub fn new( pos : &Point2<f64> ) -> Self {
+  pub fn default( pos : &Point2<f64> ) -> Self {
     Creature {
       state: CreatureState::ACTIVE,
-      speed: PositiveMutatable(5.0, 0.1),
-      sense_range: PositiveMutatable(50.0, 10.0),
-      reach: PositiveMutatable(5.0, 1.0),
-      life_span: PositiveMutatable(4.0, 1.0),
+      speed: PositiveNonZeroMutatable(1.0, 1.),
+      size: PositiveNonZeroMutatable(1.0, 1.),
+      sense_range: PositiveMutatable(1.0, 1.0),
+      reach: PositiveNonZeroMutatable(1.0, 1.0),
+      life_span: PositiveNonZeroMutatable(1.0, 1.0),
       energy: 500.0,
 
       foods_eaten: 0,
@@ -112,12 +114,13 @@ impl Creature {
   pub fn mutate(&self, rng : &mut RefMut<SmallRng>) -> Self {
     Creature {
       speed: self.speed.get_mutated(rng),
+      size: self.size.get_mutated(rng),
       sense_range: self.sense_range.get_mutated(rng),
       reach: self.reach.get_mutated(rng),
       life_span: self.life_span.get_mutated(rng),
       energy: self.energy,
 
-      ..Creature::new(&self.home_pos)
+      ..Creature::default(&self.home_pos)
     }
   }
 
@@ -125,6 +128,7 @@ impl Creature {
   pub fn grow_older(&self) -> Self {
     let Creature {
       speed,
+      size,
       sense_range,
       reach,
       life_span,
@@ -134,16 +138,18 @@ impl Creature {
 
     Creature {
       speed,
+      size,
       sense_range,
       reach,
       life_span,
       energy,
       age: self.age + 1,
 
-      ..Creature::new(&self.home_pos)
+      ..Creature::default(&self.home_pos)
     }
   }
 
+  pub fn get_size(&self) -> f64 { self.size.0 }
   pub fn get_speed(&self) -> f64 { self.speed.0 }
   pub fn get_sense_range(&self) -> f64 { self.sense_range.0 }
   pub fn get_reach(&self) -> f64 { self.reach.0 }
@@ -168,17 +174,13 @@ impl Creature {
   pub fn move_to( &mut self, pos : Point2<f64> ){
     self.pos = pos.clone();
     self.movement_history.push(pos);
-
-    // // energy cost
-    // let last = self.get_last_position().expect("Can not get last position.");
-    // let displacement = self.pos - last;
-    // the cost of moving
     let cost = self.get_motion_energy_cost();
     self.apply_energy_cost( cost );
   }
 
   pub fn get_motion_energy_cost(&self) -> f64 {
-    0.5 * self.get_speed().powi(2) + 0.5
+    // primer's energy cost equation
+    self.get_size().powi(3) * self.get_speed().powi(2) + self.get_sense_range()
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
