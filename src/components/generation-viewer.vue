@@ -5,7 +5,13 @@
     , :width="viewWidth"
     , :height="viewHeight"
     , :shadows="true"
+    , :outlineColor="0xe41a1c"
   )
+    Gestures(
+      :names="interactiveObjects"
+      , @tap="tapCreature"
+      , @hover="onHover"
+    )
     v3-scene
       //- v3-camera(
       //-   ref="camera"
@@ -65,7 +71,10 @@
 <script>
 import { mapGetters } from 'vuex'
 import * as THREE from 'three'
+import _throttle from 'lodash/throttle'
+import _findIndex from 'lodash/findIndex'
 import v3Renderer from '@/components/three-vue/v3-renderer'
+import Gestures from '@/components/three-vue/gestures'
 import v3Scene from '@/components/three-vue/v3-scene'
 import v3Camera from '@/components/three-vue/v3-camera'
 import v3Light from '@/components/three-vue/v3-light'
@@ -81,6 +90,7 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 
 const components = {
   v3Renderer
+  , Gestures
   , v3Scene
   , v3Camera
   , v3Light
@@ -186,6 +196,20 @@ const methods = {
     let hw = 0.5 * this.gridSize
     return [x - hw, 0, y - hw]
   }
+  , tapCreature({ intersects }){
+    if (!intersects.length){ return }
+    let blob = intersects[0].object
+    let index = _findIndex(this.$refs.v3Creatures, c => c.v3object === blob.parent.parent)
+    let creature = this.$refs.v3Creatures[index]
+    this.$emit('tap-creature', {creature, index})
+  }
+  , onHover: _throttle(function({ intersects }){
+    let renderer = this.renderer
+    renderer.removeOutline()
+    if (intersects.length){
+      renderer.addOutline( intersects[0].object )
+    }
+  }, 100)
 }
 
 export default {
@@ -219,13 +243,15 @@ export default {
     }
     , cameraGoal: new THREE.Vector3()
     , cameraFocusGoal: new THREE.Vector3()
+    , interactiveObjects: ['blob']
   })
   , components
   , computed
   , watch
   , methods
   , mounted(){
-    this.scene = this.$refs.renderer.scene
+    this.renderer = this.$refs.renderer
+    this.scene = this.renderer.scene
 
     this.$onResize(() => this.onResize())
     this.onResize()

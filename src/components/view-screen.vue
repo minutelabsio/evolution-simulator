@@ -23,7 +23,8 @@
       , :sight-indicators="showSightIndicator"
       , :speed-indicators="showSpeedIndicator"
       , :energy-indicators="showEnergyIndicator"
-      , :followCreatureIndex="followCreature ? 0 : undefined"
+      , :followCreatureIndex="followCreature ? followCreatureIndex : undefined"
+      , @tap-creature="followCreatureIndex = $event.index"
     )
   .controls(v-show="!showConfig")
     .inner
@@ -69,6 +70,7 @@ export default {
     , showSpeedIndicator: false
     , showEnergyIndicator: false
     , followCreature: false
+    , followCreatureIndex: 0
   })
   , components: {
     AudioScrubber

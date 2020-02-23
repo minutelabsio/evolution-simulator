@@ -227,7 +227,11 @@ export default {
 
         outlinePass.edgeStrength = 3
         outlinePass.edgeThickness = 1
-        outlinePass.pulsePeriod = 2
+        // outlinePass.pulsePeriod = 2
+        outlinePass.overlayMaterial.blending = THREE.NormalBlending
+        // outlinePass.overlayMaterial.blendEquation = THREE.ReverseSubtractEquation
+        // outlinePass.overlayMaterial.blendSrc = THREE.SrcColorFactor
+        // outlinePass.overlayMaterial.blendDst = THREE.DstAlphaFactor
         outlinePass.visibleEdgeColor.set(this.outlineColor)
         outlinePass.hiddenEdgeColor.set(this.outlineColorBehind)
 
