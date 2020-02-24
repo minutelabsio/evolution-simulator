@@ -7,7 +7,7 @@
       | &nbsp;
       span.name Population
     TraitPlot(:data="populationData", label="Population", color="#e6e6e6")
-  b-collapse(v-for="trait in traits")
+  b-collapse(v-for="trait in traits", :key="trait")
     h2.heading.plot-title(slot="trigger", slot-scope="props", :style="{ color: titleColors[trait] }")
       b-icon(:icon="props.open ? 'minus-box' : 'plus-box'")
       | &nbsp;
