@@ -38,7 +38,7 @@
 <script>
 // import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
-import chroma from 'chroma-js'
+import CreatureTraits from '@/config/creature-traits'
 import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
@@ -46,7 +46,7 @@ import Drawer from '@/components/drawer'
 import Legend from '@/components/legend'
 import SimulationConfig from '@/components/simulation-config'
 
-const creatureTraits = ['speed', 'sense_range', 'size', 'life_span', 'age']
+const creatureTraits = CreatureTraits.traits
 
 export default {
   name: 'Simulation'
@@ -66,7 +66,7 @@ export default {
 
     , flowerColors: {
       center: '#e6e6e6'
-      , petals: chroma.scale('Set1').colors(8)
+      , petals: CreatureTraits.colors
     }
     , topPetal: 0
   })
@@ -218,6 +218,7 @@ export default {
   flex: 1
   // overflow: hidden
   background: #333333
+  max-height: calc(100vh - 214px)
 .bottom-drawer
   position: relative
   background: $black-ter
