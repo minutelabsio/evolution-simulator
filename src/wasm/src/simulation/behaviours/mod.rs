@@ -4,14 +4,6 @@ use std::f64::consts::FRAC_PI_4;
 mod reproduction;
 pub use reproduction::*;
 
-fn for_creature_pairs(creatures : &mut Vec<Creature>, func : &mut dyn FnMut(&mut Creature, &mut Creature)){
-  for i in 0..creatures.len(){
-    let mut first = creatures.remove(i);
-    creatures.iter_mut().for_each(|mut second| func(&mut first, &mut second));
-    creatures.insert(i, first);
-  }
-}
-
 // Basic behaviour for simple movement
 #[derive(Debug, Copy, Clone)]
 pub struct WanderBehaviour;
@@ -315,18 +307,23 @@ pub struct CannibalismBehaviour {
 
 impl CannibalismBehaviour {
   fn for_pred_prey_pair(&self, creatures: &mut Vec<Creature>, func: &mut dyn FnMut(&mut Creature, &mut Creature)) {
-    for_creature_pairs(creatures, &mut |predator, prey| {
-      let (predator, prey) = if predator.get_size() > prey.get_size() {
-        (predator, prey)
-      } else {
-        (prey, predator)
-      };
 
-      if !predator.is_active() || !prey.is_active() { return }
-      if predator.get_size() * self.size_ratio < prey.get_size() { return }
+    for i in 1..creatures.len(){
+      if !creatures[i].is_active(){ continue; }
+      let (before, after) = creatures.split_at_mut(i);
+      after.iter_mut().filter(|c| c.is_active()).for_each(|mut prey| {
+        let predator = &mut before[i - 1];
+        let (predator, prey) = if predator.get_size() > prey.get_size() {
+          (predator, prey)
+        } else {
+          (prey, predator)
+        };
 
-      func(predator, prey);
-    });
+        if predator.get_size() * self.size_ratio < prey.get_size() { return }
+
+        func(predator, prey);
+      });
+    }
   }
 }
 

@@ -6,6 +6,7 @@ use rand::{SeedableRng, Rng, rngs::SmallRng};
 use rand::distributions::{Normal, Distribution};
 use crate::creature::*;
 use crate::stage::*;
+// use crate::timer::Timer;
 
 pub mod behaviours;
 
@@ -208,14 +209,19 @@ impl Generation {
   }
 
   fn run_phase(&mut self, phase : Phase, sim : &Simulation){
-    sim.behaviours.iter().for_each(
-      |b| b.apply(phase, self, &sim)
+    // let _timer = Timer::new(format!("phase {:?}", phase));
+    sim.behaviours.iter().enumerate().for_each(
+      |(i, b)| {
+        // let _timer = Timer::new(format!("behaviour {}", i));
+        b.apply(phase, self, &sim)
+      }
     );
   }
 
   fn step(&mut self, sim : &Simulation){
     assert!(self.steps < MAX_STEPS);
 
+    // let _timer = Timer::new(String::from("Step"));
     self.run_phase(Phase::PRE, sim);
     self.run_phase(Phase::ORIENT, sim);
     self.run_phase(Phase::MOVE, sim);
