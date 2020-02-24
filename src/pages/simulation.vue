@@ -16,6 +16,7 @@
       router-view
 
   .bottom-drawer
+    b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
     Drawer.legend-drawer(direction="right", start-open)
       Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
@@ -30,7 +31,7 @@
         template(#before)
           .flower-timeline-spacer
         template(v-if="canContinue", #after)
-          b-button.btn-dark(@click="continueSimulation") Load More
+          b-button.btn-dark(@click="continueSimulation", v-if="!isLoading") Load More
           .flower-timeline-spacer
 </template>
 
@@ -278,7 +279,9 @@ export default {
     width: calc(50vw - 50px)
     display: flex
     justify-content: center
-
+.loading-overlay
+  z-index: 2
+  background: rgba(0, 0, 0, .5)
 .generation-selector.is-finished
   >>> .flower-timeline .inner:after
     content: ''

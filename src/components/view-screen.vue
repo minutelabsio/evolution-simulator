@@ -17,6 +17,7 @@
     b-icon.icon-btn(:icon="followCreature ? 'video-account': 'video-image'", :class="{ active: followCreature }", size="is-medium", @click.native="followCreature = !followCreature")
 
   .screen
+    b-loading.loading-cover(:is-full-page="false", :active="isLoading")
     GenerationViewer(
       :generation-index="genIndex"
       , :step-time="stepTime"
@@ -123,6 +124,7 @@ export default {
       getCurrentGeneration: 'getCurrentGeneration'
       , generationIndex: 'currentGenerationIndex'
       , stats: 'statistics'
+      , isLoading: 'isLoading'
     })
   }
   , watch: {
@@ -190,6 +192,8 @@ export default {
   > *
     &:not(:first-child)
       margin-left: 1em
+.loading-cover
+  z-index: 1
 .controls
   position: absolute
   bottom: 0

@@ -13,8 +13,8 @@ const worker = createWorker()
 // ]
 
 const DEFAULT_CREATURE_PROPS = {
-  speed: [10, 1]
-  , size: [10, 0.1]
+  speed: [10, 0.5]
+  , size: [10, 0.5]
   , sense_range: [20, 0.5]
   , reach: [1, 0]
   , flee_distance: [1e12, 0] // for now flee within sight range
@@ -30,7 +30,7 @@ const initialState = {
   , config: {
     seed: 118
     , food_per_generation: 50
-    , max_generations: 10
+    , max_generations: 50
     , size: 500
     , preset: {
       name: 'default'
@@ -38,7 +38,7 @@ const initialState = {
     }
   }
   , creatureConfig: {
-    count: 10
+    count: 50
     , template: DEFAULT_CREATURE_PROPS
   }
 

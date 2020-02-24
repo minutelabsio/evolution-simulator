@@ -110,6 +110,7 @@ export default {
       })
     }
     , close(){
+      if ( !this.$route.query.cfg ){ return }
       this.$router.replace({ params: this.$route.params, query: {...this.$route.query, cfg: ""} })
     }
   }
