@@ -2,11 +2,11 @@
 .simulation-statistics.scrollbars
   //- pre {{ speedData | json:2 }}
   b-collapse
-    h2.heading.plot-title(slot="trigger", slot-scope="props")
+    h2.heading.plot-title(slot="trigger", slot-scope="props", :style="{ color: populationColor }")
       b-icon(:icon="props.open ? 'minus-box' : 'plus-box'")
       | &nbsp;
       span.name Population
-    TraitPlot(:data="populationData", label="Population", color="#e6e6e6")
+    TraitPlot(:data="populationData", label="Population", :color="populationColor")
   b-collapse(v-for="trait in traits", :key="trait")
     h2.heading.plot-title(slot="trigger", slot-scope="props", :style="{ color: titleColors[trait] }")
       b-icon(:icon="props.open ? 'minus-box' : 'plus-box'")
@@ -29,6 +29,7 @@ export default {
   , data: () => ({
     traits: CreatureTraits.traits
     , traitColors: CreatureTraits.hashed
+    , populationColor: CreatureTraits.populationColor
     , titleColors: _mapValues(CreatureTraits.hashed, c => chroma(c).desaturate(1).css())
   })
   , components: {

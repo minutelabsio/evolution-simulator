@@ -5,7 +5,7 @@
     , :width="viewWidth"
     , :height="viewHeight"
     , :shadows="true"
-    , :outlineColor="0xe41a1c"
+    , :outlineColor="highlightColor"
   )
     Gestures(
       :names="interactiveObjects"
@@ -70,6 +70,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import chroma from 'chroma-js'
+import sougy from '@/config/sougy-colors'
 import * as THREE from 'three'
 import _throttle from 'lodash/throttle'
 import _findIndex from 'lodash/findIndex'
@@ -244,6 +246,7 @@ export default {
     , cameraGoal: new THREE.Vector3()
     , cameraFocusGoal: new THREE.Vector3()
     , interactiveObjects: ['blob']
+    , highlightColor: chroma(sougy.red).num()
   })
   , components
   , computed

@@ -3,8 +3,10 @@ import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
+import CreatureTraits from '@/config/creature-traits'
+import sougy from '@/config/sougy-colors'
 
-const blobColor = 0x476B81
+const blobColor = chroma(sougy.blue).desaturate(0.5).num() //0x476B81
 
 function makeEye(size){
   let geo = new THREE.SphereGeometry( size, 16, 16, Math.PI / 2, Math.PI )
@@ -86,7 +88,7 @@ function createCircle(r, color = 'white'){
 }
 
 const cachedVisionCircle = (() => {
-  let c = createCircle(1, chroma.mix('#3a85a8', 'white', 0.8).num())
+  let c = createCircle(1, chroma.mix(CreatureTraits.hashed.sense_range, 'white', 0.8).num())
   c.rotation.x = -Math.PI / 2
   // c.position.y = 0.05
   c.material.depthWrite = false
@@ -121,7 +123,7 @@ function getChevronShape(t = 0.4, ang = 45){
 
 const cachedSpeedIndicator = (() => {
   let g = new THREE.ShapeGeometry( getChevronShape(0.35, 30) )
-  let m = new THREE.MeshBasicMaterial({ color: chroma.mix('#c4635d', 'white', 0.15).num() })
+  let m = new THREE.MeshBasicMaterial({ color: chroma(CreatureTraits.hashed.speed).num() })
   // m.depthWrite = false
   // m.transparent = true
   // m.blending = THREE.MultiplyBlending
@@ -147,7 +149,7 @@ const getSpeedIndicator = () => cachedSpeedIndicator.children.reduce(
   , new THREE.Group()
 )
 
-const energyColorScale = chroma.scale(['rgba(255, 200, 29, 0.8)', 'rgba(76, 69, 49, 0.1)']).mode('lab')
+const energyColorScale = chroma.scale([sougy.yellow, '#ccc']).mode('lab')
 function getEnergyColor(creature, progress){
   let start = 0
   let end = creature.energy_consumed / creature.energy

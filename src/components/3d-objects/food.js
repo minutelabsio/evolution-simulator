@@ -1,7 +1,10 @@
 import * as THREE from 'three'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
+import sougy from '@/config/sougy-colors'
+import chroma from 'chroma-js'
 
 const foodSize = 2
+const foodColor = chroma(sougy.green).darken(0.8).num()
 
 export default {
   name: 'food'
@@ -11,7 +14,6 @@ export default {
     food: Object
   }
   , data: () => ({
-    color: 0x6E8044
   })
   , created(){
     this.beforeDraw(() => {
@@ -30,7 +32,7 @@ export default {
       this.v3object = new THREE.Mesh( geometry, material )
     }
     , updateObjects(){
-      this.v3object.material.color = new THREE.Color(this.color)
+      this.v3object.material.color = new THREE.Color(foodColor)
       let pos = this.food.position
       this.v3object.position.set(pos[0], foodSize + 0.2, pos[1])
     }

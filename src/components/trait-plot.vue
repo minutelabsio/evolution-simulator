@@ -15,7 +15,11 @@ export default {
     }
     , color: {
       type: String
-      , default: '#bc80bd'
+      , default: '#FCFDF4'
+    }
+    , textColor: {
+      type: String
+      , default: '#FCFDF4'
     }
   }
   , components: {
@@ -35,12 +39,12 @@ export default {
             // , beginAtZero: true
             , ticks: {
               min: 1
-              , fontColor: '#aaa'
+              , fontColor: this.textColor
             }
             // , scaleLabel: {
             //   display: true
             //   , labelString: 'Generation'
-            //   , fontColor: '#aaa'
+            //   , fontColor: this.textColor
             //   , fontSize: 14
             // }
           }]
@@ -49,14 +53,14 @@ export default {
             , beginAtZero: true
             , display: true
             , ticks: {
-              fontColor: '#aaa'
+              fontColor: this.textColor
             }
             // , stacked: true
             , position: 'left'
             // , scaleLabel: {
             //   display: true
             //   , labelString: this.label
-            //   , fontColor: '#aaa'
+            //   , fontColor: this.textColor
             //   , fontSize: 14
             // }
           }]

@@ -25,7 +25,7 @@
       , :speed-indicators="showSpeedIndicator"
       , :energy-indicators="showEnergyIndicator"
       , :followCreatureIndex="followCreature ? followCreatureIndex : undefined"
-      , @tap-creature="followCreatureIndex = $event.index"
+      , @tap-creature="followCreatureIndex = $event.index; followCreature = true"
     )
   .controls(v-show="!showConfig")
     .inner

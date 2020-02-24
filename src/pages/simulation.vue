@@ -65,7 +65,7 @@ export default {
     toolbar: true
 
     , flowerColors: {
-      center: '#e6e6e6'
+      center: CreatureTraits.populationColor
       , petals: CreatureTraits.colors
     }
     , topPetal: 0
