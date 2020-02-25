@@ -1,5 +1,5 @@
 import sougy from '@/config/sougy-colors'
-const traits = ['speed', 'sense_range', 'size', 'life_span', 'age']
+const traits = [ 'age', 'speed', 'size', 'sense_range', 'life_span']
 const traitColors = {
   'speed': sougy.red
   , 'sense_range': sougy.cyan

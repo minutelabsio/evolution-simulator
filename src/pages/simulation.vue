@@ -185,12 +185,17 @@ export default {
   left: 1.75em
   pointer-events: none
   z-index: 10
-  opacity: 0.7
+  height: 36px
+  // opacity: 0.7
   display: flex
   align-items: center
+  // background: #333
+  // border-radius: 0 0 3px 0
+  backdrop-filter: blur(2px)
   > *
     pointer-events: all
     margin-right: 1rem
+    text-shadow: 0 0 3px #333
   .logo
     margin-right: 0.75rem
     overflow: hidden
@@ -208,7 +213,7 @@ export default {
 .config-link
   position: absolute
   top: 1.5rem
-  right: 1.5rem
+  right: 1.75rem
   display: flex
   align-items: center
   z-index: 3

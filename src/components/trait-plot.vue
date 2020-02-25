@@ -2,6 +2,10 @@
 import chroma from 'chroma-js'
 import { Scatter } from 'vue-chartjs'
 
+function clamp(v, min, max){
+  return Math.min(Math.max(v, min), max)
+}
+
 export default {
   name: 'TraitPlot'
   , extends: Scatter
@@ -86,49 +90,56 @@ export default {
       }
     }
     , chartdata(){
-      let devColor = chroma(this.color).desaturate(2).alpha(0.5).css()
       let bgColor = chroma(this.color).alpha(0.1).css()
-      if ( !this.data ){
-        return {}
+      let devColor = bgColor
+      let maxMinColor = chroma(this.color).desaturate(2).alpha(0.3).css()
+      if ( !this.data ){ return {} }
+      let options = {
+        label: this.label
+        , showLine: true
+        , pointRadius: 1
+        , borderColor: this.color
+        , backgroundColor: bgColor
+        , fill: false
       }
       if ( Number.isFinite(this.data[0]) ){
         return {
           datasets: [{
-            label: this.label
-            , showLine: true
-            , pointRadius: 1
+            ...options
             , data: this.data.map((y, x) => ({ y, x: x + 1 }))
-            , borderColor: this.color
-            , backgroundColor: bgColor
-            , fill: false
           }]
         }
       }
       return {
         datasets: [{
-          label: this.label
-          , showLine: true
+          ...options
           , pointRadius: 0
-          , data: this.data.map((d, x) => ({ y: d[0] - d[1], x: x + 1 }))
+          , data: this.data.map((d, x) => ({ y: d.min, x: x + 1 }))
+          // , borderDash: [5, 5]
+          , borderColor: maxMinColor
+        } , {
+          ...options
+          , pointRadius: 0
+          , data: this.data.map((d, x) => ({ y: clamp(d.mean - d.deviation, d.min, d.max), x: x + 1 }))
           , borderColor: devColor
           , backgroundColor: bgColor
-          , fill: 1
+          , fill: 2
         }, {
-          label: this.label
-          , showLine: true
-          , pointRadius: 1
-          , data: this.data.map((d, x) => ({ y: d[0], x: x + 1 }))
-          , borderColor: this.color
-          , backgroundColor: bgColor
-          , fill: false
+          ...options
+          , data: this.data.map((d, x) => ({ y: d.mean, x: x + 1 }))
         }, {
-          label: this.label
-          , showLine: true
+          ...options
           , pointRadius: 0
-          , data: this.data.map((d, x) => ({ y: d[0] + d[1], x: x + 1 }))
+          , data: this.data.map((d, x) => ({ y: clamp(d.mean + d.deviation, d.min, d.max), x: x + 1 }))
           , borderColor: devColor
           , backgroundColor: bgColor
-          , fill: 1
+          , fill: 2
+        }, {
+          ...options
+          , pointRadius: 0
+          , data: this.data.map((d, x) => ({ y: d.max, x: x + 1 }))
+          // , borderDash: [5, 5]
+          , borderColor: maxMinColor
         }]
       }
     }

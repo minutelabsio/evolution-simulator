@@ -135,6 +135,7 @@ export default {
       this.player.togglePause(this.paused)
     }
     , generation(){
+      if (this._inactive) return
       this.paused = true
       if ( this.player ){
         this.player.seek(0)
