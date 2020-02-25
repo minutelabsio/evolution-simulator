@@ -108,6 +108,7 @@ export const simulation = {
 
       commit('start')
       try {
+        dispatch('info', { message: 'calculating...', context: 'while calculating simulation results' }, { root: true })
         await worker.initSimulation(state.config, {
           count: state.creatureConfig.count | 0
           , template: getCreatureTemplate(state.creatureConfig.template)

@@ -1,7 +1,7 @@
 <template lang="pug">
 .playground
   SimulationConfig.cfg.scrollbars(v-if="showConfig")
-
+  AppMessages
   .top-bar
     .logo
       img(src="@/assets/logo-dark.png")
@@ -38,8 +38,8 @@
 <script>
 // import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
+import AppMessages from '@/components/app-messages'
 import CreatureTraits from '@/config/creature-traits'
-import TraitChart from '@/components/trait-plot'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
 import Drawer from '@/components/drawer'
@@ -54,7 +54,7 @@ export default {
     showConfig: Boolean
   }
   , components: {
-    TraitChart
+    AppMessages
     , FlowerChart
     , FlowerTimeline
     , Legend
