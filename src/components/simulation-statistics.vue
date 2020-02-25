@@ -98,7 +98,7 @@ export default {
 .simulation-statistics
   padding: 6em 2em 0
   height: 100%
-  overflow: scroll
+  overflow-y: scroll
 .plot-title
   margin-top: 1em
   text-align: center

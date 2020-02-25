@@ -1,7 +1,6 @@
 <template lang="pug">
 .playground
   SimulationConfig.cfg.scrollbars(v-if="showConfig")
-  AppMessages
   .top-bar
     .logo
       img(src="@/assets/logo-dark.png")
@@ -38,7 +37,6 @@
 <script>
 // import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
-import AppMessages from '@/components/app-messages'
 import CreatureTraits from '@/config/creature-traits'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
@@ -54,8 +52,7 @@ export default {
     showConfig: Boolean
   }
   , components: {
-    AppMessages
-    , FlowerChart
+    FlowerChart
     , FlowerTimeline
     , Legend
     , Drawer
@@ -167,6 +164,7 @@ export default {
   height: 100%
   display: flex
   flex-direction: column
+  min-height: 0
 .cfg
   position: absolute
   top: 0
@@ -220,10 +218,11 @@ export default {
 .upper
   position: relative
   z-index: 2
-  flex: 1
+  flex-grow: 1
+  min-height: 0
   // overflow: hidden
   background: #333333
-  max-height: calc(100vh - 214px)
+  // max-height: calc(100vh - 214px)
 .bottom-drawer
   position: relative
   background: $black-ter
