@@ -311,7 +311,7 @@ impl CannibalismBehaviour {
     for i in 1..creatures.len(){
       if !creatures[i].is_active(){ continue; }
       let (before, after) = creatures.split_at_mut(i);
-      after.iter_mut().filter(|c| c.is_active()).for_each(|mut prey| {
+      after.iter_mut().filter(|c| c.is_active()).for_each(|prey| {
         let predator = &mut before[i - 1];
         let (predator, prey) = if predator.get_size() > prey.get_size() {
           (predator, prey)
@@ -319,6 +319,8 @@ impl CannibalismBehaviour {
           (prey, predator)
         };
 
+        // some can get killed during this loop... so check again
+        if !predator.is_active() || !prey.is_active() { return }
         if predator.get_size() * self.size_ratio < prey.get_size() { return }
 
         func(predator, prey);

@@ -48,7 +48,7 @@ impl RunningStatistics {
   }
 
   pub fn mean(&self) -> f64 { self.m }
-  pub fn variance(&self) -> f64 { self.s / ((self.n - 1) as f64) }
+  pub fn variance(&self) -> f64 { if self.n <= 1 { 0. } else { self.s / ((self.n - 1) as f64) } }
   pub fn deviation(&self) -> f64 { self.variance().sqrt() }
   pub fn max(&self) -> f64 { self._max }
   pub fn min(&self) -> f64 { self._min }
