@@ -1,40 +1,35 @@
 <template lang="pug">
-.config
+.config.content
   a.close(@click="close")
     b-icon(icon="close-circle-outline", size="is-large")
-  h4.title.is-size-5 Creatures will always start with:
-  p Creatures will always start with this much energy
-  b-field(grouped)
-    NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100")
 
+  h4.title.is-size-3 Simulation Settings
+
+  p Creatures will start each generation with this much energy
   b-field(grouped)
-    b-field(label="Energy")
-      b-input(v-model="energy", type="number", min="0", step="any")
-  b-field(grouped)
-    b-field(label="Speed")
-      b-input(v-model="speedValue", type="number", min="0", step="any")
-    b-field(label="Speed mutation variance")
-      b-input(v-model="speedVariance", type="number", min="0", step="any")
-  b-field(grouped)
-    b-field(label="Size")
-      b-input(v-model="sizeValue", type="number", min="0", step="any")
-    b-field(label="Size mutation variance")
-      b-input(v-model="sizeVariance", type="number", min="0", step="any")
-  b-field(grouped)
-    b-field(label="Sense")
-      b-input(v-model="sense_rangeValue", type="number", min="0", step="any")
-    b-field(label="Sense mutation variance")
-      b-input(v-model="sense_rangeVariance", type="number", min="0", step="any")
-  b-field(grouped)
-    b-field(label="Reach")
-      b-input(v-model="reachValue", type="number", min="0", step="any")
-    b-field(label="Reach mutation variance")
-      b-input(v-model="reachVariance", type="number", min="0", step="any")
-  b-field(grouped)
-    b-field(label="Avg Lifespan")
-      b-input(v-model="life_spanValue", type="number", min="0", step="any")
-    b-field(label="Avg Lifespan mutation variance")
-      b-input(v-model="life_spanVariance", type="number", min="0", step="any")
+    NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="energyColor")
+
+  p Creatures will start the simulation with these properties
+  b-field
+    NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", condensed, :color="creatureColors.speed")
+  b-field
+    NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10")
+  b-field
+    NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", condensed)
+  b-field
+    NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10")
+
+
+  //- b-field(grouped)
+  //-   b-field(label="Reach")
+  //-     b-input(v-model="reachValue", type="number", min="0", step="any")
+  //-   b-field(label="Reach mutation variance")
+  //-     b-input(v-model="reachVariance", type="number", min="0", step="any")
+  //- b-field(grouped)
+  //-   b-field(label="Avg Lifespan")
+  //-     b-input(v-model="life_spanValue", type="number", min="0", step="any")
+  //-   b-field(label="Avg Lifespan mutation variance")
+  //-     b-input(v-model="life_spanVariance", type="number", min="0", step="any")
 
   b-field(grouped)
     b-field(label="Number of Creatures")
@@ -52,6 +47,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import CreatureTraits from '@/config/creature-traits'
 import NumberInput from '@/components/inputs/number-input'
 
 function storeParam(key, src, action){
@@ -82,6 +78,8 @@ export default {
   , props: {
   }
   , data: () => ({
+    creatureColors: CreatureTraits.hashed
+    , energyColor: CreatureTraits.energyColor
   })
   , components: {
     NumberInput
@@ -123,8 +121,11 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.config
-  padding: 2em
+.config.content
+  padding: 5em 2em 2em
+  margin-bottom: 0
+  p
+    font-family: $family-sans-serif
   .close
     position: absolute
     top: 1em

@@ -12,5 +12,6 @@ export default Object.freeze({
   traits
   , colors
   , populationColor: sougy.cream
+  , energyColor: sougy.yellow
   , hashed: traitColors
 })

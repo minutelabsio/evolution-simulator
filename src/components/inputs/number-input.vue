@@ -1,23 +1,30 @@
 <template lang="pug">
-.number-input.control.has-icons-left.input(@click="$refs.input.focus()")
-  span.label.is-left {{ label }}
-  .slider
-    vue-slider(
-      v-model="sliderValue"
-      , :min="-1"
-      , :max="1"
-      , :interval="0.1"
-      , tooltip="none"
-      , :process="sliderProcess"
-      , :contained="true"
-      , @drag-start="sliderDrag(true)"
-      , @change="sliderDrag(sliderIsDragging)"
-      , @drag-end="sliderDrag(false)"
-    )
-  input(ref="input", type="number", v-model.number="displayValue", :step="step")
+.number-input.control.has-icons-left.input(
+  @click="$refs.input.focus()"
+  , :class="{ condensed }"
+)
+  .label(:style="{ backgroundColor }")
+    span {{ label }}
+  .controls
+    .slider
+      vue-slider(
+        v-model="sliderValue"
+        , :min="-1"
+        , :max="1"
+        , :interval="0.1"
+        , tooltip="none"
+        , :process="sliderProcess"
+        , :contained="true"
+        , @drag-start="sliderDrag(true)"
+        , @change="sliderDrag(sliderIsDragging)"
+        , @drag-end="sliderDrag(false)"
+      )
+    .in
+      input(ref="input", type="number", v-model.number="displayValue", :step="step")
 </template>
 
 <script>
+import chroma from 'chroma-js'
 import _throttle from 'lodash/throttle'
 
 function nearest(v, s){
@@ -29,6 +36,8 @@ export default {
   , props: {
     label: String
     , value: Number
+    , condensed: Boolean
+    , color: String
     , step: {
       type: Number
       , default: 1
@@ -36,6 +45,12 @@ export default {
     , changeRate: {
       type: Number
       , default: 10
+    }
+    , min: {
+      type: Number
+    }
+    , max: {
+      type: Number
     }
   }
   , data: () => ({
@@ -52,12 +67,20 @@ export default {
   , mounted(){
   }
   , computed: {
-    displayValue: {
+    backgroundColor(){
+      if (!this.color){ return '' }
+      return chroma(this.color).alpha(0.15)
+    }
+    , borderColor(){
+      if (!this.color){ return '' }
+      return chroma(this.color).alpha(0.2)
+    }
+    , displayValue: {
       get(){
-        return nearest(this.value, this.step)
+        return this.sanitizeValue(this.value)
       }
       , set(v){
-        this.$emit('input', nearest(v, this.step))
+        this.$emit('input', this.sanitizeValue(v))
       }
     }
   }
@@ -67,9 +90,30 @@ export default {
         this.changeValue()
       }
     }
+    , borderColor: {
+      handler(c){
+        if (!c){ return }
+        this.$nextTick(() => {
+          this.$el.style.setProperty('--border-color', c.css())
+          this.$el.style.setProperty('--border-color-hover', c.alpha(0.3).css())
+          this.$el.style.setProperty('--border-color-focus', c.alpha(0.5).css())
+        })
+      }
+      , immediate: true
+    }
   }
   , methods: {
-    sliderDrag(drag){
+    sanitizeValue(v){
+      v = nearest(v, this.step)
+      if (this.min !== undefined){
+        v = Math.max(this.min, v)
+      }
+      if (this.max !== undefined){
+        v = Math.min(this.max, v)
+      }
+      return v
+    }
+    , sliderDrag(drag){
       this.sliderIsDragging = !!drag
       if (!drag && this.sliderValue){
         this.$nextTick(() => {
@@ -112,19 +156,30 @@ export default {
 >>> .vue-slider-rail
   background-color: $grey
 .number-input
+  --border-color: #{$grey-darker}
+  --border-color-hover: #{desaturate(darken($cream, 60), 30)}
+  --border-color-focus: #{desaturate(darken($cream, 55), 30)}
+
   display: flex
+  align-items: stretch
   padding: 0
   transition: border 0.15s ease
   font-family: $family-monospace
-  border-color: $grey-dark
+  border-color: var(--border-color)
+  height: auto
+  width: 23rem
+  background: $black-bis
 
   &:hover,
   &:active
-    border-color: desaturate(darken($cream, 60), 30)
+    border-color: var(--border-color-hover)
     box-shadow: none
   &:focus,
   &:focus-within
-    border-color: desaturate(darken($cream, 55), 30)
+    border-color: var(--border-color-focus)
+
+  .controls
+    display: flex
 
   .slider
     display: flex
@@ -149,22 +204,31 @@ export default {
     padding-top: calc(0.375em - 1px)
 
   .label
-    height: 100%
     margin-bottom: 0
     font-weight: normal
     color: $text
-    background: desaturate(darken($cream, 76), 33) // desaturate(darken($blue, 21), 40)
+    background: $black-ter //desaturate(darken($cream, 76), 33) // desaturate(darken($blue, 21), 40)
     border-radius: 3px 0 0 3px
     box-shadow: 1px 0 0px $black-bis
+    display: flex
+    align-items: center
+    justify-content: flex-end
+    min-width: 8rem
+
+  .in
+    flex: 1
 
   input
     font-size: 1rem
     color: $text
     background: none
     height: 100%
+    width: 100%
     border: none
-    flex: 1
+    // flex: 1
     border-radius: 3px
+    text-align: center
+    font-family: $family-monospace
 
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button
@@ -175,4 +239,15 @@ export default {
       border: none
       outline: none
       background: none
+
+  &.condensed
+    width: 12rem
+    .label
+      min-width: 5em
+      text-align: right
+    .controls
+      flex-direction: column-reverse
+    .slider
+      width: auto
+      margin-right: calc(0.625em - 1px)
 </style>
