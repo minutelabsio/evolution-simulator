@@ -1,6 +1,6 @@
 <template lang="pug">
 .number-input.control.has-icons-left.input(@click="$refs.input.focus()")
-  span.label.is-left Energy
+  span.label.is-left {{ label }}
   .slider
     vue-slider(
       v-model="sliderValue"
@@ -27,7 +27,8 @@ function nearest(v, s){
 export default {
   name: 'NumberInput'
   , props: {
-    value: Number
+    label: String
+    , value: Number
     , step: {
       type: Number
       , default: 1
@@ -83,6 +84,9 @@ export default {
       let dt = 0
 
       let v = this.sliderValue
+
+      if (v === 0){ return this.changeValue() }
+
       let dv = v * v * this.changeRate
 
       let frac = this.step / dv
@@ -130,6 +134,8 @@ export default {
 
     &:before
       content: '-'
+      position: relative
+      top: -1px
     &:after
       content: '+'
     >>> .vue-slider

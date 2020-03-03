@@ -2,9 +2,10 @@
 .config
   a.close(@click="close")
     b-icon(icon="close-circle-outline", size="is-large")
-  h4.title.is-size-5 Initial Creature Properties
-
-  NumberInput(v-model="energy")
+  h4.title.is-size-5 Creatures will always start with:
+  p Creatures will always start with this much energy
+  b-field(grouped)
+    NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100")
 
   b-field(grouped)
     b-field(label="Energy")
