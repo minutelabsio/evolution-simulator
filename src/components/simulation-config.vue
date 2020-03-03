@@ -3,6 +3,9 @@
   a.close(@click="close")
     b-icon(icon="close-circle-outline", size="is-large")
   h4.title.is-size-5 Initial Creature Properties
+
+  NumberInput(v-model="energy")
+
   b-field(grouped)
     b-field(label="Energy")
       b-input(v-model="energy", type="number", min="0", step="any")
@@ -48,6 +51,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import NumberInput from '@/components/inputs/number-input'
 
 function storeParam(key, src, action){
   return {
@@ -79,7 +83,7 @@ export default {
   , data: () => ({
   })
   , components: {
-
+    NumberInput
   }
   , mounted(){
   }

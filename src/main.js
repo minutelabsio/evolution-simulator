@@ -16,6 +16,11 @@ import '@mdi/font/css/materialdesignicons.css'
 // require styles
 import './styles/main.scss'
 
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
+
+Vue.component('VueSlider', VueSlider)
+
 // sync router and store
 sync(store, router)
 
@@ -49,8 +54,6 @@ Copilot.registerType({
 //     }
 //   }
 // })
-
-// import ElementComponents from '@/plugins/element-components'
 
 Vue.use(Buefy, {
   defaultContainerElement: '#app .below-nav'

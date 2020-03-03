@@ -21,6 +21,11 @@ body {
   margin: 0;
 }
 
+::selection {
+  color: $text;
+  background: $blue;
+}
+
 .content,
 .content .title {
   font-family: $family-monospace;
