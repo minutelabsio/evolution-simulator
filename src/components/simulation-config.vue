@@ -12,13 +12,9 @@
   p Creatures will start the simulation with these properties
   b-field
     NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", condensed, :color="creatureColors.speed")
-  b-field
-    NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10")
-  b-field
-    NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", condensed)
-  b-field
-    NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10")
-
+  .number-input-group
+    NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10", :color="creatureColors.size")
+    NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10")
 
   //- b-field(grouped)
   //-   b-field(label="Reach")
@@ -124,11 +120,12 @@ export default {
 .config.content
   padding: 5em 2em 2em
   margin-bottom: 0
+  font-size: 18px
   p
     font-family: $family-sans-serif
   .close
     position: absolute
-    top: 1em
-    right: 1em
+    top: 1rem
+    right: 1rem
     color: lighten($grey, 20)
 </style>

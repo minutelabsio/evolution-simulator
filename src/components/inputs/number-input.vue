@@ -3,7 +3,7 @@
   @click="$refs.input.focus()"
   , :class="{ condensed }"
 )
-  .label(:style="{ backgroundColor }")
+  .label
     span {{ label }}
   .controls
     .slider
@@ -151,14 +151,18 @@ export default {
 </script>
 
 <style lang="sass" scoped>
->>> .vue-slider-process
-  background-color: $yellow
->>> .vue-slider-rail
-  background-color: $grey
 .number-input
-  --border-color: #{$grey-darker}
-  --border-color-hover: #{desaturate(darken($cream, 60), 30)}
-  --border-color-focus: #{desaturate(darken($cream, 55), 30)}
+  --default-border-color: #{$grey-darker}
+  --default-border-color-hover: #{desaturate(darken($cream, 60), 30)}
+  --default-border-color-focus: #{desaturate(darken($cream, 55), 30)}
+  --border-color: var(--default-border-color)
+  --border-color-hover: var(--default-border-color-hover)
+  --border-color-focus: var(--default-border-color-focus)
+
+  >>> .vue-slider-process
+    background-color: $ivory
+  >>> .vue-slider-rail
+    background-color: var(--border-color-hover)
 
   display: flex
   align-items: stretch
@@ -212,8 +216,9 @@ export default {
     box-shadow: 1px 0 0px $black-bis
     display: flex
     align-items: center
-    justify-content: flex-end
+    justify-content: center
     min-width: 8rem
+    text-align: center
 
   .in
     flex: 1
@@ -229,6 +234,7 @@ export default {
     border-radius: 3px
     text-align: center
     font-family: $family-monospace
+    padding: 2px 0 0
 
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button
@@ -241,13 +247,63 @@ export default {
       background: none
 
   &.condensed
-    width: 12rem
+    width: 13rem
     .label
       min-width: 5em
-      text-align: right
     .controls
+      padding: 4px 0
       flex-direction: column-reverse
     .slider
       width: auto
       margin-right: calc(0.625em - 1px)
+
+</style>
+
+<style lang="sass">
+.number-input-group
+  display: flex
+  flex-direction: column
+
+  > .number-input
+    position: relative
+    z-index: 0
+    border-radius: 0
+    border-color: var(--default-border-color)
+    overflow: hidden
+
+    &:after
+      content: ''
+      pointer-events: none
+      position: absolute
+      top: 0
+      left: 0
+      bottom: 0
+      right: 0
+      z-index: 1
+      transition: box-shadow .15s ease
+
+    &:hover,
+    &:active
+      border-color: var(--default-border-color)
+
+      &:after
+        box-shadow: inset 0 0 2px var(--border-color-hover)
+
+    &:focus,
+    &:focus-within
+      border-color: var(--default-border-color)
+      &:after
+        box-shadow: inset 0 0 2px var(--border-color-focus)
+    &:first-child
+      border-radius: 3px 3px 0 0
+    &:last-child
+      border-radius: 0 0 3px 3px
+    &:not(:last-child)
+      border-bottom: none
+    // &:hover + .number-input,
+    // &:active + .number-input
+    //   border-top-color: var(--default-border-color-hover)
+    // &:focus + .number-input,
+    // &:focus-within + .number-input
+    //   border-top-color: var(--default-border-color-focus)
 </style>
