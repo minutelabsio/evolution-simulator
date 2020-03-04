@@ -28,7 +28,8 @@ import chroma from 'chroma-js'
 import _throttle from 'lodash/throttle'
 
 function nearest(v, s){
-  return Math.round(v / s) * s
+  let figs = Math.max(0, (`${s}`).length - 2)
+  return +((Math.round(v / s) * s).toFixed(figs))
 }
 
 export default {

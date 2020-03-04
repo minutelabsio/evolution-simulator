@@ -35,6 +35,22 @@
         .is-inline-block
           NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :change-rate="10", condensed, :color="foodColor")
 
+  .content
+    .has-text-centered
+      h2.title.is-size-4 When they reproduce
+    .columns
+      .column.has-text-right-tablet.has-text-centered
+        p.
+          The traits will mutate by randomly selecting a value
+          (in a gaussian normal distribution) centered around their current trait value
+          with a variance of...
+      .column.has-text-left-tablet.has-text-centered
+        .is-inline-block
+          .number-input-group
+            NumberInput(v-model="speedVariance", label="σ Speed", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.speed")
+            NumberInput(v-model="sizeVariance", label="σ Size", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.size")
+            NumberInput(v-model="sense_rangeVariance", label="σ Sense", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.sense_range")
+
   //- b-field(grouped)
   //-   b-field(label="Reach")
   //-     b-input(v-model="reachValue", type="number", min="0", step="any")
