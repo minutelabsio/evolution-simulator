@@ -186,13 +186,17 @@ export default {
 
 .top-controls
   position: absolute
-  top: 1.5em
-  right: 4.5em
+  top: 1.5rem
+  right: 1.5rem
   z-index: 1
 
   > *
     &:not(:first-child)
-      margin-left: 1em
+      margin-left: 1rem
+
+  @media screen and (max-width: $tablet)
+    top: 5rem
+
 .loading-cover
   z-index: 1
 .controls

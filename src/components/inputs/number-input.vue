@@ -1,5 +1,5 @@
 <template lang="pug">
-.number-input.control.has-icons-left.input(
+.number-input.control.input(
   @click="$refs.input.focus()"
   , :class="{ condensed }"
 )
@@ -174,6 +174,9 @@ export default {
   width: 23rem
   background: $black-bis
 
+  @media screen and (max-width: $tablet)
+    width: 100%
+
   &:hover,
   &:active
     border-color: var(--border-color-hover)
@@ -219,6 +222,7 @@ export default {
     justify-content: center
     min-width: 8rem
     text-align: center
+    text-shadow: 0 0 1px var(--border-color-focus)
 
   .in
     flex: 1
@@ -247,12 +251,14 @@ export default {
       background: none
 
   &.condensed
-    width: 13rem
+    width: auto
     .label
-      min-width: 5em
+      min-width: 5rem
     .controls
+      width: 8rem
       padding: 4px 0
       flex-direction: column-reverse
+
     .slider
       width: auto
       margin-right: calc(0.625em - 1px)

@@ -4,19 +4,20 @@
   .top-bar
     .logo
       img(src="@/assets/logo-dark.png")
-    router-link(v-if="!showConfig", :to="{ params: $route.params, name: 'viewscreen' }")
-      span Viewer
-    router-link(v-if="!showConfig", :to="{ params: $route.params, name: 'stats' }")
+    router-link(:to="{ params: $route.params, name: 'viewscreen' }", exact)
+      span World
+    router-link(:to="{ params: $route.params, name: 'stats' }", exact)
       span Stats
-  router-link.config-link(v-if="!showConfig", :to="{ params: $route.params, query: { cfg: '1' } }")
-    b-icon.icon-btn(icon="cogs", size="is-medium")
+    router-link(:to="{ params: $route.params, query: { cfg: '1' } }", exact)
+      span Settings
+
   .upper
     keep-alive(includes="ViewScreen")
       router-view
 
   .bottom-drawer
     b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
-    Drawer.legend-drawer(direction="right", start-open)
+    Drawer.legend-drawer(direction="right", :start-open="legendStartsOpen")
       Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
@@ -66,6 +67,7 @@ export default {
       , petals: CreatureTraits.colors
     }
     , topPetal: 0
+    , legendStartsOpen: window.innerWidth > 620
   })
   , created(){
   }

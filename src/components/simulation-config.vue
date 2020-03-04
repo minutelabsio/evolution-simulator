@@ -1,20 +1,39 @@
 <template lang="pug">
-.config.content
-  a.close(@click="close")
-    b-icon(icon="close-circle-outline", size="is-large")
+.config
+  //- a.close(@click="close")
+  //-   b-icon(icon="close-circle-outline", size="is-large")
 
-  h4.title.is-size-3 Simulation Settings
+  .content.has-text-centered
+    h1.title.is-size-3 Simulation Settings
 
-  p Creatures will start each generation with this much energy
-  b-field(grouped)
-    NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="energyColor")
+  .content
+    .has-text-centered
+      h2.title.is-size-4 First
+    .columns
+      .column.has-text-right-tablet.has-text-centered
+        p We will start with this many creatures
+        .is-inline-block
+          NumberInput(v-model="creatureCount", label="Creatures to Start", :min="1", :change-rate="10", condensed)
 
-  p Creatures will start the simulation with these properties
-  b-field
-    NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", condensed, :color="creatureColors.speed")
-  .number-input-group
-    NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10", :color="creatureColors.size")
-    NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10")
+      .column.has-text-left-tablet.has-text-centered
+        p ...and each creature will start with these properties
+        .is-inline-block
+          .number-input-group
+            NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", :color="creatureColors.speed")
+            NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10", :color="creatureColors.size")
+            NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="creatureColors.sense_range")
+  .content
+    .has-text-centered
+      h2.title.is-size-4 Each day
+    .columns
+      .column.has-text-right-tablet.has-text-centered
+        p Creatures will start with this much energy
+        .is-inline-block
+          NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="energyColor")
+      .column.has-text-left-tablet.has-text-centered
+        p ...and we will randomly place this much food
+        .is-inline-block
+          NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :change-rate="10", condensed, :color="foodColor")
 
   //- b-field(grouped)
   //-   b-field(label="Reach")
@@ -27,23 +46,41 @@
   //-   b-field(label="Avg Lifespan mutation variance")
   //-     b-input(v-model="life_spanVariance", type="number", min="0", step="any")
 
-  b-field(grouped)
-    b-field(label="Number of Creatures")
-      b-input(v-model="creatureCount", type="number", min="1", step="1")
-    b-field(label="Food Per Generation")
-      b-input(v-model="foodPerGeneration", type="number", min="0", step="1")
-  b-field(grouped)
-    b-field(label="Random Seed")
-      b-input(v-model="seed", type="number", min="0", step="1")
-    b-field(label="Max Generations")
-      b-input(v-model="maxGenerations", type="number", min="0", step="1")
-  b-field
-    b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
+  .content
+    .has-text-centered
+      h2.title.is-size-4 Finally
+    .columns
+      .column.has-text-centered
+        b-field.is-inline-block
+          .number-input-group
+            NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :change-rate="10")
+            NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
+        b-field
+          b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
+
+  br
+  .content
+    .has-text-centered
+      h2.title.is-size-3 Details about this simulation
+
+    .columns.is-centered
+      .column.is-two-thirds
+        p.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eu tempus elit, in viverra lectus. Vivamus mi velit, vehicula id dui non, placerat viverra lacus. Integer sed justo dignissim, finibus elit porta, dapibus magna. Vestibulum tempus venenatis dignissim. Maecenas viverra tortor sodales, sodales est aliquet, dapibus lacus. Fusce vel ligula aliquet, semper justo vel, faucibus enim. Cras sit amet massa orci. Nulla gravida, nisi nec elementum auctor, ante elit cursus risus, vel semper metus velit vitae quam. Morbi fringilla ex tortor. Suspendisse id nunc eu metus pharetra faucibus.
+        p.
+          Phasellus eu mauris eget est lobortis venenatis. Vestibulum ac lacus sed libero feugiat viverra eu ac nisl. Nunc fermentum, sem vitae tempus vulputate, magna lectus luctus nisl, in malesuada nibh metus et quam. Etiam placerat tempus odio, eget commodo ligula mollis non. Aenean blandit sit amet risus eget condimentum. Duis eu auctor ante, a sodales mi. Morbi vulputate eleifend lacus non luctus. Nulla in semper nisl. Proin lacinia elementum mauris eu interdum. Maecenas in tempor augue. Nullam placerat libero id cursus dictum. Nullam ut faucibus quam.
+        p.
+          Ut pharetra purus ac orci porta, id auctor lorem imperdiet. Duis feugiat libero at mauris pharetra sollicitudin. Nulla vitae lacus eget nisl viverra mollis non at lorem. Aenean dignissim pulvinar ligula eleifend dictum. Quisque aliquam facilisis nisi in tristique. Donec diam diam, tempor vitae sagittis dictum, mattis in mi. Aenean aliquet a tellus finibus egestas. Ut ullamcorper enim ac purus rhoncus, ac fermentum quam sagittis.
+        p.
+          Donec a arcu sit amet sapien accumsan volutpat nec in justo. Aenean commodo urna eget pretium efficitur. Ut lacinia, eros ac mattis aliquam, nulla orci ultrices dolor, luctus ullamcorper risus arcu sit amet sapien. Ut vestibulum orci eget nisi luctus, ut condimentum erat vestibulum. Etiam eu turpis in est elementum consequat a non dolor. Nulla facilisi. Duis finibus arcu arcu, vel imperdiet leo sodales nec. Morbi rutrum diam consectetur tellus feugiat tristique. Donec condimentum ut leo id consequat. Etiam interdum ipsum iaculis ligula mattis mollis. Vestibulum vitae luctus elit, at feugiat lacus. Sed vel molestie neque. In dapibus, dolor eget volutpat venenatis, enim lacus facilisis erat, ut commodo nibh mi vel ligula.
+        p.
+          Phasellus commodo tellus metus, quis finibus purus lacinia ut. Integer egestas augue non dui aliquam, sed rutrum est semper. Sed vel purus id ipsum porttitor maximus quis at ante. Proin ac lectus at ipsum commodo sodales. Integer ut felis vitae eros faucibus consectetur in non lectus. Duis accumsan porttitor pharetra. Sed tempus nibh quis dolor vulputate, at porttitor metus semper. Proin condimentum placerat magna, laoreet pharetra turpis consequat vel. Praesent consectetur blandit tellus nec viverra.
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import CreatureTraits from '@/config/creature-traits'
+import sougy from '@/config/sougy-colors'
 import NumberInput from '@/components/inputs/number-input'
 
 function storeParam(key, src, action){
@@ -76,6 +113,7 @@ export default {
   , data: () => ({
     creatureColors: CreatureTraits.hashed
     , energyColor: CreatureTraits.energyColor
+    , foodColor: sougy.green
   })
   , components: {
     NumberInput
@@ -117,7 +155,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.config.content
+.config
   padding: 5em 2em 2em
   margin-bottom: 0
   font-size: 18px
