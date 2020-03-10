@@ -74,7 +74,7 @@ export default {
     }
     , borderColor(){
       if (!this.color){ return '' }
-      return chroma(this.color).alpha(0.2)
+      return chroma(this.color).alpha(0.3)
     }
     , displayValue: {
       get(){
@@ -96,8 +96,8 @@ export default {
         if (!c){ return }
         this.$nextTick(() => {
           this.$el.style.setProperty('--border-color', c.css())
-          this.$el.style.setProperty('--border-color-hover', c.alpha(0.3).css())
-          this.$el.style.setProperty('--border-color-focus', c.alpha(0.5).css())
+          this.$el.style.setProperty('--border-color-hover', c.alpha(0.4).css())
+          this.$el.style.setProperty('--border-color-focus', c.alpha(0.6).css())
         })
       }
       , immediate: true
@@ -132,7 +132,7 @@ export default {
 
       if (v === 0){ return this.changeValue() }
 
-      let dv = v * v * this.changeRate
+      let dv = v * v * this.changeRate / 10
 
       let frac = this.step / dv
 

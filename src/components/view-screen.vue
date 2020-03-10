@@ -178,11 +178,14 @@ export default {
 .viewer
   position: relative
   display: flex
-  height: 100%
   flex-direction: column
   .screen
     flex-grow: 1
     overflow: hidden
+    display: flex
+    align-items: stretch
+    > *
+      flex: 1
 
 .top-controls
   position: absolute

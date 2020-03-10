@@ -223,7 +223,12 @@ export default {
   flex-grow: 1
   min-height: 0
   // overflow: hidden
-  background: #333333
+  background: $grey-darker
+  display: flex
+  align-items: stretch
+  > *
+    flex: 1
+
   // max-height: calc(100vh - 214px)
 .bottom-drawer
   position: relative

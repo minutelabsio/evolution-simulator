@@ -145,7 +145,7 @@ const methods = {
     // controls
     let controls = this.controls = new OrbitControls( camera, renderer.domElement )
     controls.rotateSpeed = 0.2
-    controls.zoomSpeed = 1.2
+    controls.zoomSpeed = 1
     controls.panSpeed = 0.8
     controls.enableZoom = true
     controls.enablePan = false
@@ -280,7 +280,5 @@ export default {
 
 <style lang="sass" scoped>
 .generation-viewer
-  width: 100%
-  height: 100%
   background: #333333
 </style>

@@ -47,9 +47,9 @@
       .column.has-text-left-tablet.has-text-centered
         .is-inline-block
           .number-input-group
-            NumberInput(v-model="speedVariance", label="σ Speed", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.speed")
-            NumberInput(v-model="sizeVariance", label="σ Size", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.size")
-            NumberInput(v-model="sense_rangeVariance", label="σ Sense", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.sense_range")
+            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.speed")
+            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.size")
+            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.sense_range")
 
   //- b-field(grouped)
   //-   b-field(label="Reach")

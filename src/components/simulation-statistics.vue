@@ -97,7 +97,6 @@ export default {
 <style lang="sass" scoped>
 .simulation-statistics
   padding: 6em 2em 0
-  height: 100%
   overflow-y: scroll
 .plot-title
   margin-top: 1em
