@@ -13,6 +13,7 @@ export default {
       props: {
         css: false
         // , mode: 'out-in'
+        // , appear: true
       }
       , on: {
         enter: this.enter

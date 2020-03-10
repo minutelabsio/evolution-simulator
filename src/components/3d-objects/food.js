@@ -15,11 +15,19 @@ export default {
   }
   , data: () => ({
   })
+  , watch: {
+    food(){
+      this.v3object.material.opacity = 0
+    }
+  }
   , created(){
     this.beforeDraw(() => {
       let step = this.getStep()
       let isEaten = step >= this.food.status.Eaten
       this.v3object.visible = !isEaten
+
+      let material = this.v3object.material
+      material.opacity = THREE.Math.lerp(material.opacity, 1, 0.1)
       // this.v3object.material.opacity = isEaten ? 0.2 : 1
     })
   }
@@ -27,6 +35,7 @@ export default {
     createObject(){
       let material = new THREE.MeshLambertMaterial({
         transparent: true
+        , opacity: 0
       })
       let geometry = new THREE.SphereGeometry( foodSize, 64, 64 )
       this.v3object = new THREE.Mesh( geometry, material )
