@@ -39,6 +39,20 @@
           b-icon.icon-btn(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
         b-field
           b-icon.icon-btn(icon="chevron-right", size="is-large", @click.native="nextGeneration()")
+
+      .right
+        FloatingPanel(size="is-medium", direction="up", :close-on-click="false")
+          template(#activator)
+            b-icon.icon-btn(icon="clock-fast", size="is-medium")
+          .item
+            vue-slider(
+              v-model="playbackSpeed"
+              , :min="1"
+              , :max="10"
+              , :interval="1"
+              , :height="200"
+              , direction="btt"
+            )
     AudioScrubber(:progress="progress", @scrub="onScrub")
 </template>
 
@@ -57,15 +71,14 @@ export default {
   , provide(){
     const self = this
     return {
-      getTime(){ return self.time }
-      , getStep(){ return self.time / self.stepTime }
+      getTime(){ return self.player.time }
+      , getStep(){ return self.player.time / self.stepTime }
     }
   }
   , data: () => ({
     paused: true
     , playthrough: true
-    , stepTime: 100 // ms
-    , time: 0
+    , playbackSpeed: 5
     , progress: 0
     , showSightIndicator: false
     , showSpeedIndicator: false
@@ -90,8 +103,7 @@ export default {
   }
   , mounted(){
     this.player.on('update', () => {
-      this.time = this.player.time
-      this.progress = this.time/this.totalTime * 100
+      this.progress = this.player.time / this.totalTime * 100
     })
     this.player.on('togglePause', () => {
       if ( this.player.paused !== this.paused ){
@@ -105,7 +117,10 @@ export default {
     })
   }
   , computed: {
-    totalTime(){
+    stepTime(){
+      return Math.pow(10, (1 - this.playbackSpeed/5)) * 100
+    }
+    , totalTime(){
       if ( !this.generation ){ return 1 }
       return this.stepTime * this.generation.steps
     }
@@ -129,7 +144,9 @@ export default {
   }
   , watch: {
     totalTime(){
+      let p = this.player.time / this.player.totalTime
       this.player.totalTime = this.totalTime
+      this.player.time = this.totalTime * p
     }
     , paused(){
       this.player.togglePause(this.paused)
@@ -208,6 +225,11 @@ export default {
   left: 0
   right: 0
   align-items: baseline
+
+  .right
+    position: absolute
+    right: 1.5rem
+    bottom: 1.5rem
 
   @media(pointer: fine)
     .inner
