@@ -19,9 +19,9 @@
         p ...and each creature will start with these properties
         .is-inline-block
           .number-input-group
-            NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", :color="creatureColors.speed")
-            NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10", :color="creatureColors.size")
-            NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="creatureColors.sense_range")
+            NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", :color="traitColors.speed")
+            NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10", :color="traitColors.size")
+            NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
   .content
     .has-text-centered
       h2.title.is-size-4 Each day
@@ -29,7 +29,7 @@
       .column.has-text-right-tablet.has-text-centered
         p Creatures will start with this much energy
         .is-inline-block
-          NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="energyColor")
+          NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="traitColors.energy")
       .column.has-text-left-tablet.has-text-centered
         p ...and we will randomly place this much food
         .is-inline-block
@@ -47,9 +47,9 @@
       .column.has-text-left-tablet.has-text-centered
         .is-inline-block
           .number-input-group
-            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.speed")
-            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.size")
-            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="creatureColors.sense_range")
+            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="traitColors.speed")
+            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="traitColors.size")
+            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="traitColors.sense_range")
 
   //- b-field(grouped)
   //-   b-field(label="Reach")
@@ -95,7 +95,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import CreatureTraits from '@/config/creature-traits'
+import traitColors from '@/config/trait-colors'
 import sougy from '@/config/sougy-colors'
 import NumberInput from '@/components/inputs/number-input'
 
@@ -127,8 +127,7 @@ export default {
   , props: {
   }
   , data: () => ({
-    creatureColors: CreatureTraits.hashed
-    , energyColor: CreatureTraits.energyColor
+    traitColors
     , foodColor: sougy.green
   })
   , components: {

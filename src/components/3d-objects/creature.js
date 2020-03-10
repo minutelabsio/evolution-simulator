@@ -3,7 +3,7 @@ import _times from 'lodash/times'
 import chroma from 'chroma-js'
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
-import CreatureTraits from '@/config/creature-traits'
+import traitColors from '@/config/trait-colors'
 import sougy from '@/config/sougy-colors'
 
 const blobColor = chroma(sougy.blue).desaturate(0.5).num() //0x476B81
@@ -88,7 +88,7 @@ function createCircle(r, color = 'white'){
 }
 
 const cachedVisionCircle = (() => {
-  let c = createCircle(1, chroma.mix(CreatureTraits.hashed.sense_range, 'white', 0.8).num())
+  let c = createCircle(1, chroma.mix(traitColors.sense_range, 'white', 0.8).num())
   c.rotation.x = -Math.PI / 2
   // c.position.y = 0.05
   c.material.depthWrite = false
@@ -123,7 +123,7 @@ function getChevronShape(t = 0.4, ang = 45){
 
 const cachedSpeedIndicator = (() => {
   let g = new THREE.ShapeGeometry( getChevronShape(0.35, 30) )
-  let m = new THREE.MeshBasicMaterial({ color: chroma(CreatureTraits.hashed.speed).num() })
+  let m = new THREE.MeshBasicMaterial({ color: chroma(traitColors.speed).num() })
   // m.depthWrite = false
   // m.transparent = true
   // m.blending = THREE.MultiplyBlending

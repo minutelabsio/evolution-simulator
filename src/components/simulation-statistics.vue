@@ -19,19 +19,18 @@ import { mapGetters } from 'vuex'
 import _mapValues from 'lodash/mapValues'
 import _findIndex from 'lodash/findIndex'
 import chroma from 'chroma-js'
-import CreatureTraits from '@/config/creature-traits'
+import traitColors from '@/config/trait-colors'
 import TraitPlot from '@/components/trait-plot'
 
-const titleColors = _mapValues(CreatureTraits.hashed, c => chroma(c).desaturate(1).css())
+const titleColors = _mapValues(traitColors, c => chroma(c).desaturate(1).css())
 
 export default {
   name: 'SimulationStatistics'
   , props: {
   }
   , data: () => ({
-    traits: CreatureTraits.traits
-    , traitColors: CreatureTraits.hashed
-    , populationColor: CreatureTraits.populationColor
+    traitColors
+    , populationColor: traitColors.population
     , titleColors
     , hiddenPlots: []
   })
@@ -51,16 +50,17 @@ export default {
       isLoading: 'isLoading'
       , generationIndex: 'currentGenerationIndex'
       , statistics: 'statistics'
+      , traits: 'traits'
     })
     , plots(){
       return [{
-        color: CreatureTraits.populationColor
-        , titleColor: CreatureTraits.populationColor
+        color: traitColors.population
+        , titleColor: traitColors.population
         , data: this.populationData
         , name: 'population'
       }].concat(
-        CreatureTraits.traits.map(t => ({
-          color: CreatureTraits.hashed[t]
+        this.traits.map(t => ({
+          color: traitColors[t]
           , titleColor: titleColors[t]
           , data: this.traitData[t]
           , name: t

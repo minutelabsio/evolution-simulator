@@ -38,14 +38,12 @@
 <script>
 // import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
-import CreatureTraits from '@/config/creature-traits'
+import traitColors from '@/config/trait-colors'
 import FlowerChart from '@/components/flower-chart'
 import FlowerTimeline from '@/components/flower-timeline'
 import Drawer from '@/components/drawer'
 import Legend from '@/components/legend'
 import SimulationConfig from '@/components/simulation-config'
-
-const creatureTraits = CreatureTraits.traits
 
 export default {
   name: 'Simulation'
@@ -62,10 +60,6 @@ export default {
   , data: () => ({
     toolbar: true
 
-    , flowerColors: {
-      center: CreatureTraits.populationColor
-      , petals: CreatureTraits.colors
-    }
     , topPetal: 0
     , legendStartsOpen: window.innerWidth > 620
   })
@@ -80,11 +74,11 @@ export default {
 
   }
   , computed: {
-    traitToColor(){
-      return creatureTraits[this.topPetal]
-    }
-    , traitColor(){
-      return this.flowerColors.petals[this.topPetal]
+    flowerColors(){
+      return {
+        center: traitColors.population
+        , petals: this.traitColors
+      }
     }
     , generationStats(){
       if ( !this.stats ){ return [] }
@@ -95,7 +89,7 @@ export default {
       let g = this.generationStats[this.genIndex]
       return {
         center: g.population
-        , petals: creatureTraits.map(k => g[k].mean)
+        , petals: this.traits.map(k => g[k].mean)
       }
     }
     , flowerTimelineData(){
@@ -103,7 +97,7 @@ export default {
       let stats = this.generationStats
       return stats.map(v => ({
         center: v.population
-        , petals: creatureTraits.map(k => v[k].mean)
+        , petals: this.traits.map(k => v[k].mean)
       }))
     }
     , flowerRanges(){
@@ -111,11 +105,11 @@ export default {
       let { population } = this.stats
       return {
         center: [population.min, population.max]
-        , petals: creatureTraits.map(k => this.stats[k]).map(t => [t.min, t.max])
+        , petals: this.traits.map(k => this.stats[k]).map(t => [t.min, t.max])
       }
     }
     , flowerLegend(){
-      return Object.values(creatureTraits)
+      return Object.values(this.traits)
         .map((name, i) => ({ name, color: this.flowerColors.petals[i] }))
         .concat([{
           name: 'population'
@@ -139,6 +133,8 @@ export default {
       , getCurrentGeneration: 'getCurrentGeneration'
       , generationIndex: 'currentGenerationIndex'
       , stats: 'statistics'
+      , traits: 'traits'
+      , traitColors: 'traitColors'
     })
   }
   , methods: {
@@ -152,7 +148,7 @@ export default {
       this.$store.dispatch('simulation/loadGeneration', v)
     }
     , propertySelect(index){
-      if ( index !== undefined && index < creatureTraits.length ){
+      if ( index !== undefined && index < this.traits.length ){
         this.topPetal = index
       }
     }

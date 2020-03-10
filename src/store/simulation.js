@@ -1,6 +1,7 @@
 import router from '../router'
 import _cloneDeep from 'lodash/cloneDeep'
 // import _some from 'lodash/some'
+import traitColors from '@/config/trait-colors'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
@@ -11,6 +12,10 @@ const worker = createWorker()
 //   , { name: 'HomesickBehaviour' }
 //   , { name: 'StarveBehaviour' }
 // ]
+
+function getTraitsForPreset(name){
+  return [ 'age', 'speed', 'size', 'sense_range' ]
+}
 
 const DEFAULT_CREATURE_PROPS = {
   speed: [10, 0.5]
@@ -101,6 +106,10 @@ export const simulation = {
     , currentGenerationIndex: (state, getters, rootState) =>
       rootState.route ? +rootState.route.params.generationIndex - 1 : 0
     , statistics: state => state.statistics
+
+    , traits: state => getTraitsForPreset(state.config.preset.name)
+    , traitColors: (state, getters) => getters.getTraitColors(getters.traits)
+    , getTraitColors: () => (traits) => traits.map(k => traitColors[k])
   }
   , actions: {
     async run({ state, dispatch, commit }) {
