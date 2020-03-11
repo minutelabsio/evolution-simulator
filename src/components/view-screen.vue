@@ -6,15 +6,15 @@
         b-icon.icon-btn(icon="feature-search", size="is-medium")
       .item
         b-tooltip(label="Toggle sight range indicators", position="is-left")
-          b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native="showSightIndicator = !showSightIndicator")
+          b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native.stop="showSightIndicator = !showSightIndicator")
       .item
         b-tooltip(label="Toggle speed indicators", position="is-left")
-          b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native="showSpeedIndicator = !showSpeedIndicator")
+          b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
       .item
         b-tooltip(label="Toggle energy indicators", position="is-left")
-          b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native="showEnergyIndicator = !showEnergyIndicator")
+          b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native.stop="showEnergyIndicator = !showEnergyIndicator")
 
-    b-icon.icon-btn(:icon="followCreature ? 'video-account': 'video-image'", :class="{ active: followCreature }", size="is-medium", @click.native="followCreature = !followCreature")
+    b-icon.icon-btn(:icon="followCreature ? 'video-account': 'video-image'", :class="{ active: followCreature }", size="is-medium", @click.native.stop="followCreature = !followCreature")
 
   .screen
     b-loading.loading-cover(:is-full-page="false", :active="isLoading")

@@ -158,14 +158,22 @@ const methods = {
     let epsilon = 0.001
     controls.minPolarAngle = epsilon
     controls.maxPolarAngle = Math.PI - epsilon
+
+    controls.addEventListener('start', () => {
+      this.cameraDragging = true
+    })
+
+    controls.addEventListener('end', () => {
+      this.cameraDragging = false
+    })
   }
   , draw(){
-    this.controls.update()
     this.followCreature()
-    if ( this.transitionCamera ){
+    if ( this.transitionCamera && !this.cameraDragging ){
       this.camera.position.lerp(this.cameraGoal, 0.05)
     }
-    this.camera.lookAt( this.cameraFocusGoal )
+    this.controls.target.copy(this.cameraFocusGoal)
+    this.controls.update()
     this.$refs.renderer.draw()
   }
   , followCreature(){
@@ -179,7 +187,7 @@ const methods = {
   }
   , checkFollowCreature(){
     let active = this.followCreatureIndex !== undefined
-    this.controls.enabled = !active
+    // this.controls.enabled = !active
     this.transitionCamera = true
     if (!active){
       this.cameraGoal.fromArray(this.persCameraPos)
