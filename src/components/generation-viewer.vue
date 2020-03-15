@@ -64,8 +64,11 @@
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
-          v3-group(v-if="index === followCreatureIndex", :position="[-100, 50, 0]", ref="cameraGoal")
-          v3-group(v-if="index === followCreatureIndex", :position="[0, 30, 0]", ref="cameraFocusGoal")
+          v3-group(v-if="index === followCreatureIndex")
+            v3-dom(:position="[0, 1.5 * c.size[0], 0]")
+              CreatureStatus(:creature="c")
+            v3-group(:position="[-100, 50, 0]", ref="cameraGoal")
+            v3-group(:position="[0, 30, 0]", ref="cameraFocusGoal")
 </template>
 
 <script>
@@ -88,6 +91,7 @@ import v3Box from '@/components/three-vue/v3-box'
 import v3Fog from '@/components/three-vue/v3-fog'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
+import CreatureStatus from '@/components/3d-objects/creature-status'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const components = {
@@ -105,6 +109,7 @@ const components = {
 
   , Food
   , Creature
+  , CreatureStatus
 }
 
 const computed = {

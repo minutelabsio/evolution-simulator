@@ -45,6 +45,10 @@ impl StepBehaviour for ResetBehaviour {
       generation.creatures.iter_mut()
         .filter(|c| c.is_alive())
         .for_each(|c| {
+          match c.get_objective() {
+            Some(o) => c.status_history.push(o.reason),
+            _ => {},
+          };
           c.reset_objective();
         });
     }
@@ -211,7 +215,7 @@ impl Generation {
   fn run_phase(&mut self, phase : Phase, sim : &Simulation){
     // let _timer = Timer::new(format!("phase {:?}", phase));
     sim.behaviours.iter().enumerate().for_each(
-      |(i, b)| {
+      |(_i, b)| {
         // let _timer = Timer::new(format!("behaviour {}", i));
         b.apply(phase, self, &sim)
       }

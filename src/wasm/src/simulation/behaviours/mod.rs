@@ -8,8 +8,12 @@ pub use reproduction::*;
 #[derive(Debug, Copy, Clone)]
 pub struct WanderBehaviour;
 impl WanderBehaviour {
-  fn wander(&self, creature : &mut Creature, target : Point2<f64>){
-    creature.add_objective(target, ObjectiveIntensity::MinorCraving);
+  fn wander(&self, creature : &mut Creature, pos : Point2<f64>){
+    creature.add_objective(Objective {
+      pos,
+      intensity: ObjectiveIntensity::MinorCraving,
+      reason: String::from("wandering"),
+    });
   }
 }
 
@@ -64,11 +68,15 @@ impl StepBehaviour for HomesickBehaviour {
           Self::how_homesick(c)
             .map(|i| (c, i))
         )
-        .for_each(|(c, i)| {
+        .for_each(|(c, intensity)| {
           if c.can_reach(&c.home_pos) {
             c.sleep();
           } else {
-            c.add_objective(c.home_pos, i);
+            c.add_objective(Objective {
+              pos: c.home_pos,
+              intensity,
+              reason: String::from("low energy"),
+            });
           }
         });
     }
@@ -101,11 +109,15 @@ impl StepBehaviour for SatisfiedBehaviour {
           self.how_homesick(c)
             .map(|i| (c, i))
         )
-        .for_each(|(c, i)| {
+        .for_each(|(c, intensity)| {
+          c.add_objective(Objective {
+            pos: c.home_pos,
+            intensity,
+            reason: String::from("low energy"),
+          });
+
           if c.can_reach(&c.home_pos) {
             c.sleep();
-          } else {
-            c.add_objective(c.home_pos, i);
           }
         });
     }
@@ -151,7 +163,11 @@ impl ScavengeBehaviour {
           _ => ObjectiveIntensity::MinorCraving,
         };
 
-        creature.add_objective(food.position, intensity);
+        creature.add_objective(Objective {
+          pos: food.position,
+          intensity,
+          reason: String::from("see food"),
+        });
       }
     }
   }
@@ -341,7 +357,11 @@ impl StepBehaviour for CannibalismBehaviour {
           // this is roughly the position of the predator, but a bit fuzzy
           // to add an element of randomness
           let noisy = prey.get_position() + rot * dir;
-          prey.add_objective(noisy, ObjectiveIntensity::VitalAversion);
+          prey.add_objective(Objective {
+            pos: noisy,
+            intensity: ObjectiveIntensity::VitalAversion,
+            reason: String::from("running away"),
+          });
         }
 
         if !predator.can_see(&prey.get_position()) {
@@ -355,7 +375,12 @@ impl StepBehaviour for CannibalismBehaviour {
           _ => ObjectiveIntensity::MinorCraving,
         };
 
-        predator.add_objective(prey.get_position(), intensity);
+        predator.add_objective(
+          Objective {
+            pos: prey.get_position(),
+            intensity,
+            reason: String::from("see prey"),
+          });
       });
     }
 

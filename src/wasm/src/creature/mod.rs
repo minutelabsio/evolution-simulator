@@ -50,6 +50,15 @@ pub enum ObjectiveIntensity {
   VitalAversion,
 }
 
+// current target of the creature's desire
+// and its intensity
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Objective {
+  pub pos : Point2<f64>,
+  pub intensity : ObjectiveIntensity,
+  pub reason : String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   // mutatable
@@ -70,11 +79,10 @@ pub struct Creature {
 
   // array of position vectors
   pub movement_history : Vec<Point2<f64>>,
+  pub status_history : Vec<String>,
 
   state : CreatureState,
-  // current target of the creature's desire
-  // and its weight
-  target: Option<(Point2<f64>, ObjectiveIntensity)>
+  objective: Option<Objective>
 }
 
 impl Creature {
@@ -97,7 +105,8 @@ impl Creature {
       pos: pos.clone(),
       home_pos: pos.clone(),
       movement_history: vec![pos.clone()],
-      target: None,
+      status_history: vec![],
+      objective: None,
     }
   }
 
@@ -189,10 +198,10 @@ impl Creature {
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
-    // displacement vector to target
-    let disp = self.target.map(|t| {
-      let d = t.0 - self.pos;
-      match t.1 {
+    // displacement vector to objective
+    let disp = self.objective.as_ref().map(|o| {
+      let d = o.pos - self.pos;
+      match o.intensity {
         ObjectiveIntensity::MinorAversion|
         ObjectiveIntensity::ModerateAversion|
         ObjectiveIntensity::MajorAversion|
@@ -209,30 +218,35 @@ impl Creature {
     Unit::new_normalize(disp)
   }
 
-  pub fn add_objective(&mut self, target_pos : Point2<f64>, intensity : ObjectiveIntensity){
-    self.target = match self.target {
+  pub fn add_objective(&mut self, obj : Objective){
+    match &self.objective {
       // if not yet set
-      None => Some((target_pos, intensity)),
+      None =>
+        self.objective = Some(obj),
       // if the new thing is more intense
-      Some(t) if intensity > t.1 => Some((target_pos, intensity)),
+      Some(o) if obj.intensity > o.intensity =>
+        self.objective = Some(obj),
       // if new thing is same intensity, choose the closer one
-      Some(t) if intensity == t.1 => {
+      Some(o) if obj.intensity == o.intensity => {
         let pos = self.get_position();
-        let dist_to_old = (pos - t.0).norm();
-        let dist_to_new = (pos - target_pos).norm();
+        let dist_to_old = (pos - o.pos).norm();
+        let dist_to_new = (pos - obj.pos).norm();
+
         if dist_to_new > dist_to_old {
-          Some((target_pos, intensity))
-        } else {
-          self.target
+          self.objective = Some(obj)
         }
       },
       // stick with what you know
-      Some(_) => self.target
+      Some(_) => {}
     };
   }
 
+  pub fn get_objective(&self) -> Option<Objective> {
+    self.objective.clone()
+  }
+
   pub fn reset_objective(&mut self){
-    self.target = None;
+    self.objective = None;
   }
 
   pub fn eat_food(&mut self){
