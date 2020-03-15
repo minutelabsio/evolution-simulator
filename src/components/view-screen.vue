@@ -52,6 +52,7 @@
               , :interval="1"
               , :height="200"
               , direction="btt"
+              , :contained="true"
             )
     AudioScrubber(:progress="progress", @scrub="onScrub")
 </template>

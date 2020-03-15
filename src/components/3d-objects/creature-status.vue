@@ -1,6 +1,6 @@
 <template lang="pug">
 .creature-status(@click="open = !open")
-  transition(name="boing", mode="out-in")
+  transition(name="boing", mode="out-in", appear, appear-class="boing-appear", appear-to-class="boing-appear-to")
     .bubble(v-if="open", key="bubble")
       .bg
         img(src="@/assets/status-icons/thought-2.svg", width="160")
@@ -101,4 +101,9 @@ export default {
 
 .bubble.boing-enter, .bubble.boing-leave-to
   transform: translate(0, 60px) scale(0)
+
+.bubble.boing-appear
+  transform: translate(0, 60px) scale(0)
+.boing-appear-to
+  transition: transform 0.5s 0.5s ease-in
 </style>
