@@ -170,6 +170,11 @@ export default {
         this.paused = false
       }, 500)
     }
+    , followCreature(f){
+      if ( f && !this.followCreatureId ){
+        this.followCreatureId = this.generation.creatures[0].id
+      }
+    }
   }
   , methods: {
     togglePlay(){
