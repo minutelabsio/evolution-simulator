@@ -41,20 +41,26 @@ impl StepBehaviour for WanderBehaviour {
 #[derive(Debug, Copy, Clone)]
 pub struct HomesickBehaviour;
 impl HomesickBehaviour {
-  fn how_homesick(creature : &Creature) -> Option<ObjectiveIntensity> {
+  fn how_homesick(creature : &Creature) -> Option<Objective> {
     let dist = (creature.home_pos - creature.get_position()).norm();
     let cost = creature.get_motion_energy_cost();
     let steps_to_home = dist / creature.get_speed();
     let homesick_factor = creature.get_energy_left() / cost - steps_to_home;
 
-    match homesick_factor {
+    let intensity = match homesick_factor {
       // pleanty of energy... can stay out longer
       x if x > 10.0 => None,
       // ok starting to miss home
       x if x > 5.0 => Some(ObjectiveIntensity::MinorCraving),
       x if x > 0.0 => Some(ObjectiveIntensity::MajorCraving),
       _ => Some(ObjectiveIntensity::VitalCraving),
-    }
+    };
+
+    intensity.map(|intensity| Objective {
+      pos: creature.home_pos,
+      intensity,
+      reason: String::from("low energy"),
+    })
   }
 }
 
@@ -68,15 +74,11 @@ impl StepBehaviour for HomesickBehaviour {
           Self::how_homesick(c)
             .map(|i| (c, i))
         )
-        .for_each(|(c, intensity)| {
+        .for_each(|(c, o)| {
           if c.can_reach(&c.home_pos) {
             c.sleep();
           } else {
-            c.add_objective(Objective {
-              pos: c.home_pos,
-              intensity,
-              reason: String::from("low energy"),
-            });
+            c.add_objective(o);
           }
         });
     }
@@ -87,13 +89,17 @@ impl StepBehaviour for HomesickBehaviour {
 #[derive(Debug, Copy, Clone)]
 pub struct SatisfiedBehaviour;
 impl SatisfiedBehaviour {
-  fn how_homesick(&self, creature : &Creature) -> Option<ObjectiveIntensity> {
+  fn how_homesick(&self, creature : &Creature) -> Option<Objective> {
 
     match creature.foods_eaten {
       // if no food... keep going
       x if x == 0 => None,
       // if more than 1 foods... go home
-      x if x > 1 => Some(ObjectiveIntensity::MajorCraving),
+      x if x > 1 => Some(Objective {
+        pos: creature.home_pos,
+        intensity: ObjectiveIntensity::MajorCraving,
+        reason: String::from("satisfied"),
+      }),
       _ => HomesickBehaviour::how_homesick(&creature),
     }
   }
@@ -109,12 +115,8 @@ impl StepBehaviour for SatisfiedBehaviour {
           self.how_homesick(c)
             .map(|i| (c, i))
         )
-        .for_each(|(c, intensity)| {
-          c.add_objective(Objective {
-            pos: c.home_pos,
-            intensity,
-            reason: String::from("low energy"),
-          });
+        .for_each(|(c, o)| {
+          c.add_objective(o);
 
           if c.can_reach(&c.home_pos) {
             c.sleep();

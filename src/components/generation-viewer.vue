@@ -65,7 +65,7 @@
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
           v3-group(v-if="index === followCreatureIndex")
-            v3-dom(:position="[0, 1.5 * c.size[0], 0]")
+            v3-dom(:position="[0, 19, 0]")
               CreatureStatus(:creature="c")
             v3-group(:position="[-100, 50, 0]", ref="cameraGoal")
             v3-group(:position="[0, 30, 0]", ref="cameraFocusGoal")
