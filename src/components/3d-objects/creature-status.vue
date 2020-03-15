@@ -14,13 +14,13 @@
 <script>
 
 const ICONS = {
-  'wandering': 'search'
-  , 'low energy': 'low-energy'
-  , 'see food': 'food'
-  , 'see prey': 'chase'
-  , 'running away': 'run'
-  , 'satisfied': 'satisfied'
-  , 'reproduce': 'reproduce'
+  'wandering': require('@/assets/status-icons/search.svg')
+  , 'low energy': require('@/assets/status-icons/low-energy.svg')
+  , 'see food': require('@/assets/status-icons/food.svg')
+  , 'see prey': require('@/assets/status-icons/chase.svg')
+  , 'running away': require('@/assets/status-icons/run.svg')
+  , 'satisfied': require('@/assets/status-icons/satisfied.svg')
+  , 'reproduce': require('@/assets/status-icons/reproduce.svg')
 }
 
 export default {
@@ -57,8 +57,7 @@ export default {
   }
   , computed: {
     iconUrl(){
-      let icon = ICONS[this.status]
-      return require(`@/assets/status-icons/${icon}.svg`)
+      return ICONS[this.status]
     }
   }
   , methods: {

@@ -89,6 +89,7 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
     , home_pos: [0, 0]
     , movement_history: [[0, 0]]
     , status_history: []
+    , id: '00000000000000000000000000000000'
     , ...props
   }
 }

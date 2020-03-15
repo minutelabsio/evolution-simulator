@@ -20,6 +20,7 @@ nalgebra = { version = "0.18", features = ["serde-serialize"] }
 serde = "^1.0.59"
 serde_derive = "^1.0.59"
 rand = { version = "0.6.1", features = ["wasm-bindgen"] }
+uuid = { version = "0.8", features = ["serde", "v4", "wasm-bindgen"] }
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires

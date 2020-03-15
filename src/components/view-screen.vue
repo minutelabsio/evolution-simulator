@@ -24,8 +24,8 @@
       , :sight-indicators="showSightIndicator"
       , :speed-indicators="showSpeedIndicator"
       , :energy-indicators="showEnergyIndicator"
-      , :followCreatureIndex="followCreature ? followCreatureIndex : undefined"
-      , @tap-creature="followCreatureIndex = $event.index; followCreature = true"
+      , :followCreatureId="followCreature ? followCreatureId : undefined"
+      , @tap-creature="followCreatureId = $event.creature.id; followCreature = true"
     )
   .controls(v-show="!showConfig")
     .inner
@@ -59,6 +59,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import _findIndex from 'lodash/findIndex'
 import Copilot from 'copilot'
 import AudioScrubber from '@/components/audio-scrubber'
 import GenerationViewer from '@/components/generation-viewer'
@@ -85,7 +86,7 @@ export default {
     , showSpeedIndicator: false
     , showEnergyIndicator: false
     , followCreature: false
-    , followCreatureIndex: 0
+    , followCreatureId: 0
   })
   , components: {
     AudioScrubber
@@ -152,7 +153,14 @@ export default {
     , paused(){
       this.player.togglePause(this.paused)
     }
-    , generation(){
+    , generation(g){
+      let index = _findIndex(g.creatures, c => c.id === this.followCreatureId)
+
+      if ( index < 0 ){
+        this.followCreature = false
+        this.followCreatureId = null
+      }
+
       if (this._inactive) return
       this.paused = true
       if ( this.player ){

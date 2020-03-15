@@ -64,7 +64,7 @@
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
-          v3-group(v-if="index === followCreatureIndex")
+          v3-group(v-if="c.id === followCreatureId")
             v3-dom(:position="[0, 19, 0]")
               CreatureStatus(:creature="c")
             v3-group(:position="[-100, 50, 0]", ref="cameraGoal")
@@ -132,7 +132,7 @@ const computed = {
 }
 
 const watch = {
-  followCreatureIndex(){
+  followCreatureId(){
     this.checkFollowCreature()
   }
 }
@@ -185,13 +185,13 @@ const methods = {
     let goal = this.$refs.cameraGoal && this.$refs.cameraGoal[0]
     let focusGoal = this.$refs.cameraFocusGoal && this.$refs.cameraFocusGoal[0]
     if (!goal){ return }
-    // let creature = this.$refs.v3Creatures[this.followCreatureIndex]
+    // let creature = this.$refs.v3Creatures[this.followCreatureId]
     this.cameraGoal.setFromMatrixPosition(goal.v3object.matrixWorld)
     tmpV.setFromMatrixPosition(focusGoal.v3object.matrixWorld)
     this.cameraFocusGoal.lerp(tmpV, 0.05)
   }
   , checkFollowCreature(){
-    let active = this.followCreatureIndex !== undefined
+    let active = this.followCreatureId !== undefined
     // this.controls.enabled = !active
     this.transitionCamera = true
     if (!active){
@@ -215,7 +215,7 @@ const methods = {
     if (!intersects.length){ return }
     let blob = intersects[0].object
     let index = _findIndex(this.$refs.v3Creatures, c => c.v3object === blob.parent.parent)
-    let creature = this.$refs.v3Creatures[index]
+    let creature = this.generation.creatures[index]
     this.$emit('tap-creature', {creature, index})
   }
   , onHover: _throttle(function({ intersects }){
@@ -238,7 +238,7 @@ export default {
     , sightIndicators: Boolean
     , speedIndicators: Boolean
     , energyIndicators: Boolean
-    , followCreatureIndex: Number
+    , followCreatureId: String
   }
   , inject: [ 'getTime' ]
   , data: () => ({

@@ -1,6 +1,11 @@
 use crate::na::{Point2, Unit, Vector2};
 use std::cell::{RefMut};
 use rand::{rngs::SmallRng};
+use uuid::Uuid;
+
+fn get_uuid() -> Uuid {
+  Uuid::new_v4()
+}
 
 mod mutatable;
 use mutatable::*;
@@ -61,6 +66,7 @@ pub struct Objective {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
+  id : Uuid,
   // mutatable
   speed : PositiveNonZeroMutatable<f64>, // how far can it move in one step?
   size : PositiveNonZeroMutatable<f64>,
@@ -88,6 +94,7 @@ pub struct Creature {
 impl Creature {
   pub fn default( pos : &Point2<f64> ) -> Self {
     Creature {
+      id: get_uuid(),
       state: CreatureState::ACTIVE,
       speed: PositiveNonZeroMutatable(1.0, 1.),
       size: PositiveNonZeroMutatable(1.0, 1.),
@@ -114,6 +121,7 @@ impl Creature {
   //------------------
   pub fn with_new_position(&self, pos : &Point2<f64>) -> Self {
     let mut ret = self.clone();
+    ret.id = get_uuid();
     ret.pos = pos.clone();
     ret.home_pos = pos.clone();
     ret.movement_history = vec![pos.clone()];
@@ -139,6 +147,7 @@ impl Creature {
   // copy self, but increase age.
   pub fn grow_older(&self) -> Self {
     let Creature {
+      id,
       speed,
       size,
       sense_range,
@@ -150,6 +159,7 @@ impl Creature {
     } = *self;
 
     Creature {
+      id,
       speed,
       size,
       sense_range,
