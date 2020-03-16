@@ -31,7 +31,7 @@
         template(#before)
           .flower-timeline-spacer
         template(v-if="canContinue", #after)
-          b-button.btn-dark(@click="continueSimulation", v-if="!isLoading") Load More
+          b-button.btn-dark(@click="continueSimulation", :loading="isContinuing") Load More
           .flower-timeline-spacer
 </template>
 
@@ -67,7 +67,13 @@ export default {
   }
   , mounted(){
     this.$nextTick(() => {
-      this.run()
+      let idx = this.generationIndex
+      if (idx){
+        let max_generations = Math.max(idx + 1, this.config.max_generations)
+        this.$store.dispatch('simulation/setConfig', { max_generations })
+      }
+
+      this.run(false)
     })
   }
   , watch: {
@@ -130,19 +136,21 @@ export default {
     , ...mapGetters('simulation', {
       canContinue: 'canContinue'
       , isLoading: 'isLoading'
+      , isContinuing: 'isContinuing'
       , getCurrentGeneration: 'getCurrentGeneration'
       , generationIndex: 'currentGenerationIndex'
+      , config: 'config'
       , stats: 'statistics'
       , traits: 'traits'
       , traitColors: 'traitColors'
     })
   }
   , methods: {
-    run(){
-      this.$store.dispatch('simulation/run')
+    run(fresh){
+      return this.$store.dispatch('simulation/run', fresh)
     }
     , continueSimulation(){
-      this.$store.dispatch('simulation/continue')
+      return this.$store.dispatch('simulation/continue')
     }
     , loadGeneration(v){
       this.$store.dispatch('simulation/loadGeneration', v)

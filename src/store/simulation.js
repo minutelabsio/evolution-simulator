@@ -118,7 +118,7 @@ export const simulation = {
     , getTraitColors: () => (traits) => traits.map(k => traitColors[k])
   }
   , actions: {
-    async run({ state, dispatch, commit }) {
+    async run({ state, dispatch, commit, getters }, fresh = true) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
 
       commit('start', true)
@@ -134,7 +134,7 @@ export const simulation = {
         })
         commit('setStatistics', await worker.getStatistics())
 
-        await dispatch('loadGeneration', 0)
+        await dispatch('loadGeneration', fresh ? 0 : getters.currentGenerationIndex)
 
       } catch ( error ){
         dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
