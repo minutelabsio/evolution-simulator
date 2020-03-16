@@ -178,7 +178,7 @@ impl Creature {
   }
 
   pub fn get_size(&self) -> f64 { self.size.0 }
-  pub fn get_speed(&self) -> f64 { self.speed.0 }
+  pub fn get_speed(&self) -> f64 { self.speed.0 * self.size.0 / 10. }
   pub fn get_sense_range(&self) -> f64 { self.sense_range.0 }
   pub fn get_reach(&self) -> f64 { self.reach.0 }
   pub fn get_life_span(&self) -> f64 { self.life_span.0 }
