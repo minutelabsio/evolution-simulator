@@ -4,11 +4,11 @@
   .top-bar
     .logo
       img(src="@/assets/logo-dark.png")
-    router-link(:to="{ params: $route.params, name: 'viewscreen' }", exact)
+    router-link(:to="{ params: $route.params, name: 'viewscreen' }")
       span World
-    router-link(:to="{ params: $route.params, name: 'stats' }", exact)
+    router-link(:to="{ params: $route.params, name: 'stats' }")
       span Stats
-    router-link(:to="{ params: $route.params, query: { cfg: '1' } }", exact)
+    router-link(:to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
       span Settings
 
   .upper
