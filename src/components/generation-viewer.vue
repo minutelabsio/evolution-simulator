@@ -293,5 +293,6 @@ export default {
 
 <style lang="sass" scoped>
 .generation-viewer
+  max-width: 100vw
   background: #333333
 </style>

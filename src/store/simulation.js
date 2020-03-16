@@ -29,6 +29,8 @@ const DEFAULT_CREATURE_PROPS = {
 
 const initialState = {
   isBusy: false
+  , isRestarting: false
+  , isContinuing: false
   , startedAt: 0
   , computeTime: 0
 
@@ -98,7 +100,9 @@ export const simulation = {
   namespaced: true
   , state: initialState
   , getters: {
-    isLoading: state => state.isBusy
+    isLoading: state => state.isRestarting
+    , isContinuing: state => state.isContinuing
+    , isBusy: state => state.isBusy
     , canContinue: state => state.canContinue
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
@@ -117,7 +121,7 @@ export const simulation = {
     async run({ state, dispatch, commit }) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
 
-      commit('start')
+      commit('start', true)
       try {
         await worker.initSimulation(state.config, {
           count: state.creatureConfig.count | 0
@@ -150,7 +154,7 @@ export const simulation = {
         })
         commit('setStatistics', await worker.getStatistics())
 
-        await dispatch('loadGeneration', getters.currentGenerationIndex)
+        // await dispatch('loadGeneration', getters.currentGenerationIndex)
 
       } catch ( error ){
         dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
@@ -186,13 +190,17 @@ export const simulation = {
     }
   }
   , mutations: {
-    start(state){
+    start(state, isRestart){
       state.isBusy = true
+      state.isRestarting = !!isRestart
+      state.isContinuing = !isRestart
       state.computeTime = 0
       state.startedAt = performance.now()
     }
     , stop(state){
       state.isBusy = false
+      state.isRestarting = false
+      state.isContinuing = false
       state.computeTime = performance.now() - state.startedAt
       state.startedAt = 0
     }
