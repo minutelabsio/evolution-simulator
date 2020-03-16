@@ -54,7 +54,7 @@
               , direction="btt"
               , :contained="true"
             )
-    AudioScrubber(:progress="progress", @scrub="onScrub")
+    AudioScrubber(:progress="progress", @scrub="onScrub", @scrubstart="onScrubStart", @scrubend="onScrubEnd")
 </template>
 
 <script>
@@ -187,6 +187,13 @@ export default {
     }
     , onScrub(progress){
       this.updateTime(progress * this.totalTime / 100)
+    }
+    , onScrubStart(){
+      this.wasPaused = this.paused
+      this.paused = true
+    }
+    , onScrubEnd(){
+      this.paused = this.wasPaused
     }
     , loadGeneration(v){
       this.$store.dispatch('simulation/loadGeneration', v)
