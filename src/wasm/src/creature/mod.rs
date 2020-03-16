@@ -19,13 +19,17 @@ fn distance_to_line(r1 : &Point2<f64>, r2 : &Point2<f64>, p : &Point2<f64>) -> O
   // vector from the point to first point on line
   let pa = a - p;
   let pb = r2 - p;
+
+  let pa_dot_n = pa.dot(&n);
+  let pb_dot_n = pb.dot(&n);
+
   // this means we're outside the line segment
-  if pa.dot(&pb) > 0. {
+  if pa_dot_n * pb_dot_n > 0. {
     return None
   }
 
   // projection of pa onto the line
-  let z = pa.dot(&n) * n;
+  let z = pa_dot_n * n;
 
   let d = pa - z;
   Some(d.norm())
@@ -66,7 +70,7 @@ pub struct Objective {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
-  id : Uuid,
+  pub id : Uuid,
   // mutatable
   speed : PositiveNonZeroMutatable<f64>, // how far can it move in one step?
   size : PositiveNonZeroMutatable<f64>,
