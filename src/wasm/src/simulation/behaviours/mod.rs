@@ -351,6 +351,9 @@ impl StepBehaviour for CannibalismBehaviour {
   fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation){
     // Chase...
     if let Phase::ORIENT = phase {
+      use std::collections::HashMap;
+      let mut target_prey_speed = HashMap::new();
+
       self.for_pred_prey_pair(&mut generation.creatures, &mut |predator, prey| {
         if prey.within_flee_distance(&predator.get_position()) {
           let ang = sim.get_random_float(-FRAC_PI_4, FRAC_PI_4);
@@ -370,6 +373,15 @@ impl StepBehaviour for CannibalismBehaviour {
           // predator can't see prey
           return;
         }
+
+        if let Some(prev_speed) = target_prey_speed.get(&predator.id) {
+          if *prev_speed < prey.get_speed() {
+            // seeing many, so favour the one that's slower
+            return;
+          }
+        }
+
+        target_prey_speed.insert(predator.id, prey.get_speed());
 
         let intensity = match predator.foods_eaten {
           0 => ObjectiveIntensity::VitalCraving,
