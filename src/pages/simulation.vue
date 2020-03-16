@@ -19,6 +19,14 @@
     b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
     Drawer.legend-drawer(direction="right", :start-open="legendStartsOpen")
       Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
+    .floating-more-btn
+      b-field
+        p.control
+          b-tooltip(label="Run the simulation with a new random seed", position="is-left")
+            b-button.is-outlined.btn-dark(@click="shuffleSimulation", :loading="isContinuing", icon-right="dice-5")
+        p.control
+          b-tooltip(label="More Generations...", position="is-left")
+            b-button.is-outlined.btn-dark(@click="continueSimulation", :loading="isContinuing", icon-right="fast-forward")
     .generation-selector(:class="{ 'is-finished': !canContinue }")
       FlowerTimeline(
         v-model="genIndex"
@@ -31,7 +39,8 @@
         template(#before)
           .flower-timeline-spacer
         template(v-if="canContinue", #after)
-          b-button.btn-dark(@click="continueSimulation", :loading="isContinuing") Load More
+          .more-btn
+            b-button.btn-dark(@click="continueSimulation", :loading="isContinuing", size="is-large", icon-right="layers-plus")
           .flower-timeline-spacer
 </template>
 
@@ -152,6 +161,11 @@ export default {
     , continueSimulation(){
       return this.$store.dispatch('simulation/continue')
     }
+    , shuffleSimulation(){
+      let seed = (Math.random() * 1000) | 0
+      this.$store.dispatch('simulation/setConfig', { seed })
+      this.run()
+    }
     , loadGeneration(v){
       this.$store.dispatch('simulation/loadGeneration', v)
     }
@@ -261,7 +275,10 @@ export default {
     pointer-events: none
     >>> li
       pointer-events: all
-
+  .floating-more-btn
+    position: absolute
+    top: 0.5rem
+    right: 0.5rem
 .scale
   display: flex
   width: 120px
@@ -289,7 +306,7 @@ export default {
         left: 50%
         margin-left: -50px
         border: 50px solid transparent
-        border-color: transparent transparent transparentize($blue, 0.8) transparent
+        border-color: transparent transparent transparentize($primary, 0.8) transparent
   .flower-timeline-spacer
     flex: 0 0 auto
     width: calc(50vw - 50px)
@@ -305,4 +322,11 @@ export default {
     background-size: contain
     width: 120px
     flex: 0 0 auto
+.more-btn
+  display: flex
+  align-items: center
+  justify-content: center
+  min-width: 100px
+  .button
+    margin-top: -60px
 </style>

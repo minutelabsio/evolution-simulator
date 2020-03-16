@@ -50,7 +50,7 @@ export default {
 
 <style scoped lang="sass">
 $pending-color: $grey-darker
-$progress-color: $blue
+$progress-color: $primary
 .scrubber
   position: relative
   z-index: 1

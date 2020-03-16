@@ -115,7 +115,7 @@ export default {
     &:active,
     &.selected
       transition: none
-      background-color: transparentize($blue, 0.8)
+      background-color: transparentize($primary, 0.8)
   .gen-label
     margin-bottom: 1em
   >>>

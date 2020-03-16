@@ -155,7 +155,7 @@ export const simulation = {
 
       commit('start')
       try {
-        await worker.advanceSimulation(numGenerations || state.config.max_generations)
+        await worker.advanceSimulation((numGenerations | 0) || state.config.max_generations)
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })

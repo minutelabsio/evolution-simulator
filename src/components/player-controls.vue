@@ -166,7 +166,7 @@ export default {
     transition: 0.1s color ease
     &:active,
     &:hover
-      color: $blue
+      color: $primary
 
     &.disabled
       color: inherit
@@ -204,7 +204,7 @@ export default {
 
   &:active,
   &:hover
-    border-left-color: $blue
+    border-left-color: $primary
 
   .paused &
     border-style: solid

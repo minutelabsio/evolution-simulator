@@ -142,7 +142,7 @@ a:hover {
   }
   .active &,
   &.active {
-    color: $blue;
+    color: $primary;
   }
 }
 
@@ -158,13 +158,13 @@ a:hover {
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
-    background-color: mix($blue, $black-ter, 40);
+    background-color: mix($primary, $black-ter, 40);
   }
   &:hover::-webkit-scrollbar-thumb {
-    background-color: darken($blue, 10);
+    background-color: darken($primary, 10);
   }
   &::-webkit-scrollbar-thumb:hover {
-    background-color: $blue;
+    background-color: $primary;
   }
 }
 
