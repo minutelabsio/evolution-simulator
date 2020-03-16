@@ -120,7 +120,7 @@ export default {
   }
   , computed: {
     stepTime(){
-      return Math.pow(10, (1 - this.playbackSpeed/5)) * 100
+      return Math.pow(10, 1.5 * (1 - this.playbackSpeed/5)) * 100
     }
     , totalTime(){
       if ( !this.generation ){ return 1 }
