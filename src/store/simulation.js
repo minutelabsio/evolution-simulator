@@ -121,6 +121,9 @@ export const simulation = {
     async run({ state, dispatch, commit, getters }, fresh = true) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
 
+      let preload = fresh ? 1 : getters.currentGenerationIndex + 1
+      let postload = state.config.max_generations - preload
+
       commit('start', true)
       try {
         await worker.initSimulation(state.config, {
@@ -128,7 +131,7 @@ export const simulation = {
           , template: getCreatureTemplate(state.creatureConfig.template)
         })
 
-        await worker.advanceSimulation(state.config.max_generations)
+        await worker.advanceSimulation(preload)
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })
@@ -141,14 +144,18 @@ export const simulation = {
       } finally {
         commit('stop')
       }
+
+      if (postload) {
+        dispatch('continue', postload)
+      }
     }
-    , async continue({ state, getters, dispatch, commit }) {
+    , async continue({ state, getters, dispatch, commit }, numGenerations) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
       if ( !getters.canContinue ){ return Promise.reject(new Error('No Results')) }
 
       commit('start')
       try {
-        await worker.advanceSimulation(state.config.max_generations)
+        await worker.advanceSimulation(numGenerations || state.config.max_generations)
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })
