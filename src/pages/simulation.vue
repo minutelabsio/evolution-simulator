@@ -2,7 +2,7 @@
 .playground
   SimulationConfig.cfg.scrollbars(v-if="showConfig")
   .top-bar
-    .logo
+    a(href="https://minutelabs.io", target="_blank").logo
       img(src="@/assets/logo-dark.png")
     router-link(:to="{ params: $route.params, name: 'viewscreen' }")
       span World
