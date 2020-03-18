@@ -110,7 +110,7 @@ export const simulation = {
     , creatureCount: state => state.creatureConfig.count
     , getCurrentGeneration: state => state.getCurrentGeneration
     , currentGenerationIndex: (state, getters, rootState) =>
-      rootState.route ? +rootState.route.params.generationIndex - 1 : 0
+        rootState.route ? +rootState.route.params.generationIndex - 1 : 0
     , statistics: state => state.statistics
 
     , traits: state => getTraitsForPreset(state.config.preset.name)

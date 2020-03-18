@@ -192,7 +192,7 @@ export default {
   .slider
     display: flex
     align-items: center
-    width: 120px
+    width: 100px
     margin-left: calc(0.625em - 1px)
 
     &:before

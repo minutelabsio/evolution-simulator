@@ -222,7 +222,12 @@ const methods = {
     let renderer = this.renderer
     renderer.removeOutline()
     if (intersects.length){
-      renderer.addOutline( intersects[0].object )
+      let blob = intersects[0].object
+      let index = _findIndex(this.$refs.v3Creatures, c => c.v3object === blob.parent.parent)
+      let id = this.generation.creatures[index].id
+
+      renderer.addOutline( blob )
+      this.$emit('creature-hover', { index, id, creature: blob })
     }
   }, 100)
 }

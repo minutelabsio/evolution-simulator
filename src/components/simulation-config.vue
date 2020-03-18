@@ -19,12 +19,12 @@
         p ...and each creature will start with these properties
         .is-inline-block
           .number-input-group
-            NumberInput(v-model="speedValue", label="Speed", :min="0.01", :change-rate="10", :color="traitColors.speed")
-            NumberInput(v-model="sizeValue", label="Size", :min="0.01", :change-rate="10", :color="traitColors.size")
+            NumberInput(v-model="speedValue", label="Speed", :min="0.05", :change-rate="10", :color="traitColors.speed")
+            NumberInput(v-model="sizeValue", label="Size", :min="0.05", :change-rate="10", :color="traitColors.size")
             NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
   .content
     .has-text-centered
-      h2.title.is-size-4 Each day
+      h2.title.is-size-4 Each generation
     .columns
       .column.has-text-right-tablet.has-text-centered
         p Creatures will start with this much energy

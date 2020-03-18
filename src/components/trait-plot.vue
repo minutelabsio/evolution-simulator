@@ -40,7 +40,6 @@ export default {
         , scales: {
           xAxes: [{
             display: true
-            // , beginAtZero: true
             , ticks: {
               min: 1
               , fontColor: this.textColor

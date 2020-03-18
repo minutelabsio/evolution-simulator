@@ -3,7 +3,7 @@
   .top-controls(v-show="!showConfig")
     FloatingPanel(size="is-medium", :close-on-click="false")
       template(#activator)
-        b-icon.icon-btn(icon="feature-search", size="is-medium")
+        b-icon.icon-btn(icon="layers-search", size="is-medium")
       .item
         b-tooltip(label="Toggle sight range indicators", position="is-left")
           b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native.stop="showSightIndicator = !showSightIndicator")
@@ -14,7 +14,10 @@
         b-tooltip(label="Toggle energy indicators", position="is-left")
           b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native.stop="showEnergyIndicator = !showEnergyIndicator")
 
-    b-icon.icon-btn(:icon="followCreature ? 'video-account': 'video-image'", :class="{ active: followCreature }", size="is-medium", @click.native.stop="followCreature = !followCreature")
+    b-icon.icon-btn(icon="cctv", :class="{ active: followCreature }", size="is-medium", @click.native.stop="followCreature = !followCreature")
+
+    .under
+      CreatureFlowerChart(v-if="followCreature && followCreatureId", :id="followCreatureId")
 
   .screen
     b-loading.loading-cover(:is-full-page="false", :active="isLoading")
@@ -64,6 +67,7 @@ import Copilot from 'copilot'
 import AudioScrubber from '@/components/audio-scrubber'
 import GenerationViewer from '@/components/generation-viewer'
 import FloatingPanel from '@/components/floating-panel'
+import CreatureFlowerChart from '@/components/creature-flower-chart'
 
 export default {
   name: 'ViewScreen'
@@ -92,6 +96,7 @@ export default {
     AudioScrubber
     , GenerationViewer
     , FloatingPanel
+    , CreatureFlowerChart
   }
   , created(){
     this.player = Copilot.Player({ totalTime: 1 })
@@ -230,6 +235,7 @@ export default {
   top: 1.5rem
   right: 1.5rem
   z-index: 1
+  text-align: right
 
   > *
     &:not(:first-child)
@@ -247,6 +253,11 @@ export default {
   right: 0
   align-items: baseline
 
+  .left
+    position: absolute
+    left: 1.5rem
+    bottom: 1.5rem
+    z-index: 1
   .right
     position: absolute
     right: 1.5rem
