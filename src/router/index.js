@@ -1,3 +1,4 @@
+import _get from 'lodash/get'
 import Vue from 'vue'
 import Router from 'vue-router'
 import PlayerUI from '@/pages/player-ui'
@@ -23,7 +24,7 @@ export default new Router({
       path: '/'
       , name: 'home'
       , component: PlayerUI
-      , redirect: { name: 'simulation' }
+      , redirect: { name: 'viewscreen', params: { generationIndex: 1 } }
       , meta: {
         // music: {
         //   maxVolume: 0.7
@@ -46,15 +47,21 @@ export default new Router({
       ]
     }
     , {
-      path: '/s/:generationIndex?'
+      path: '/s/:generationIndex'
       , name: 'simulation'
-      , redirect: { name: 'viewscreen' }
+      , redirect: (route) => ({
+          name: 'viewscreen'
+          , params: {
+            generationIndex: +_get(route, 'params.generationIndex', 1)
+          }
+          , append: true
+        })
       , component: Simulation
       , props(route){
         return {
           ...route.params
           , showConfig: !!route.query.cfg
-          , generationIndex: +route.params.generationIndex
+          , generationIndex: route.params.generationIndex
         }
       }
       , children: [
@@ -79,7 +86,7 @@ export default new Router({
     }
     , {
       path: '*'
-      , redirect: { name: 'viewscreen' }
+      , redirect: { name: 'viewscreen', params: { generationIndex: 1 } }
     }
   ]
 })
