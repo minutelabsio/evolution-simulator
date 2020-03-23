@@ -1,7 +1,7 @@
 <template lang="pug">
 .config
-  //- a.close(@click="close")
-  //-   b-icon(icon="close-circle-outline", size="is-large")
+  a.close(@click="close")
+    b-icon(icon="close-circle-outline", size="is-large")
 
   .content.has-text-centered
     h1.title.is-size-3 Simulation Settings

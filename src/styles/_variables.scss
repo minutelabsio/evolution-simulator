@@ -81,7 +81,7 @@ $lightBrown: #643D37;
 $grey: #5f5e55;
 
 
-$primary: $blue;
+$primary: darken($blue, 6);
 $link:    $blue;
 $info:    $cyan;
 $success: $green;

@@ -8,7 +8,9 @@
       span World
     router-link(:to="{ params: $route.params, name: 'stats' }")
       span Stats
-    router-link(:to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
+
+  .center-bar
+    router-link.button.is-primary.is-rounded(v-if="!showConfig", :to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
       span Settings
 
   .upper
@@ -203,7 +205,8 @@ export default {
   padding-top: 6rem
   overflow: auto
 
-.top-bar
+.top-bar,
+.center-bar
   position: absolute
   top: 1.25em
   left: 1.75em
@@ -215,11 +218,13 @@ export default {
   align-items: center
   // background: #333
   // border-radius: 0 0 3px 0
-  backdrop-filter: blur(2px)
+  // backdrop-filter: blur(2px)
   > *
     pointer-events: all
     margin-right: 1rem
     text-shadow: 0 0 3px #333
+
+.top-bar
   .logo
     margin-right: 0.75rem
     overflow: hidden
@@ -234,6 +239,19 @@ export default {
     &.router-link-active,
     &:hover
       color: $grey-lighter
+
+.center-bar
+  left: 50%
+  transform: translateX(-50%)
+  .button
+    font-size: 1rem
+    margin-right: 0
+
+  @media screen and (max-width: $tablet)
+    left: auto
+    right: 1rem
+    transform: none
+
 .config-link
   position: absolute
   top: 1.5rem
