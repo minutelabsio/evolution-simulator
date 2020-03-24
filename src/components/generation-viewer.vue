@@ -37,9 +37,12 @@
       v3-camera(
         ref="camera"
         , :position="persCameraPos"
+        , prevent-update
         , :far="5000"
         , :aspect="viewWidth / viewHeight"
       )
+        v3-dom(:position="[0, 0, -100]")
+          TourSteps
       v3-light(type="ambient", :intensity="0.9")
       v3-light(
         type="directional"
@@ -57,8 +60,6 @@
         , :position="[10, 200, 100]"
       )
       v3-fog(:near="1000", :far="3000", :color="0xc9d7e6")
-      v3-dom
-        TourSteps
 
       //- Board
       fadeTransition
