@@ -1,54 +1,59 @@
 <template lang="pug">
 .playground
   SimulationConfig.cfg.scrollbars(v-if="showConfig")
-  .top-bar
-    a(href="https://minutelabs.io", target="_blank").logo
-      img(src="@/assets/logo-dark.png")
-    router-link(:to="{ params: $route.params, name: 'viewscreen' }")
-      span World
-    router-link(:to="{ params: $route.params, name: 'stats' }")
-      span Stats
+  transition(name="slide-down", appear)
+    .top-bar(v-if="!showIntro")
+      a(href="https://minutelabs.io", target="_blank").logo
+        img(src="@/assets/logo-dark.png")
+      router-link(:to="{ name: 'about' }")
+        span About
+      router-link(:to="{ params: $route.params, name: 'viewscreen' }")
+        span World
+      router-link(:to="{ params: $route.params, name: 'stats' }")
+        span Trends
 
-  .center-bar
-    router-link.button.is-primary.is-rounded(v-if="!showConfig", :to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
-      span Settings
+  transition(name="slide-down", appear)
+    .center-bar(v-if="!showIntro")
+      router-link.button.is-primary.is-rounded(v-if="!showConfig", :to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
+        span Settings
 
   .upper
     keep-alive(includes="ViewScreen")
       router-view
 
-  .bottom-drawer
-    .floating-more-btn
-      b-field
-        p.control
-          b-tooltip(label="Run the simulation with a new random seed", position="is-left")
-            b-button.is-outlined.btn-dark(@click="shuffleSimulation", :loading="isContinuing", icon-right="dice-5")
-        p.control
-          b-tooltip(label="More Generations...", position="is-left")
-            b-button.is-outlined.btn-dark(@click="continueSimulation", :loading="isContinuing", icon-right="layers-plus")
-        p.control
-          b-tooltip(label="Toggle Drawer", position="is-left")
-            b-button.is-outlined.btn-dark(@click="showBottomDrawer = !showBottomDrawer", :icon-right="showBottomDrawer ? 'menu-down' : 'menu-up'")
-    transition(name="collapse")
-      .bottom-drawer-content(v-if="showBottomDrawer")
-        b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
-        Drawer.legend-drawer(direction="right", :start-open="legendStartsOpen")
-          Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
-        .generation-selector(:class="{ 'is-finished': !canContinue }")
-          FlowerTimeline(
-            v-model="genIndex"
-            , :data="flowerTimelineData"
-            , :data-ranges="flowerRanges"
-            , :colors="flowerColors"
-            , :topPetal="topPetal"
-            , @dataSelect="genIndex === $event.generation && propertySelect($event.selected.index)"
-          )
-            template(#before)
-              .flower-timeline-spacer
-            template(v-if="canContinue", #after)
-              .more-btn
-                b-button.btn-dark(@click="continueSimulation", :loading="isContinuing", size="is-large", icon-right="layers-plus")
-              .flower-timeline-spacer
+  transition(name="bottom-drawer-slide", appear)
+    .bottom-drawer(v-if="!showIntro")
+      .floating-more-btn
+        b-field
+          p.control
+            b-tooltip(label="Run the simulation with a new random seed", position="is-left")
+              b-button.is-outlined.btn-dark(@click="shuffleSimulation", :loading="isContinuing", icon-right="dice-5")
+          p.control
+            b-tooltip(label="More Generations...", position="is-left")
+              b-button.is-outlined.btn-dark(@click="continueSimulation", :loading="isContinuing", icon-right="layers-plus")
+          p.control
+            b-tooltip(label="Toggle Drawer", position="is-left")
+              b-button.is-outlined.btn-dark(@click="showBottomDrawer = !showBottomDrawer", :icon-right="showBottomDrawer ? 'menu-down' : 'menu-up'")
+      transition(name="collapse")
+        .bottom-drawer-content(v-if="showBottomDrawer")
+          b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
+          Drawer.legend-drawer(direction="right", :start-open="legendStartsOpen")
+            Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
+          .generation-selector(:class="{ 'is-finished': !canContinue }")
+            FlowerTimeline(
+              v-model="genIndex"
+              , :data="flowerTimelineData"
+              , :data-ranges="flowerRanges"
+              , :colors="flowerColors"
+              , :topPetal="topPetal"
+              , @dataSelect="genIndex === $event.generation && propertySelect($event.selected.index)"
+            )
+              template(#before)
+                .flower-timeline-spacer
+              template(v-if="canContinue", #after)
+                .more-btn
+                  b-button.btn-dark(@click="continueSimulation", :loading="isContinuing", size="is-large", icon-right="layers-plus")
+                .flower-timeline-spacer
 </template>
 
 <script>
@@ -65,6 +70,7 @@ export default {
   name: 'Simulation'
   , props: {
     showConfig: Boolean
+    , showIntro: Number
   }
   , components: {
     FlowerChart
@@ -242,8 +248,10 @@ export default {
 
 .center-bar
   left: 50%
-  transform: translateX(-50%)
+  > *
+    transform: translateX(-50%)
   .button
+    text-transform: lowercase
     font-size: 1rem
     margin-right: 0
 
@@ -389,4 +397,9 @@ export default {
   min-width: 100px
   .button
     margin-top: -60px
+
+.bottom-drawer-slide-enter-active, .bottom-drawer-slide-leave-active
+  transition: margin-bottom 0.3s ease
+.bottom-drawer-slide-enter, .bottom-drawer-slide-leave-to
+  margin-bottom: -256px
 </style>

@@ -20,6 +20,8 @@ export default {
   flex-direction: row
   flex-wrap: wrap
   padding-left: 2em
+  font-family: $family-monospace
+  font-size: 0.95rem
   li:not(:last-child)
     display: flex
     align-items: center

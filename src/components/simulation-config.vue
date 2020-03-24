@@ -72,7 +72,7 @@
             NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :change-rate="10")
             NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
         b-field
-          b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Run!
+          b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
 
   br
   .content

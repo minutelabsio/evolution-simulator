@@ -26,6 +26,14 @@
       //-   , :position="orthCameraPos"
       //-   , :look-at="origin"
       //- )
+
+      //- v3-grid(
+      //-   :size="gridSize - 10"
+      //-   , :position="[0, 0.01, 0]",
+      //-   , :divisions="50"
+      //-   , :color1="0x999999"
+      //-   , :color2="0x999999"
+      //- )
       v3-camera(
         ref="camera"
         , :position="persCameraPos"
@@ -48,18 +56,17 @@
         , :intensity="0.05"
         , :position="[10, 200, 100]"
       )
-      v3-fog(:near="1000", :far="3000", :color="0xFFFFFF")
-      //- v3-grid(
-      //-   :size="gridSize - 10"
-      //-   , :position="[0, 0.01, 0]",
-      //-   , :divisions="50"
-      //-   , :color1="0x999999"
-      //-   , :color2="0x999999"
-      //- )
+      v3-fog(:near="1000", :far="3000", :color="0xc9d7e6")
+      v3-dom
+        TourSteps
+
       //- Board
-      v3-plane(:width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
-      //- Thick board undernieth
-      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      fadeTransition
+        v3-plane(v-if="generation", :width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      fadeTransition
+        //- Thick board undernieth
+        v3-box(v-if="generation", :width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
@@ -79,6 +86,7 @@ import * as THREE from 'three'
 import _throttle from 'lodash/throttle'
 import _findIndex from 'lodash/findIndex'
 import v3Renderer from '@/components/three-vue/v3-renderer'
+import fadeTransition from '@/components/three-vue/fade.transition'
 import Gestures from '@/components/three-vue/gestures'
 import v3Scene from '@/components/three-vue/v3-scene'
 import v3Camera from '@/components/three-vue/v3-camera'
@@ -92,10 +100,12 @@ import v3Fog from '@/components/three-vue/v3-fog'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 import CreatureStatus from '@/components/3d-objects/creature-status'
+import TourSteps from '@/components/tour-steps'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const components = {
   v3Renderer
+  , fadeTransition
   , Gestures
   , v3Scene
   , v3Camera
@@ -110,6 +120,7 @@ const components = {
   , Food
   , Creature
   , CreatureStatus
+  , TourSteps
 }
 
 const computed = {
@@ -299,5 +310,5 @@ export default {
 <style lang="sass" scoped>
 .generation-viewer
   max-width: 100vw
-  background: #333333
+  background: $grey-darker
 </style>

@@ -4,7 +4,7 @@ import sougy from '@/config/sougy-colors'
 import chroma from 'chroma-js'
 
 const foodSize = 2
-const foodColor = chroma(sougy.green).darken(0.8).num()
+const foodColor = chroma(sougy.green).darken(1).saturate(0.2).num()
 
 export default {
   name: 'food'

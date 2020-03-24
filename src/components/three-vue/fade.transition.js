@@ -5,6 +5,12 @@ import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 export default {
   name: 'fade-transtion'
   , mixins: [ THREEObjectMixin ]
+  , props: {
+    duration: {
+      type: Number
+      , default: 1000
+    }
+  }
   , created(){
     this.v3object = new THREE.Object3D()
   }
@@ -55,7 +61,7 @@ export default {
     }
     , fade( fadeIn, done ){
       const threeVue = this.threeVue
-      const duration = 1000
+      const duration = this.duration
       const startTime = Copilot.Util.now()
       const endTime = startTime + duration
       const fn = Copilot.Interpolators.Linear

@@ -1,5 +1,7 @@
 = TODO =
 
+FOOD INDICATORS
+
 predators should chase slower prey
 
 creature trails

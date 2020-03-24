@@ -18,13 +18,24 @@ import ViewScreen from '@/components/view-screen'
 
 Vue.use(Router)
 
-export default new Router({
+let shownIntro = false
+
+const parseProps = (route) => {
+  return {
+    ...route.params
+    , showConfig: !!route.query.cfg
+    , showIntro: route.query.intro | 0
+    , generationIndex: route.params.generationIndex
+  }
+}
+
+const router = new Router({
   routes: [
     {
       path: '/'
       , name: 'home'
       , component: PlayerUI
-      , redirect: { name: 'viewscreen', params: { generationIndex: 1 } }
+      , redirect: { name: 'viewscreen', params: { generationIndex: 1, intro: 1 } }
       , meta: {
         // music: {
         //   maxVolume: 0.7
@@ -57,19 +68,21 @@ export default new Router({
           , append: true
         })
       , component: Simulation
-      , props(route){
-        return {
-          ...route.params
-          , showConfig: !!route.query.cfg
-          , generationIndex: route.params.generationIndex
-        }
-      }
+      , props: parseProps
       , children: [
         {
           path: 'viewer'
           , name: 'viewscreen'
           , component: ViewScreen
-          , props: true
+          , props: parseProps
+          , beforeEnter(to, from, next) {
+            if (shownIntro){
+              return next()
+            }
+
+            shownIntro = true
+            next({ ...to, query: { intro: 1 }, append: true, replace: true })
+          }
         }
         , {
           path: 'stats'
@@ -90,3 +103,5 @@ export default new Router({
     }
   ]
 })
+
+export default router

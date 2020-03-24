@@ -1,28 +1,30 @@
 <template lang="pug">
 .viewer
-  .top-controls(v-show="!showConfig")
-    FloatingPanel(size="is-medium", :close-on-click="false")
-      template(#activator)
-        b-icon.icon-btn(icon="layers-search", size="is-medium")
-      .item
-        b-tooltip(label="Toggle sight range indicators", position="is-left")
-          b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native.stop="showSightIndicator = !showSightIndicator")
-      .item
-        b-tooltip(label="Toggle speed indicators", position="is-left")
-          b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
-      .item
-        b-tooltip(label="Toggle energy indicators", position="is-left")
-          b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native.stop="showEnergyIndicator = !showEnergyIndicator")
+  transition(name="slide-down", appear, @after-enter="fixLayout", @after-leave="fixLayout")
+    .top-controls(v-show="!showConfig && !showIntro")
+      FloatingPanel(size="is-medium", :close-on-click="false")
+        template(#activator)
+          b-icon.icon-btn(icon="layers-search", size="is-medium")
+        .item
+          b-tooltip(label="Toggle sight range indicators", position="is-left")
+            b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native.stop="showSightIndicator = !showSightIndicator")
+        .item
+          b-tooltip(label="Toggle speed indicators", position="is-left")
+            b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
+        .item
+          b-tooltip(label="Toggle energy indicators", position="is-left")
+            b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native.stop="showEnergyIndicator = !showEnergyIndicator")
 
-    b-icon.icon-btn(icon="cctv", :class="{ active: followCreature }", size="is-medium", @click.native.stop="followCreature = !followCreature")
+      b-icon.icon-btn(icon="cctv", :class="{ active: followCreature }", size="is-medium", @click.native.stop="followCreature = !followCreature")
 
-    .under
-      CreatureFlowerChart(v-if="followCreature && followCreatureId", :id="followCreatureId")
+      .under
+        CreatureFlowerChart(v-if="followCreature && followCreatureId", :id="followCreatureId")
 
   .screen
-    b-loading.loading-cover(:is-full-page="false", :active="isLoading")
+    b-loading.loading-cover(:is-full-page="false", :active="!showIntro && isLoading")
     GenerationViewer(
-      :generation-index="genIndex"
+      ref="generationViewer"
+      , :generation-index="genIndex"
       , :step-time="stepTime"
       , :sight-indicators="showSightIndicator"
       , :speed-indicators="showSpeedIndicator"
@@ -30,34 +32,36 @@
       , :followCreatureId="followCreature ? followCreatureId : undefined"
       , @tap-creature="followCreatureId = $event.creature.id; followCreature = true"
     )
-  .controls(v-show="!showConfig")
-    .inner
-      b-field.extras(grouped, position="is-centered", :class="{ active: playthrough }")
-        b-field
-          b-icon.icon-btn(title="play through", icon="redo", @click.native="playthrough = !playthrough")
-      b-field(grouped, position="is-centered")
-        b-field
-          b-icon.icon-btn(icon="chevron-left", size="is-large", @click.native="prevGeneration()")
-        b-field
-          b-icon.icon-btn(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
-        b-field
-          b-icon.icon-btn(icon="chevron-right", size="is-large", @click.native="nextGeneration()")
+  transition(name="fade", appear)
+    .controls(v-if="!showIntro", v-show="!showConfig")
+      .inner
+        b-field.extras(grouped, position="is-centered", :class="{ active: playthrough }")
+          b-field
+            b-tooltip(:label="'Playthrough ' + (playthrough ? '(is on)' : '(is off)')", position="is-top")
+              b-icon.icon-btn(title="play through", size="is-medium", icon="transfer-right", @click.native="playthrough = !playthrough")
+        b-field(grouped, position="is-centered")
+          b-field
+            b-icon.icon-btn(icon="chevron-left", size="is-large", @click.native="prevGeneration()")
+          b-field
+            b-icon.icon-btn(:icon="paused ? 'play' : 'pause'", size="is-large", @click.native="togglePlay()")
+          b-field
+            b-icon.icon-btn(icon="chevron-right", size="is-large", @click.native="nextGeneration()")
 
-      .right
-        FloatingPanel(size="is-medium", direction="up", :close-on-click="false")
-          template(#activator)
-            b-icon.icon-btn(icon="clock-fast", size="is-medium")
-          .item
-            vue-slider(
-              v-model="playbackSpeed"
-              , :min="1"
-              , :max="10"
-              , :interval="1"
-              , :height="200"
-              , direction="btt"
-              , :contained="true"
-            )
-    AudioScrubber(:progress="progress", @scrub="onScrub", @scrubstart="onScrubStart", @scrubend="onScrubEnd")
+        .right
+          FloatingPanel(size="is-medium", direction="up", :close-on-click="false")
+            template(#activator)
+              b-icon.icon-btn(icon="clock-fast", size="is-medium")
+            .item
+              vue-slider(
+                v-model="playbackSpeed"
+                , :min="1"
+                , :max="10"
+                , :interval="1"
+                , :height="200"
+                , direction="btt"
+                , :contained="true"
+              )
+      AudioScrubber(:progress="progress", @scrub="onScrub", @scrubstart="onScrubStart", @scrubend="onScrubEnd")
 </template>
 
 <script>
@@ -73,6 +77,7 @@ export default {
   name: 'ViewScreen'
   , props: {
     showConfig: Boolean
+    , showIntro: Number
   }
   , provide(){
     const self = this
@@ -83,7 +88,7 @@ export default {
   }
   , data: () => ({
     paused: true
-    , playthrough: true
+    , playthrough: false
     , playbackSpeed: 5
     , progress: 0
     , showSightIndicator: false
@@ -167,10 +172,12 @@ export default {
       }
 
       if (this._inactive) return
+
       this.paused = true
       if ( this.player ){
         this.player.seek(0)
       }
+      if (!this.playthrough) return
       setTimeout(() => {
         this.paused = false
       }, 500)
@@ -212,6 +219,12 @@ export default {
       if ( !this.generation ){ return }
       if ( this.genIndex >= this.stats.num_generations - 1 ){ return }
       this.genIndex += 1
+    }
+    , fixLayout(){
+      let viewer = this.$refs.generationViewer
+      if ( viewer ){
+        viewer.onResize()
+      }
     }
   }
 }

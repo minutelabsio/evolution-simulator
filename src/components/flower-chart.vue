@@ -228,7 +228,7 @@ circle
   stroke: #222
 circle.outer
   stroke-width: 0.01
-  stroke: rgba(160, 160, 160, 0.1)
+  stroke: rgb(43, 43, 43)
 .center
   cursor: pointer
   text
