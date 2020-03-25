@@ -283,7 +283,7 @@ const methods = {
     }, {
       id: 'step-2'
       , time: '6s'
-      , duration: '5s'
+      , duration: '100%'
     })
 
     this.tourActive = false
