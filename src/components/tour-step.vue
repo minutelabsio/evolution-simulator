@@ -62,7 +62,7 @@ export default {
 .tour-step
   max-width: 480px
   pointer-events: all
-  background: transparentize($background, 0.03)
+  background: transparentize($background, 0)
   border-radius: 4px
   padding: 1.61rem
   box-shadow: 0px 0px 4px transparentize($primary, 0.8)

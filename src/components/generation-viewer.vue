@@ -63,14 +63,14 @@
 
       //- Board
       fadeTransition
-        v3-plane(v-if="generation", :width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+        v3-plane(v-if="showWorld", :width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
       fadeTransition
         //- Thick board undernieth
-        v3-box(v-if="generation", :width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+        v3-box(v-if="showWorld", :width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
 
-      v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+      v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
-      v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+      v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
           v3-group(v-if="c.id === followCreatureId")
             v3-dom(:position="[0, 19, 0]")
@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import Copilot from 'copilot'
 import { mapGetters } from 'vuex'
 import chroma from 'chroma-js'
 import sougy from '@/config/sougy-colors'
@@ -141,6 +142,9 @@ const computed = {
   , tourStepNumber(){
     return this.$route.query.intro | 0
   }
+  , showWorld(){
+    return this.generation && !this.hideStage
+  }
   , ...mapGetters('simulation', {
     'getCurrentGeneration': 'getCurrentGeneration'
   })
@@ -174,7 +178,7 @@ const methods = {
     controls.dampingFactor = 0.1
     controls.minZoom = 1
     controls.maxZoom = 500
-    controls.maxDistance = 2500
+    controls.maxDistance = 4000
     let epsilon = 0.001
     controls.minPolarAngle = epsilon
     controls.maxPolarAngle = Math.PI - epsilon
@@ -189,10 +193,12 @@ const methods = {
   }
   , draw(){
     this.followCreature()
-    if ( this.transitionCamera && !this.cameraDragging ){
-      this.camera.position.lerp(this.cameraGoal, 0.05)
+    if (!this.tourActive){
+      if ( this.transitionCamera && !this.cameraDragging ){
+        this.camera.position.lerp(this.cameraGoal, 0.05)
+      }
+      this.controls.target.copy(this.cameraFocusGoal)
     }
-    this.controls.target.copy(this.cameraFocusGoal)
     this.controls.update()
     this.$refs.renderer.draw()
   }
@@ -245,6 +251,102 @@ const methods = {
       this.$emit('creature-hover', { index, id, creature: blob })
     }
   }, 100)
+  , initTour(){
+    let frames = Copilot({
+      cameraPosition: {
+        type: 'Vector3'
+        , default: new THREE.Vector3(0, 4000, 300)
+        , easing: Copilot.Easing.Quadratic.InOut
+      }
+      , cameraRotation: {
+        type: 'Vector3'
+        , default: new THREE.Vector3(0, 0, 0)
+      }
+      , hideStage: false
+    })
+
+    frames.add({}, {
+      id: 'step-1'
+      , time: 0
+    })
+
+    frames.add({
+      hideStage: false
+    }, {
+      time: 1
+      , duration: 1
+    })
+
+    // step 1
+    frames.add({
+      cameraPosition: new THREE.Vector3().fromArray(this.persCameraPos)
+    }, {
+      id: 'step-2'
+      , time: '6s'
+      , duration: '5s'
+    })
+
+    this.tourActive = false
+    let player = Copilot.Player({ totalTime: frames.totalTime })
+
+    player.on('update', () => {
+      frames.seek(player.time)
+    })
+
+    frames.on('update', () => {
+      if (!this.tourActive){return}
+      let state = frames.state
+      // console.log(state.cameraPosition)
+      this.camera.position.copy(state.cameraPosition)
+      this.hideStage = state.hideStage
+    })
+
+    let playToTime = 0
+    player.on('playback', () => {
+      let time = player.time
+      let pb = player.playbackRate
+
+      if (
+        pb * time >= playToTime * pb
+      ){
+        player.togglePause(true)
+        player.seek(playToTime)
+      }
+    })
+
+    const playTo = (t) => {
+      playToTime = t
+      player.playbackRate = t >= player.time ? 1 : -1
+      if (player.time === t){
+        player.seek(t)
+        return
+      }
+      player.togglePause(false)
+    }
+
+    this.$watch('tourStepNumber', (n) => {
+      if (!n){
+        player.seek(player.totalTime)
+        this.tourActive = false
+        this.controls.enabled = true
+        return
+      }
+
+      this.tourActive = true
+      this.controls.enabled = false
+
+      let f = frames.getFrame('step-' + n)
+      if (!f){ return }
+
+      playTo(f.meta.time)
+    }, { immediate: true })
+
+    this.$on('hook:beforeDestroy', () => {
+      player.togglePause(true)
+      player.off(true)
+      frames.off(true)
+    })
+  }
 }
 
 export default {
@@ -280,6 +382,7 @@ export default {
     , cameraFocusGoal: new THREE.Vector3()
     , interactiveObjects: ['blob']
     , highlightColor: chroma(sougy.red).num()
+    , hideStage: false
   })
   , components
   , computed
@@ -292,6 +395,7 @@ export default {
     this.$onResize(() => this.onResize())
     this.onResize()
     this.initCamera()
+    this.initTour()
     // this.debug()
     this.checkFollowCreature()
 
