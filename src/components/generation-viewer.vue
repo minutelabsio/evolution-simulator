@@ -42,7 +42,7 @@
         , :aspect="viewWidth / viewHeight"
       )
         v3-dom(:position="[0, 0, -100]")
-          TourSteps
+          Tour
       v3-light(type="ambient", :intensity="0.9")
       v3-light(
         type="directional"
@@ -101,7 +101,7 @@ import v3Fog from '@/components/three-vue/v3-fog'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 import CreatureStatus from '@/components/3d-objects/creature-status'
-import TourSteps from '@/components/tour-steps'
+import Tour from '@/components/tour'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const components = {
@@ -121,7 +121,7 @@ const components = {
   , Food
   , Creature
   , CreatureStatus
-  , TourSteps
+  , Tour
 }
 
 const computed = {
@@ -137,6 +137,9 @@ const computed = {
       , showSpeedIndicator: this.speedIndicators
       , showEnergyIndicator: this.energyIndicators
     }
+  }
+  , tourStepNumber(){
+    return this.$route.query.intro | 0
   }
   , ...mapGetters('simulation', {
     'getCurrentGeneration': 'getCurrentGeneration'

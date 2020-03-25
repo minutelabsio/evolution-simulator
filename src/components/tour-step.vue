@@ -65,6 +65,7 @@ export default {
   background: transparentize($background, 0.03)
   border-radius: 4px
   padding: 1.61rem
+  box-shadow: 0px 0px 4px transparentize($primary, 0.8)
 
 .content
   line-height: 1.2
