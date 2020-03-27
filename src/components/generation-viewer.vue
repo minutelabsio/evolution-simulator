@@ -287,11 +287,7 @@ const methods = {
     })
 
     this.tourActive = false
-    let player = Copilot.Player({ totalTime: frames.totalTime })
-
-    player.on('update', () => {
-      frames.seek(player.time)
-    })
+    let player = Copilot.Player({ manager: frames })
 
     frames.on('update', () => {
       if (!this.tourActive){return}
@@ -300,29 +296,6 @@ const methods = {
       this.camera.position.copy(state.cameraPosition)
       this.hideStage = state.hideStage
     })
-
-    let playToTime = 0
-    player.on('playback', () => {
-      let time = player.time
-      let pb = player.playbackRate
-
-      if (
-        pb * time >= playToTime * pb
-      ){
-        player.togglePause(true)
-        player.seek(playToTime)
-      }
-    })
-
-    const playTo = (t) => {
-      playToTime = t
-      player.playbackRate = t >= player.time ? 1 : -1
-      if (player.time === t){
-        player.seek(t)
-        return
-      }
-      player.togglePause(false)
-    }
 
     this.$watch('tourStepNumber', (n) => {
       if (!n){
@@ -338,12 +311,11 @@ const methods = {
       let f = frames.getFrame('step-' + n)
       if (!f){ return }
 
-      playTo(f.meta.time)
+      player.playTo(f.meta.time)
     }, { immediate: true })
 
     this.$on('hook:beforeDestroy', () => {
-      player.togglePause(true)
-      player.off(true)
+      player.destroy()
       frames.off(true)
     })
   }
