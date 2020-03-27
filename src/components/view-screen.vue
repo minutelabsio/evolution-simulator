@@ -111,7 +111,7 @@ export default {
   }
   , beforeDestroy(){
     this.player.togglePause(true)
-    this.player.off(true)
+    this.player.destroy()
   }
   , mounted(){
     this.player.on('update', () => {
@@ -147,6 +147,9 @@ export default {
         this.loadGeneration(v)
       }
     }
+    , tourStepNumber(){
+      return this.$route.query.intro | 0
+    }
     , ...mapGetters('simulation', {
       getCurrentGeneration: 'getCurrentGeneration'
       , generationIndex: 'currentGenerationIndex'
@@ -159,6 +162,39 @@ export default {
       let p = this.player.time / this.player.totalTime
       this.player.totalTime = this.totalTime
       this.player.time = this.totalTime * p
+    }
+    , tourStepNumber(step, oldStep){
+      if (step >= 2){
+        this.playthrough = true
+        this.playbackSpeed = 2
+        this.paused = false
+      } else {
+        this.playthrough = true
+        this.playbackSpeed = 5
+        this.genIndex = 0
+        this.paused = true
+        if (oldStep > 0 && !step){
+          this.paused = false
+        }
+      }
+
+      if (step === 2){
+        this.genIndex = 0
+      }
+
+      if (step === 3){
+        this.genIndex = 0
+        this.followCreatureId = this.generation.creatures[2].id
+      }
+
+      if (step === 4){
+        this.genIndex = 0
+        this.showEnergyIndicator = true
+      } else {
+        this.showEnergyIndicator = false
+      }
+
+      this.followCreature = step === 3
     }
     , paused(){
       this.player.togglePause(this.paused)

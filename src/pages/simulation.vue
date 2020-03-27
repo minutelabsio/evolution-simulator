@@ -13,7 +13,7 @@
         span Trends
 
   transition(name="slide-down", appear)
-    .center-bar(v-if="!showIntro")
+    .center-bar(v-if="!showIntro || tourStepNumber === 6")
       router-link.button.is-primary.is-rounded(v-if="!showConfig", :to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
         span Settings
 
@@ -103,7 +103,10 @@ export default {
 
   }
   , computed: {
-    flowerColors(){
+    tourStepNumber(){
+      return this.$route.query.intro | 0
+    }
+    , flowerColors(){
       return {
         center: traitColors.population
         , petals: this.traitColors

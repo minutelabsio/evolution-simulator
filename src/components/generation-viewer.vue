@@ -193,12 +193,11 @@ const methods = {
   }
   , draw(){
     this.followCreature()
-    if (!this.tourActive){
-      if ( this.transitionCamera && !this.cameraDragging ){
-        this.camera.position.lerp(this.cameraGoal, 0.05)
-      }
-      this.controls.target.copy(this.cameraFocusGoal)
+    if ( this.transitionCamera && !this.cameraDragging ){
+      this.camera.position.lerp(this.cameraGoal, 0.05)
     }
+    this.controls.target.copy(this.cameraFocusGoal)
+
     this.controls.update()
     this.$refs.renderer.draw()
   }
@@ -214,13 +213,14 @@ const methods = {
   , checkFollowCreature(){
     let active = this.followCreatureId !== undefined
     // this.controls.enabled = !active
-    this.transitionCamera = true
     if (!active){
       this.cameraGoal.fromArray(this.persCameraPos)
       this.cameraFocusGoal.copy(this.scene.position)
       setTimeout(() => {
         this.transitionCamera = false
       }, 1500)
+    } else {
+      this.transitionCamera = true
     }
   }
   , onResize(){
@@ -270,20 +270,15 @@ const methods = {
       , time: 0
     })
 
-    frames.add({
-      hideStage: false
-    }, {
-      time: 1
-      , duration: 1
-    })
+    // frames.add({ hideStage: false }, { time: 1, duration: 1 })
 
     // step 1
     frames.add({
       cameraPosition: new THREE.Vector3().fromArray(this.persCameraPos)
     }, {
       id: 'step-2'
-      , time: '6s'
-      , duration: '100%'
+      , time: '5s'
+      , duration: '5s'
     })
 
     this.tourActive = false
@@ -292,8 +287,10 @@ const methods = {
     frames.on('update', () => {
       if (!this.tourActive){return}
       let state = frames.state
-      // console.log(state.cameraPosition)
-      this.camera.position.copy(state.cameraPosition)
+
+      if (!this.transitionCamera){
+        this.camera.position.copy(state.cameraPosition)
+      }
       this.hideStage = state.hideStage
     })
 
@@ -367,9 +364,9 @@ export default {
     this.$onResize(() => this.onResize())
     this.onResize()
     this.initCamera()
-    this.initTour()
     // this.debug()
     this.checkFollowCreature()
+    this.initTour()
 
     // Initialize drawing
     let stop = false
