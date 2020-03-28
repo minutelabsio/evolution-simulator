@@ -236,9 +236,9 @@ export default {
       if (this.showFoodIndicator){
         let foods = this.creature.foods_eaten
         let foodIndicators = this.foodIndicators.children
-        for (let i = 0, l = foods.length; i < l; i++){
+        for (let i = 0, l = foodIndicators.length; i < l; i++){
           let f = foods[i]
-          foodIndicators[i].visible = f[0] < stepFrac
+          foodIndicators[i].visible = f && (f[0] < stepFrac)
         }
       }
     })

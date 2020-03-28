@@ -170,7 +170,7 @@ const methods = {
     // controls
     let controls = this.controls = new OrbitControls( camera, renderer.domElement )
     controls.rotateSpeed = 0.2
-    controls.zoomSpeed = 1
+    controls.zoomSpeed = 0.5
     controls.panSpeed = 0.8
     controls.enableZoom = true
     controls.enablePan = false
