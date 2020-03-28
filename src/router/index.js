@@ -26,6 +26,7 @@ const parseProps = (route) => {
     , showConfig: !!route.query.cfg
     , showIntro: route.query.intro | 0
     , generationIndex: route.params.generationIndex
+    , hideControls: route.name === 'about'
   }
 }
 
@@ -90,12 +91,12 @@ const router = new Router({
           , component: SimulationStatistics
           , props: true
         }
+        , {
+          path: 'about'
+          , name: 'about'
+          , component: About
+        }
       ]
-    }
-    , {
-      path: '/about'
-      , name: 'about'
-      , component: About
     }
     , {
       path: '*'

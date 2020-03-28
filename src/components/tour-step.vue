@@ -5,7 +5,7 @@
 
   .controls
     slot(name="controls", :skip="skip", :next="next", :back="back")
-      .level
+      .level.is-mobile
         .level-left
           b-field(v-if="!isLast")
             p.control

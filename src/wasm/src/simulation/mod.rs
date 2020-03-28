@@ -4,6 +4,7 @@ use std::cell::{RefCell};
 use std::rc::Rc;
 use rand::{SeedableRng, Rng, rngs::SmallRng};
 use rand::distributions::{Normal, Distribution};
+use uuid::Uuid;
 use crate::creature::*;
 use crate::stage::*;
 // use crate::timer::Timer;
@@ -12,6 +13,8 @@ pub mod behaviours;
 
 // just to prevent infinite loops
 const MAX_STEPS : usize = 1_000_000;
+
+pub type Step = usize;
 
 // what phase of the time step is it?
 #[derive(Debug, Copy, Clone)]
@@ -140,19 +143,37 @@ pub enum FoodStatus {
   Eaten(usize), // step the food was eaten at
 }
 
+pub trait Edible {
+  fn get_edible_id(&self) -> Uuid;
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Food {
-  position: Point2<f64>,
-  status: FoodStatus,
+  pub id : Uuid,
+  pub position: Point2<f64>,
+  pub status: FoodStatus,
 }
 impl Food {
+  pub fn new(position: Point2<f64>) -> Self {
+    Self {
+      id: Uuid::new_v4(),
+      position,
+      status: FoodStatus::Available
+    }
+  }
   pub fn is_eaten(&self) -> bool { self.status != FoodStatus::Available }
+}
+
+impl Edible for Food {
+  fn get_edible_id(&self) -> Uuid {
+    self.id
+  }
 }
 
 // Each generation of the simulation. A collection of creatures
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Generation {
-  pub steps : usize, // total steps this generation took to complete
+  pub steps : Step, // total steps this generation took to complete
   pub creatures : Vec<Creature>,
   pub food : Vec<Food>, // tuple showing the step the food was eaten
 }
@@ -165,10 +186,7 @@ impl Generation {
 
   fn generate(sim : &Simulation, creatures: Vec<Creature>, food_locations: Vec<Point2<f64>>) -> Self {
     let food = food_locations.iter().map(|p| {
-      Food {
-        position: *p,
-        status: FoodStatus::Available,
-      }
+      Food::new(*p)
     }).collect();
 
     let mut gen = Generation {

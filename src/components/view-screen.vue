@@ -8,12 +8,15 @@
         .item
           b-tooltip(label="Toggle sight range indicators", position="is-left")
             b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native.stop="showSightIndicator = !showSightIndicator")
-        .item
-          b-tooltip(label="Toggle speed indicators", position="is-left")
-            b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
+        //- .item
+        //-   b-tooltip(label="Toggle speed indicators", position="is-left")
+        //-     b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
         .item
           b-tooltip(label="Toggle energy indicators", position="is-left")
             b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native.stop="showEnergyIndicator = !showEnergyIndicator")
+        .item
+          b-tooltip(label="Toggle food indicators", position="is-left")
+            b-icon.icon-btn(icon="silverware-fork-knife", size="is-medium", :class="{ active: showFoodIndicator }", @click.native.stop="showFoodIndicator = !showFoodIndicator")
 
       b-icon.icon-btn(icon="cctv", :class="{ active: followCreature }", size="is-medium", @click.native.stop="followCreature = !followCreature")
 
@@ -29,6 +32,7 @@
       , :sight-indicators="showSightIndicator"
       , :speed-indicators="showSpeedIndicator"
       , :energy-indicators="showEnergyIndicator"
+      , :food-indicators="showFoodIndicator"
       , :followCreatureId="followCreature ? followCreatureId : undefined"
       , @tap-creature="followCreatureId = $event.creature.id; followCreature = true"
     )
@@ -94,6 +98,7 @@ export default {
     , showSightIndicator: false
     , showSpeedIndicator: false
     , showEnergyIndicator: false
+    , showFoodIndicator: false
     , followCreature: false
     , followCreatureId: 0
   })
@@ -169,11 +174,11 @@ export default {
         this.playbackSpeed = 2
         this.paused = false
       } else {
-        this.playthrough = true
         this.playbackSpeed = 5
-        this.genIndex = 0
         this.paused = true
-        if (oldStep > 0 && !step){
+        if (oldStep > 1 && !step){
+          this.playthrough = true
+          this.genIndex = 0
           this.paused = false
         }
       }

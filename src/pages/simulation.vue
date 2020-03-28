@@ -13,7 +13,7 @@
         span Trends
 
   transition(name="slide-down", appear)
-    .center-bar(v-if="!showIntro || tourStepNumber === 6")
+    .center-bar(v-if="!hideControls && !showIntro || tourStepNumber === 6")
       router-link.button.is-primary.is-rounded(v-if="!showConfig", :to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
         span Settings
 
@@ -22,7 +22,7 @@
       router-view
 
   transition(name="bottom-drawer-slide", appear)
-    .bottom-drawer(v-if="!showIntro")
+    .bottom-drawer(v-if="!hideControls && !showIntro")
       .floating-more-btn
         b-field
           p.control
@@ -71,6 +71,7 @@ export default {
   , props: {
     showConfig: Boolean
     , showIntro: Number
+    , hideControls: Boolean
   }
   , components: {
     FlowerChart
@@ -96,7 +97,9 @@ export default {
         this.$store.dispatch('simulation/setConfig', { max_generations })
       }
 
-      this.run(false)
+      if (!this.generation){
+        this.run(false)
+      }
     })
   }
   , watch: {
@@ -231,7 +234,7 @@ export default {
   > *
     pointer-events: all
     margin-right: 1rem
-    text-shadow: 0 0 3px #333
+    text-shadow: 0 0 1px $grey-darker
 
 .top-bar
   .logo
@@ -259,9 +262,10 @@ export default {
     margin-right: 0
 
   @media screen and (max-width: $tablet)
-    left: auto
-    right: 1rem
-    transform: none
+    left: 2rem
+    top: 4.5rem
+    > *
+      transform: none
 
 .config-link
   position: absolute

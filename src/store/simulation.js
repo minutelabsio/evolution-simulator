@@ -83,7 +83,7 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
 
   return {
     state: 'ACTIVE'
-    , foods_eaten: 0
+    , foods_eaten: []
     , age: 0
     , energy_consumed: 0
     // gets overridden

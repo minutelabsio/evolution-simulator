@@ -106,6 +106,18 @@ export default {
     // })
 
     this.v3object = light
+
+    this.registerDisposables({
+      dispose: () => {
+        if (!this.v3object.shadow){ return }
+        if (this.v3object.shadow.map){
+          this.v3object.shadow.map.dispose()
+        }
+        if (this.v3object.shadow.mapPass){
+          this.v3object.shadow.mapPass.dispose()
+        }
+      }
+    })
   }
   , watch: {
     target( val ){

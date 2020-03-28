@@ -137,6 +137,7 @@ const computed = {
       showSightIndicator: this.sightIndicators
       , showSpeedIndicator: this.speedIndicators
       , showEnergyIndicator: this.energyIndicators
+      , showFoodIndicator: this.foodIndicators
     }
   }
   , tourStepNumber(){
@@ -329,6 +330,7 @@ export default {
     , sightIndicators: Boolean
     , speedIndicators: Boolean
     , energyIndicators: Boolean
+    , foodIndicators: Boolean
     , followCreatureId: String
   }
   , inject: [ 'getTime' ]

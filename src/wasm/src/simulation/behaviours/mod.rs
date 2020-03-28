@@ -91,7 +91,7 @@ pub struct SatisfiedBehaviour;
 impl SatisfiedBehaviour {
   fn how_homesick(&self, creature : &Creature) -> Option<Objective> {
 
-    match creature.foods_eaten {
+    match creature.foods_eaten.len() {
       // if no food... keep going
       x if x == 0 => None,
       // if more than 1 foods... go home
@@ -159,7 +159,7 @@ impl ScavengeBehaviour {
       if creature.can_see(&food.position) {
 
         // how hungry is it?
-        let intensity = match creature.foods_eaten {
+        let intensity = match creature.foods_eaten.len() {
           0 => ObjectiveIntensity::VitalCraving,
           1 => ObjectiveIntensity::ModerateCraving,
           _ => ObjectiveIntensity::MinorCraving,
@@ -220,7 +220,7 @@ impl StepBehaviour for ScavengeBehaviour {
         let creature = &mut generation.creatures[index];
         if creature.is_alive() {
           if let Some(food) = self.try_find_food(creature, &available_food) {
-            creature.eat_food();
+            creature.eat_food(generation.steps, &food);
             generation.mark_food_eaten(&food);
             let index = available_food.iter().position(|f| *f == food).unwrap();
             available_food.remove(index);
@@ -236,7 +236,7 @@ impl StepBehaviour for ScavengeBehaviour {
 pub struct StarveBehaviour;
 impl StarveBehaviour {
   fn check_starvation(&self, creature : &mut Creature){
-    if creature.foods_eaten < 1 {
+    if creature.foods_eaten.len() < 1 {
       creature.kill();
     }
   }
@@ -383,7 +383,7 @@ impl StepBehaviour for CannibalismBehaviour {
 
         target_prey_speed.insert(predator.id, prey.get_speed());
 
-        let intensity = match predator.foods_eaten {
+        let intensity = match predator.foods_eaten.len() {
           0 => ObjectiveIntensity::VitalCraving,
           1 => ObjectiveIntensity::ModerateCraving,
           _ => ObjectiveIntensity::MinorCraving,
@@ -400,11 +400,12 @@ impl StepBehaviour for CannibalismBehaviour {
 
     // Eat...
     if let Phase::ACT = phase {
+      let steps = generation.steps;
       self.for_pred_prey_pair(&mut generation.creatures, &mut |predator, prey| {
         if !predator.can_reach(&prey.get_position()) { return }
 
         // now we can canibalize
-        predator.eat_food();
+        predator.eat_food(steps, prey);
         prey.kill();
       });
     }

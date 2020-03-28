@@ -1,3 +1,6 @@
+use crate::simulation::Edible;
+use crate::simulation::Step;
+use crate::simulation::Food;
 use crate::na::{Point2, Unit, Vector2};
 use std::cell::{RefMut};
 use rand::{rngs::SmallRng};
@@ -80,7 +83,7 @@ pub struct Creature {
   life_span: PositiveNonZeroMutatable<f64>,
 
   // other
-  pub foods_eaten : u32,
+  pub foods_eaten : Vec<(Step, Uuid)>,
   pub energy : f64,
   pub energy_consumed: f64,
   pub age : u32,
@@ -93,6 +96,12 @@ pub struct Creature {
 
   state : CreatureState,
   objective: Option<Objective>
+}
+
+impl Edible for Creature {
+  fn get_edible_id(&self) -> Uuid {
+    self.id
+  }
 }
 
 impl Creature {
@@ -108,7 +117,7 @@ impl Creature {
       life_span: PositiveNonZeroMutatable(1.0, 1.0),
       energy: 500.0,
 
-      foods_eaten: 0,
+      foods_eaten: vec![],
       energy_consumed: 0.0,
 
       age: 0,
@@ -263,8 +272,8 @@ impl Creature {
     self.objective = None;
   }
 
-  pub fn eat_food(&mut self){
-    self.foods_eaten += 1;
+  pub fn eat_food(&mut self, step: Step, food: &dyn Edible){
+    self.foods_eaten.push((step, food.get_edible_id()))
   }
 
   pub fn sleep(&mut self){

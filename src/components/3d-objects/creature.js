@@ -60,15 +60,15 @@ function createBlobCreatureParts(){
   left.position.set(size * x, size / 4.2, -size / 30)
   left.rotation.set(0.6, 0.6, 0)
 
-  let rightDead = makeDeadEye(size / 40)
+  let rightDead = makeDeadEye(size / 35)
   rightDead.name = 'right-dead-eye'
-  rightDead.position.set(size * x, size / 4.2, size / 25)
-  rightDead.rotation.set(-0.8, -0.7, -0.35)
+  rightDead.position.set(size * x + 0.25, size / 4.2, size / 28)
+  rightDead.rotation.set(-1, -0.4, -0.35)
 
-  let leftDead = makeDeadEye(size / 40)
+  let leftDead = makeDeadEye(size / 35)
   leftDead.name = 'left-dead-eye'
-  leftDead.position.set(size * x, size / 4.2, -size / 25)
-  leftDead.rotation.set(0.8, 0.7, -0.35)
+  leftDead.position.set(size * x + 0.25, size / 4.2, -size / 28)
+  leftDead.rotation.set(1, 0.4, -0.35)
 
   return [blob, left, right, rightDead, leftDead]
 }
@@ -76,7 +76,7 @@ function createBlobCreatureParts(){
 const cachedBlobParts = createBlobCreatureParts()
 
 const createBlob = () => cachedBlobParts.reduce(
-  (group, part) => group.add(part.clone(false))
+  (group, part) => group.add(part.clone(true))
   , new THREE.Group()
 )
 
@@ -102,6 +102,16 @@ const cachedEnergyCircle = (() => {
   c.rotation.x = -Math.PI / 2
   // c.position.y = 0.06
   c.material.depthWrite = false
+  c.material.transparent = true
+  // c.material.blending = THREE.MultiplyBlending
+  return c
+})()
+
+const cachedFoodIndicator = (() => {
+  let foodColor = chroma(sougy.green).darken(0.4).saturate(0.2).num()
+  let c = createCircle(0.8, foodColor)
+  c.rotation.x = -Math.PI / 2
+  // c.material.depthWrite = false
   c.material.transparent = true
   // c.material.blending = THREE.MultiplyBlending
   return c
@@ -173,6 +183,7 @@ export default {
     , showSightIndicator: Boolean
     , showSpeedIndicator: Boolean
     , showEnergyIndicator: Boolean
+    , showFoodIndicator: Boolean
   }
   , components: {
   }
@@ -215,9 +226,21 @@ export default {
       this.leftDeadEye.visible = deadState
 
       // energy color
-      let energyColor = getEnergyColor(this.creature, t)
-      this.energyIndicator.material.color.set(energyColor.num())
-      this.energyIndicator.material.opacity = energyColor.alpha()
+      if (this.showEnergyIndicator){
+        let energyColor = getEnergyColor(this.creature, t)
+        this.energyIndicator.material.color.set(energyColor.num())
+        this.energyIndicator.material.opacity = energyColor.alpha()
+      }
+
+      // food indicator
+      if (this.showFoodIndicator){
+        let foods = this.creature.foods_eaten
+        let foodIndicators = this.foodIndicators.children
+        for (let i = 0, l = foods.length; i < l; i++){
+          let f = foods[i]
+          foodIndicators[i].visible = f[0] < stepFrac
+        }
+      }
     })
   }
   , methods: {
@@ -231,7 +254,7 @@ export default {
       blob.material = blob.material.clone()
       this.blobMaterial = blob.material
       this.blobMaterial.transparent = true
-      this.registerDisposables(blob.material)
+      this.registerDisposables(this.creatureObject, true)
 
       this.leftEye = this.creatureObject.getObjectByName('left-eye')
       this.rightEye = this.creatureObject.getObjectByName('right-eye')
@@ -252,6 +275,20 @@ export default {
       let speedIndicator = this.speedIndicator = getSpeedIndicator() //cachedSpeedIndicator.clone(false)
       speedIndicator.position.set(9, 0.05, 0)
       this.v3object.add(speedIndicator)
+
+      let foodIndicators = this.foodIndicators = new THREE.Group()
+      foodIndicators.position.set(0, 0.2, 0)
+      this.v3object.add(foodIndicators)
+
+      this.$watch('creature', () => {
+        let foodsEaten = this.creature.foods_eaten.length
+        // if we need more food
+        for (let i = foodIndicators.children.length; i < foodsEaten; i++){
+          let f = cachedFoodIndicator.clone(false)
+          f.position.set(0, 0, 4).applyAxisAngle(new THREE.Vector3(0, 1, 0), -0.6 * i)
+          foodIndicators.add(f)
+        }
+      }, { immediate: true })
 
       // const scene = this.threeVue.scene
       // let light = this.light = new THREE.SpotLight( 0xFFFFFF, 1, 0, Math.PI / 24 )
@@ -297,9 +334,10 @@ export default {
       }
 
       let scale = this.creature.size[0] / 10
-      this.v3object.scale.set(scale, scale, scale)
+      this.creatureObject.scale.set(scale, scale, scale)
 
       this.energyIndicator.visible = this.showEnergyIndicator
+      this.foodIndicators.visible = this.showFoodIndicator
     }
   }
 }

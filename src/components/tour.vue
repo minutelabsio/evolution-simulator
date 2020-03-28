@@ -9,7 +9,7 @@
     p.
       Before we dive into the deep end, let's take a little look around...
     template(#controls="props")
-      .level
+      .level.is-mobile
         .level-left
           b-field
             b-button.is-text.skip(@click="props.skip") skip
