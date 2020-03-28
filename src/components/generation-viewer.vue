@@ -291,6 +291,15 @@ const methods = {
       , duration: '5s'
     })
 
+    frames.add({
+      tourPosition: [0, 0, -100]
+    }, {
+      id: 'step-6'
+      , time: '6s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
     this.tourActive = false
     let player = Copilot.Player({ manager: frames })
 
@@ -317,7 +326,10 @@ const methods = {
       this.controls.enabled = false
 
       let f = frames.getFrame('step-' + n)
-      if (!f){ return }
+      while (!f && n > 0){
+        n--
+        f = frames.getFrame('step-' + n)
+      }
 
       player.playTo(f.meta.time)
     }, { immediate: true })
