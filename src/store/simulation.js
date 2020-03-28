@@ -13,7 +13,7 @@ const worker = createWorker()
 //   , { name: 'StarveBehaviour' }
 // ]
 
-function getTraitsForPreset(name){
+function getTraitsForPreset(){
   return [ 'age', 'speed', 'size', 'sense_range' ]
 }
 
