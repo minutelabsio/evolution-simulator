@@ -84,8 +84,19 @@ export default {
       // abstract
     }
 
-    , registerDisposables( thing ){
+    , registerDisposables( thing, deep ){
       if ( !thing || this.disposables.indexOf(thing) > -1 ){ return this }
+      if ( deep ){
+        if ( thing.children ){
+          this.registerDisposables(thing.children, deep)
+        }
+        if ( thing.material ){
+          this.registerDisposables(thing.material, deep)
+        }
+        if ( thing.geometry ){
+          this.registerDisposables(thing.material, deep)
+        }
+      }
       if ( thing.dispose ){
         this.disposables.push( thing )
 
@@ -95,7 +106,7 @@ export default {
       } else if ( Array.isArray( thing ) ){
 
         for ( let th of thing ){
-          this.registerDisposables( th )
+          this.registerDisposables( th, deep )
         }
       }
 
