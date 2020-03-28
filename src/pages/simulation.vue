@@ -19,9 +19,9 @@
 
   .upper
     keep-alive(includes="ViewScreen")
-      router-view
+      router-view(ref="view")
 
-  transition(name="bottom-drawer-slide", appear)
+  transition(name="bottom-drawer-slide", appear, @after-appear="fixLayout", @after-enter="fixLayout", @after-leave="fixLayout")
     .bottom-drawer(v-if="!hideControls && !showIntro")
       .floating-more-btn
         b-field
@@ -192,6 +192,12 @@ export default {
     , propertySelect(index){
       if ( index !== undefined && index < this.traits.length ){
         this.topPetal = index
+      }
+    }
+    , fixLayout(){
+      let view = this.$refs.view
+      if (view.fixLayout){
+        view.fixLayout()
       }
     }
   }

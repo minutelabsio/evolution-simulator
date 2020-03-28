@@ -1,3 +1,5 @@
 {
-  "repo": "evolution-simulator"
+  "repo": "evolution-simulator",
+  "title": "Evolution Simulator",
+  "description": "Watch little blob creatures evolve under natural selection!"
 }
