@@ -285,6 +285,7 @@ export default {
         // if we need more food
         for (let i = foodIndicators.children.length; i < foodsEaten; i++){
           let f = cachedFoodIndicator.clone(false)
+          f.visible = false
           f.position.set(0, 0, 4).applyAxisAngle(new THREE.Vector3(0, 1, 0), -0.6 * i)
           foodIndicators.add(f)
         }
