@@ -41,7 +41,7 @@
         , :far="5000"
         , :aspect="viewWidth / viewHeight"
       )
-        v3-dom(:position="[0, 0, -100]")
+        v3-dom(ref="tour", :position="tourPosition")
           Tour
       v3-light(type="ambient", :intensity="0.9")
       v3-light(
@@ -264,6 +264,7 @@ const methods = {
         , default: new THREE.Vector3(0, 0, 0)
       }
       , hideStage: false
+      , tourPosition: [0, 0, -100]
     })
 
     frames.add({}, {
@@ -272,6 +273,14 @@ const methods = {
     })
 
     // frames.add({ hideStage: false }, { time: 1, duration: 1 })
+
+    frames.add({
+      tourPosition: [0, 25, -100]
+    }, {
+      time: '1s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
 
     // step 1
     frames.add({
@@ -293,6 +302,7 @@ const methods = {
         this.camera.position.copy(state.cameraPosition)
       }
       this.hideStage = state.hideStage
+      this.tourPosition = state.tourPosition
     })
 
     this.$watch('tourStepNumber', (n) => {
@@ -354,6 +364,7 @@ export default {
     , interactiveObjects: ['blob']
     , highlightColor: chroma(sougy.red).num()
     , hideStage: false
+    , tourPosition: [0, 0, -100]
   })
   , components
   , computed
