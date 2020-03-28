@@ -6,6 +6,8 @@ import chroma from 'chroma-js'
 const foodSize = 2
 const foodColor = chroma(sougy.green).darken(1).saturate(0.2).num()
 
+const foodGeometry = new THREE.SphereGeometry( foodSize, 64, 64 )
+
 export default {
   name: 'food'
   , mixins: [ THREEObjectMixin ]
@@ -17,31 +19,33 @@ export default {
   })
   , watch: {
     food(){
-      this.v3object.material.opacity = 0
+      this.foodObject.material.opacity = 0
     }
   }
   , created(){
     this.beforeDraw(() => {
       let step = this.getStep()
       let isEaten = step >= this.food.status.Eaten
-      this.v3object.visible = !isEaten
+      this.foodObject.visible = !isEaten
 
-      let material = this.v3object.material
+      let material = this.foodObject.material
       material.opacity = THREE.Math.lerp(material.opacity, 1, 0.1)
       // this.v3object.material.opacity = isEaten ? 0.2 : 1
     })
   }
   , methods: {
     createObject(){
-      let material = new THREE.MeshLambertMaterial({
+      this.v3object = new THREE.Group()
+      const foodMaterial = new THREE.MeshLambertMaterial({
         transparent: true
         , opacity: 0
+        , color: foodColor
       })
-      let geometry = new THREE.SphereGeometry( foodSize, 64, 64 )
-      this.v3object = new THREE.Mesh( geometry, material )
+      this.registerDisposables(foodMaterial)
+      this.foodObject = new THREE.Mesh( foodGeometry, foodMaterial )
+      this.v3object.add(this.foodObject)
     }
     , updateObjects(){
-      this.v3object.material.color = new THREE.Color(foodColor)
       let pos = this.food.position
       this.v3object.position.set(pos[0], foodSize + 0.2, pos[1])
     }
