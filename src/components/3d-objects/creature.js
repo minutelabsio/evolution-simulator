@@ -55,7 +55,7 @@ function createBlobCreatureParts(){
   right.position.set(size * x, size / 4.2, size / 30)
   right.rotation.set(-0.6, -0.6, 0)
 
-  let left = makeEye(size / 85)
+  let left = right.clone() //makeEye(size / 85)
   left.name = 'left-eye'
   left.position.set(size * x, size / 4.2, -size / 30)
   left.rotation.set(0.6, 0.6, 0)
@@ -65,7 +65,7 @@ function createBlobCreatureParts(){
   rightDead.position.set(size * x + 0.25, size / 4.2, size / 28)
   rightDead.rotation.set(-1, -0.4, -0.35)
 
-  let leftDead = makeDeadEye(size / 35)
+  let leftDead = rightDead.clone() //makeDeadEye(size / 35)
   leftDead.name = 'left-dead-eye'
   leftDead.position.set(size * x + 0.25, size / 4.2, -size / 28)
   leftDead.rotation.set(1, 0.4, -0.35)
@@ -254,7 +254,7 @@ export default {
       blob.material = blob.material.clone()
       this.blobMaterial = blob.material
       this.blobMaterial.transparent = true
-      this.registerDisposables(this.creatureObject, true)
+      this.registerDisposables(this.creatureObject.material)
 
       this.leftEye = this.creatureObject.getObjectByName('left-eye')
       this.rightEye = this.creatureObject.getObjectByName('right-eye')
@@ -269,7 +269,7 @@ export default {
       // energy indicator (geometry reused)
       let energyIndicator = this.energyIndicator = cachedEnergyCircle.clone(false)
       energyIndicator.material = cachedEnergyCircle.material.clone()
-      this.registerDisposables([ energyIndicator, energyIndicator.material ])
+      this.registerDisposables([ energyIndicator.material ])
       this.v3object.add(energyIndicator)
 
       let speedIndicator = this.speedIndicator = getSpeedIndicator() //cachedSpeedIndicator.clone(false)

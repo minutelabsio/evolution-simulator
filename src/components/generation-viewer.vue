@@ -47,7 +47,7 @@
       v3-light(type="ambient", :intensity="0.9")
       v3-light(
         type="directional"
-        , :intensity="0.2"
+        , :intensity="0.25"
         , :position="[100, 200, -10]"
         , :cast-shadow="true"
         , :shadow-camera="shadowCamera"
