@@ -38,7 +38,8 @@
         ref="camera"
         , :position="persCameraPos"
         , prevent-update
-        , :far="5000"
+        , :far="4500"
+        , :near="1"
         , :aspect="viewWidth / viewHeight"
       )
         v3-dom(ref="tour", :position="tourPosition")
@@ -46,18 +47,13 @@
       v3-light(type="ambient", :intensity="0.9")
       v3-light(
         type="directional"
-        , :intensity="0.3"
+        , :intensity="0.2"
         , :position="[100, 200, -10]"
         , :cast-shadow="true"
         , :shadow-camera="shadowCamera"
         , :shadow-bias="0.0001"
         , :shadow-radius="0"
-        , :shadow-map-size-power="4"
-      )
-      v3-light(
-        type="directional"
-        , :intensity="0.05"
-        , :position="[10, 200, 100]"
+        , :shadow-map-size-power="2"
       )
       v3-fog(:near="1000", :far="3000", :color="0xc9d7e6")
 
@@ -364,12 +360,12 @@ export default {
     , persCameraPos: [600, 300, 600]
     , orthCameraPos: [100, 50, 100]
     , shadowCamera: {
-      near: 10
-      , far: 500
-      , left: -300
-      , right: 300
-      , top: 300
-      , bottom: -300
+      near: 100
+      , far: 380
+      , left: -280
+      , right: 280
+      , top: 280
+      , bottom: -280
     }
     , cameraGoal: new THREE.Vector3()
     , cameraFocusGoal: new THREE.Vector3()

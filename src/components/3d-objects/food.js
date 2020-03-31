@@ -7,6 +7,11 @@ const foodSize = 2
 const foodColor = chroma(sougy.green).darken(1).saturate(0.2).num()
 
 const foodGeometry = new THREE.SphereGeometry( foodSize, 64, 64 )
+const foodMaterial = new THREE.MeshLambertMaterial({
+  transparent: true
+  , opacity: 0
+  , color: foodColor
+})
 
 export default {
   name: 'food'
@@ -19,31 +24,24 @@ export default {
   })
   , watch: {
     food(){
-      this.foodObject.material.opacity = 0
+      this.v3object.material.opacity = 0
     }
   }
   , created(){
     this.beforeDraw(() => {
       let step = this.getStep()
       let isEaten = step >= this.food.status.Eaten
-      this.foodObject.visible = !isEaten
+      this.v3object.visible = !isEaten
 
-      let material = this.foodObject.material
+      let material = this.v3object.material
       material.opacity = THREE.Math.lerp(material.opacity, 1, 0.1)
       // this.v3object.material.opacity = isEaten ? 0.2 : 1
     })
   }
   , methods: {
     createObject(){
-      this.v3object = new THREE.Group()
-      const foodMaterial = new THREE.MeshLambertMaterial({
-        transparent: true
-        , opacity: 0
-        , color: foodColor
-      })
-      this.registerDisposables(foodMaterial)
-      this.foodObject = new THREE.Mesh( foodGeometry, foodMaterial )
-      this.v3object.add(this.foodObject)
+      this.v3object = new THREE.Mesh( foodGeometry, foodMaterial )
+      this.autoClean = false
     }
     , updateObjects(){
       let pos = this.food.position

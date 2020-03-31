@@ -5,7 +5,7 @@ import {
   , PointLight
   , RectAreaLight
   , SpotLight
-  // , CameraHelper
+  , CameraHelper
   , Vector2
 } from 'three'
 import _mapKeys from 'lodash/mapKeys'
@@ -88,6 +88,7 @@ export default {
       type: Object
       , default: () => ({})
     }
+    , debug: Boolean
   }
   , components: {
   }
@@ -96,16 +97,18 @@ export default {
   , created(){
     const light = this.lightConstructor( this )
 
-    // let shadowHelper = new CameraHelper( light.shadow.camera )
-    // this.$parent.v3object.add( shadowHelper )
-    // this.beforeDraw(() => {
-    //   shadowHelper.update()
-    // })
-    // this.$on('hook:beforeDestroy', () => {
-    //   this.$parent.v3object.remove( shadowHelper )
-    // })
-
     this.v3object = light
+
+    if ( this.debug && light.shadow ){
+      let shadowHelper = this.shadowHelper = new CameraHelper( light.shadow.camera )
+      this.$parent.v3object.add( shadowHelper )
+      this.beforeDraw(() => {
+        shadowHelper.update()
+      })
+      this.$on('hook:beforeDestroy', () => {
+        this.$parent.v3object.remove( shadowHelper )
+      })
+    }
 
     this.registerDisposables({
       dispose: () => {
@@ -147,6 +150,9 @@ export default {
           this.v3object.shadow.map = null
         }
         Object.assign(this.v3object.shadow.camera, this.shadowCamera)
+        if (this.shadowHelper && this.v3object.shadow){
+          this.shadowHelper.camera = this.v3object.shadow.camera
+        }
       }
     }
   }

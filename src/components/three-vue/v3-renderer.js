@@ -3,11 +3,11 @@ import * as THREE from 'three'
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { CopyShader } from 'three/examples/jsm/shaders/CopyShader'
-// import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader'
 import { Pass } from 'three/examples/jsm/postprocessing/Pass'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass'
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader'
 /* eslint-enable no-unused-vars */
 /* eslint-disable comma-style */
 // BUG fix for memory leak....
@@ -91,7 +91,7 @@ export default {
 
     this.renderer = new THREE.WebGLRenderer({
       alpha: true
-      , antialias: true
+      , antialias: false
       // , canvas: this.$el
     })
 
@@ -107,20 +107,25 @@ export default {
     let renderPass = this.renderPass = new RenderPass( null, null, null, new THREE.Color(this.clearColor), this.clearAlpha )
     composer.addPass( renderPass )
 
-    // let effectFXAA = new THREE.ShaderPass( THREE.FXAAShader )
-    // effectFXAA.uniforms[ 'resolution' ].value.set( 1 / this.width, 1 / this.height )
-    // composer.addPass( effectFXAA )
+    let effectFXAA = this.effectFXAA = new ShaderPass( FXAAShader )
+    let pixelRatio = this.renderer.getPixelRatio()
+		effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( this.width * pixelRatio )
+		effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this.height * pixelRatio )
+    composer.addPass( effectFXAA )
 
     this.$watch(() => this.width + ~this.height, () => {
       this.renderer.setSize( this.width, this.height )
       this.cssRenderer.setSize( this.width, this.height )
       this.composer.setSize( this.width, this.height )
-      // effectFXAA.uniforms[ 'resolution' ].value.set( 1 / this.width, 1 / this.height )
+      effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( this.width * pixelRatio )
+      effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this.height * pixelRatio )
       this.$emit('resize')
     }, { immediate: true })
   }
   , beforeDestroy(){
     this.renderer.dispose()
+    this.effectFXAA.material.dispose()
+    this.effectFXAA.fsQuad._mesh.geometry.dispose()
     this.composer.renderTarget1.dispose()
     this.composer.renderTarget2.dispose()
     this.composer.copyPass.material.dispose()

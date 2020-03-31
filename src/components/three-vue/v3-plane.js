@@ -39,10 +39,10 @@ const materialProps = {
     type: Number
     , default: 1
   }
-  , shininess: {
-    type: Number
-    , default: 0
-  }
+  // , shininess: {
+  //   type: Number
+  //   , default: 0
+  // }
 }
 
 export default {
@@ -71,7 +71,7 @@ export default {
   , methods: {
     createObject(){
       let options = _pick(this, Object.keys(materialProps))
-      let material = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide, ...options })
+      let material = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, ...options })
       let plane = new THREE.Mesh( this.geometry, material )
       this.v3object = plane
     }

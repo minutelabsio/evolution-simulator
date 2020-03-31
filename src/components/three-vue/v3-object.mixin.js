@@ -53,7 +53,11 @@ export default {
   , beforeDestroy(){
     this.threeVue.$emit('scene:changed', { type: 'remove', component: this, object: this.v3object })
 
-    this.registerDisposables([ this.v3object, this.v3object.geometry, this.v3object.material ])
+    // set this to false to prevent autoclean
+    if ( this.autoClean !== false ){
+      this.registerDisposables([ this.v3object, this.v3object.geometry, this.v3object.material ])
+    }
+
     this.disposables.forEach( thing => {
       thing.dispose()
     })
@@ -124,6 +128,7 @@ export default {
     }
 
     , assignProps( dest, props ){
+      if ( !dest ){ return }
       for ( let prop of Object.keys(props) ){
         if ( prop in dest ){
           let val = this[prop]
