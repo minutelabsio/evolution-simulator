@@ -145,7 +145,7 @@ export const simulation = {
         commit('stop')
       }
 
-      if (postload) {
+      if (postload && getters.canContinue) {
         dispatch('continue', postload)
       }
     }

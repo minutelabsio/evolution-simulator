@@ -34,7 +34,7 @@
           p.control
             b-tooltip(label="Toggle Drawer", position="is-left")
               b-button.is-outlined.btn-dark(@click="showBottomDrawer = !showBottomDrawer", :icon-right="showBottomDrawer ? 'menu-down' : 'menu-up'")
-      transition(name="collapse")
+      transition(name="collapse", @after-enter="fixLayout", @after-leave="fixLayout")
         .bottom-drawer-content(v-if="showBottomDrawer")
           b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
           Drawer.legend-drawer(direction="right", :start-open="legendStartsOpen")
@@ -103,7 +103,6 @@ export default {
     })
   }
   , watch: {
-
   }
   , computed: {
     tourStepNumber(){

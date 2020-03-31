@@ -8,7 +8,7 @@
 
   .content
     .has-text-centered
-      p More details about how this all works can be found in the <router-link :to="{ name: 'about', append }">about page</router-link>.
+      p More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
   .content
     .has-text-centered

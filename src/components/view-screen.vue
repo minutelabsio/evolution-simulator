@@ -298,6 +298,10 @@ export default {
   @media screen and (max-width: $tablet)
     top: 5rem
 
+    .under
+      transform: scale(0.6)
+      transform-origin: top right
+
 .loading-cover
   z-index: 1
 .controls
@@ -306,6 +310,12 @@ export default {
   left: 0
   right: 0
   align-items: baseline
+  pointer-events: none
+
+  >>> .icon,
+  .right,
+  >>> .scrubber
+    pointer-events: all
 
   .left
     position: absolute
