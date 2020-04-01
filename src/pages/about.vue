@@ -68,7 +68,7 @@ export default {
 <style lang="sass" scoped>
 .about
   padding-top: 4rem
-  height: 100%
+  max-height: 100%
   overflow: auto
   .container
     max-width: 1020px

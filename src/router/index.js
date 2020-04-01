@@ -26,7 +26,7 @@ const parseProps = (route) => {
     , showConfig: !!route.query.cfg
     , showIntro: route.query.intro | 0
     , generationIndex: route.params.generationIndex
-    , hideControls: route.name === 'about'
+    , hideControls: route.name === 'about' || route.name === 'stats'
   }
 }
 
