@@ -8,9 +8,9 @@
         .item
           b-tooltip(label="Toggle sight range indicators", position="is-left")
             b-icon.icon-btn(icon="eye", size="is-medium", :class="{ active: showSightIndicator }", @click.native.stop="showSightIndicator = !showSightIndicator")
-        //- .item
-        //-   b-tooltip(label="Toggle speed indicators", position="is-left")
-        //-     b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
+        .item
+          b-tooltip(label="Color blobs based on speed (brown: slow, red: fast)", position="is-left")
+            b-icon.icon-btn(icon="run-fast", size="is-medium", :class="{ active: showSpeedIndicator }", @click.native.stop="showSpeedIndicator = !showSpeedIndicator")
         .item
           b-tooltip(label="Toggle energy indicators", position="is-left")
             b-icon.icon-btn(icon="battery-charging", size="is-medium", :class="{ active: showEnergyIndicator }", @click.native.stop="showEnergyIndicator = !showEnergyIndicator")

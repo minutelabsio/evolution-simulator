@@ -67,7 +67,7 @@
       v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
+        Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators", :color="speedIndicators ? speedColorScale(c.speed[0]).num() : undefined")
           v3-group(v-if="c.id === followCreatureId")
             v3-dom(:position="[0, 13 * (c.size[0]/10 + 0.5), 0]")
               CreatureStatus(:creature="c")
@@ -131,7 +131,7 @@ const computed = {
   , creatureIndicators(){
     return {
       showSightIndicator: this.sightIndicators
-      , showSpeedIndicator: this.speedIndicators
+      // , showSpeedIndicator: this.speedIndicators
       , showEnergyIndicator: this.energyIndicators
       , showFoodIndicator: this.foodIndicators
     }
@@ -142,8 +142,15 @@ const computed = {
   , showWorld(){
     return this.generation && !this.hideStage
   }
+  , speedColorScale(){
+    return chroma.scale([
+      chroma(sougy.red).desaturate(4)
+      , chroma(sougy.red).desaturate(0.5)
+    ]).mode('lab').domain([this.statistics.speed.min, this.statistics.speed.max])
+  }
   , ...mapGetters('simulation', {
     'getCurrentGeneration': 'getCurrentGeneration'
+    , 'statistics': 'statistics'
   })
 }
 

@@ -174,6 +174,13 @@ function getSpeedIndicatorCount(creature){
   return THREE.Math.lerp(1, 4, s) | 0
 }
 
+const blobMaterialProps = {
+  color: {
+    type: Number
+    , default: blobColor
+  }
+}
+
 export default {
   name: 'creature'
   , mixins: [ THREEObjectMixin ]
@@ -184,6 +191,7 @@ export default {
     , showSpeedIndicator: Boolean
     , showEnergyIndicator: Boolean
     , showFoodIndicator: Boolean
+    , ...blobMaterialProps
   }
   , components: {
   }
@@ -308,7 +316,7 @@ export default {
 
       // Path
       // let points = new THREE.BufferGeometry()
-      // let line = new THREE.Points(points)
+      // let line = new THREE.Line(points)
       // this.$parent.v3object.add(line)
       // this.$watch('spline', () => {
       //   let vertices = this.spline.points.reduce((r, p) => r.push(p.x, 0, p.y) && r, [])
@@ -339,6 +347,8 @@ export default {
 
       this.energyIndicator.visible = this.showEnergyIndicator
       this.foodIndicators.visible = this.showFoodIndicator
+
+      this.assignProps( this.blobMaterial, blobMaterialProps )
     }
   }
 }
