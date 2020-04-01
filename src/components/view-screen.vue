@@ -59,7 +59,7 @@
               vue-slider(
                 v-model="playbackSpeed"
                 , :min="1"
-                , :max="10"
+                , :max="13"
                 , :interval="1"
                 , :height="200"
                 , direction="btt"
@@ -93,7 +93,6 @@ export default {
   , data: () => ({
     paused: true
     , playthrough: false
-    , playbackSpeed: 5
     , progress: 0
     , showSightIndicator: false
     , showSpeedIndicator: false
@@ -135,7 +134,16 @@ export default {
   }
   , computed: {
     stepTime(){
-      return Math.pow(10, 1.5 * (1 - this.playbackSpeed/5)) * 100
+      return 100 //Math.pow(10, 1.5 * (1 - this.playbackSpeed/5)) * 100
+    }
+    , playbackSpeed: {
+      get(){
+        let s = this.player.playbackRate
+        return Math.log2(s) * 2 + 7
+      }
+      , set(s){
+        this.player.playbackRate = Math.pow(2, (s - 7)/2)
+      }
     }
     , totalTime(){
       if ( !this.generation ){ return 1 }
