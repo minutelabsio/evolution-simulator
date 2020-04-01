@@ -7,6 +7,8 @@
         p.control
           b-button.btn-dark(@click="restart()") Restart
         p.control
+          b-button.btn-dark(@click="shuffleSimulation()") Shuffle
+        p.control
           b-button.btn-dark(@click="keepGoing()") Generate more data
   .field.is-grouped.is-grouped.multiline
     .tags
@@ -97,6 +99,11 @@ export default {
     }
     , hidePlot(plot){
       this.hiddenPlots.push(plot)
+    }
+    , shuffleSimulation(){
+      let seed = (Math.random() * 1000) | 0
+      this.$store.dispatch('simulation/setConfig', { seed })
+      this.restart()
     }
     , ...mapActions('simulation', {
       restart: 'run'
