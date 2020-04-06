@@ -62,9 +62,9 @@
       .column.has-text-left-tablet.has-text-centered
         .is-inline-block
           .number-input-group
-            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="traitColors.speed")
-            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="traitColors.size")
-            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0.01", :max="10", :change-rate="1", :step="0.1", :color="traitColors.sense_range")
+            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.speed")
+            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.size")
+            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.sense_range")
 
   //- b-field(grouped)
   //-   b-field(label="Reach")
@@ -103,7 +103,7 @@ function storeParam(key, src, action){
   }
 }
 
-function creatureProps(props){
+function creatureProps(props, species){
   let ret = {}
   for (let k of props){
     ret[k + 'Value'] = {
@@ -114,7 +114,10 @@ function creatureProps(props){
       get(){ return this[k][1] }
       , set(v){ this[k] = [this[k + 'Value'], v] }
     }
-    ret[k] = storeParam(k, 'creatureTemplate', 'simulation/setCreatureTemplate')
+    ret[k] = {
+      get(){ return this.creatureTemplate(species)[k] }
+      , set(v){ this.$store.dispatch('simulation/setCreatureTemplate', { [k]: v, species }) }
+    }
   }
   return ret
 }
@@ -165,11 +168,14 @@ export default {
     , foodPerGeneration: storeParam('food_per_generation', 'config', 'simulation/setConfig')
 
     , creatureCount: {
-      get(){ return this.$store.getters['simulation/creatureCount'] }
-      , set(v){ this.$store.dispatch('simulation/setCreatureCount', v) }
+      get(){ return this.$store.getters['simulation/creatureConfig']('default').count }
+      , set(v){ this.$store.dispatch('simulation/setCreatureConfig', { count: v, species: 'default' }) }
     }
-    , energy: storeParam('energy', 'creatureTemplate', 'simulation/setCreatureTemplate')
-    , ...creatureProps(['speed', 'size', 'sense_range', 'reach', 'life_span'])
+    , energy: {
+      get(){ return this.$store.getters['simulation/creatureTemplate']('default').energy }
+      , set(energy){ this.$store.dispatch('simulation/setCreatureTemplate', { energy, species: 'default' }) }
+    }
+    , ...creatureProps(['speed', 'size', 'sense_range', 'reach', 'life_span'], 'default')
   }
   , watch: {
   }

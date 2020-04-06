@@ -40,15 +40,18 @@ async function run( method, ...args ){
 // API
 // ---------------------------------------
 let simulation = null
-export async function initSimulation( cfg, creatureCfg ){
+export async function initSimulation( cfg, creatureCfgs = [] ){
   const wasm = await app
   simulation = wasm.SquareWorld.new(
     cfg.size
     , cfg.seed
     , cfg.food_per_generation
-    , creatureCfg
     , cfg.preset
   )
+
+  creatureCfgs.forEach(cfg => {
+    simulation.add_creatures(cfg)
+  })
 }
 
 export function advanceSimulation( numGens ){

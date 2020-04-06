@@ -37,6 +37,9 @@ export default {
         responsive: true
         , maintainAspectRatio: false
         , hoverMode: 'index'
+        , animation: {
+          duration: 0
+        }
         , scales: {
           xAxes: [{
             display: true

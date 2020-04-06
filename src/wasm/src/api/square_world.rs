@@ -3,48 +3,45 @@ use super::*;
 #[wasm_bindgen]
 pub struct SquareWorld {
   sim: Simulation,
-  starting_creatures: usize,
-  creature_template: Creature,
+  creatures: Vec<Creature>,
 }
 
 #[wasm_bindgen]
 impl SquareWorld {
-  pub fn new(size : f64, seed : u32, food_per_generation : u32, creature_cfg: &JsValue, preset_cfg : &JsValue) -> Result<SquareWorld, JsValue> {
+  pub fn new(size : f64, seed : u32, food_per_generation : u32, preset_cfg : &JsValue) -> Result<SquareWorld, JsValue> {
     let stage = Box::new(stage::SquareStage(size));
 
     let preset_cfg = preset_cfg.into_serde().map_err(|e| e.to_string())?;
-    let creature_cfg : RandomCreatureConfig = creature_cfg.into_serde().map_err(|e| e.to_string())?;
 
     let mut sim = Simulation::new(stage, seed as u64, food_per_generation);
     use_preset(&mut sim, &preset_cfg);
 
     Ok(Self {
       sim,
-      starting_creatures: creature_cfg.count,
-      creature_template: creature_cfg.template,
+      creatures: vec![],
     })
   }
 
+  pub fn add_creatures(&mut self, creature_cfg : &JsValue) -> Result<(), JsValue> {
+    let creature_cfg : RandomCreatureConfig = creature_cfg.into_serde().map_err(|e| e.to_string())?;
+    // otherwise create new creatures array
+    let count = creature_cfg.count;
+
+    for _i in 0..count {
+      let pos = self.sim.stage.get_nearest_edge_point(&self.sim.get_random_location());
+      let c = creature_cfg.template.with_new_position(&pos);
+
+      self.creatures.push(c);
+    }
+
+    Ok(())
+  }
+
   pub fn run(&mut self, max_generations_to_run : u32) {
-    let last_gen = self.sim.generations.last();
-    let creatures = last_gen.map(|g|
-      // mutate last generation if already started
-      self.sim.exec_reproduction(&g.creatures)
-    ).unwrap_or_else(|| {
-      // otherwise create new creatures array
-      let count = self.starting_creatures;
-      let mut creatures = Vec::with_capacity( count );
-
-      for _i in 0..count {
-        let pos = self.sim.stage.get_nearest_edge_point(&self.sim.get_random_location());
-        let c = self.creature_template.with_new_position(&pos);
-        creatures.push(c);
-      }
-
-      creatures
-    });
-
+    let mut creatures = vec![];
+    std::mem::swap(&mut creatures, &mut self.creatures);
     self.sim.run(creatures, max_generations_to_run);
+    self.creatures = self.sim.exec_reproduction(&self.sim.generations.last().unwrap().creatures);
   }
 
   pub fn can_continue(&self) -> bool {

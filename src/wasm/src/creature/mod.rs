@@ -49,6 +49,7 @@ pub struct Objective {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
   pub id : Uuid,
+  pub species : String,
   // mutatable
   speed : PositiveNonZeroMutatable<f64>, // how far can it move in one step?
   size : PositiveNonZeroMutatable<f64>,
@@ -83,6 +84,7 @@ impl Creature {
   pub fn default( pos : &Point2<f64> ) -> Self {
     Creature {
       id: get_uuid(),
+      species: "default".to_string(),
       state: CreatureState::ACTIVE,
       speed: PositiveNonZeroMutatable(1.0, 1.),
       size: PositiveNonZeroMutatable(1.0, 1.),
@@ -127,6 +129,7 @@ impl Creature {
       flee_distance: self.flee_distance.get_mutated(rng),
       life_span: self.life_span.get_mutated(rng),
       energy: self.energy,
+      species: self.species.clone(),
 
       ..Creature::default(&self.home_pos)
     }
@@ -156,6 +159,7 @@ impl Creature {
       life_span,
       energy,
       age: self.age + 1,
+      species: self.species.clone(),
 
       ..Creature::default(&self.home_pos)
     }
@@ -163,7 +167,9 @@ impl Creature {
 
   pub fn get_size(&self) -> f64 { self.size.0 }
   pub fn get_speed(&self) -> f64 { self.speed.0 * self.size.0 / 10. }
+  pub fn set_speed(&mut self, speed : f64) { self.speed.0 = speed }
   pub fn get_sense_range(&self) -> f64 { self.sense_range.0 }
+  pub fn set_sense_range(&mut self, sense : f64) { self.sense_range.0 = sense }
   pub fn get_reach(&self) -> f64 { self.reach.0 }
   pub fn get_life_span(&self) -> f64 { self.life_span.0 }
 

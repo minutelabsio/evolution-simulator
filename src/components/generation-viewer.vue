@@ -67,7 +67,15 @@
       v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
       v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators", :color="speedIndicators ? speedColorScale(c.speed[0]).num() : undefined")
+        Creature(
+          ref="v3Creatures"
+            , v-for="(c, index) in generation.creatures"
+            , :key="index"
+            , :creature="c"
+            , :size="3"
+            , v-bind="creatureIndicators"
+            , :color="speedIndicators ? speedColorScale(c.speed[0]).num() : c.species === 'foreign' ? 0xcc0000 : undefined"
+          )
           v3-group(v-if="c.id === followCreatureId")
             v3-dom(:position="[0, 13 * (c.size[0]/10 + 0.5), 0]")
               CreatureStatus(:creature="c")

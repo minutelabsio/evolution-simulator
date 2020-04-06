@@ -13,7 +13,7 @@
         span Trends
 
   transition(name="slide-down", appear)
-    .center-bar(v-if="!hideControls && !showIntro || tourStepNumber === 6")
+    .center-bar(v-if="!hideSettings && !showIntro || tourStepNumber === 6")
       router-link.button.is-primary.is-rounded(v-if="!showConfig", :to="{ query: { cfg: $route.query.cfg ? undefined : '1' } }", append, exact)
         span Settings
 
@@ -72,6 +72,7 @@ export default {
     showConfig: Boolean
     , showIntro: Number
     , hideControls: Boolean
+    , hideSettings: Boolean
   }
   , components: {
     FlowerChart

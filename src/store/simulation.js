@@ -22,6 +22,7 @@ const DEFAULT_CREATURE_PROPS = {
   , flee_distance: [1e12, 0] // for now flee within sight range
   , life_span: [1e4, 0]
   , energy: 5000000
+  , species: 'default'
 }
 
 const initialState = {
@@ -43,9 +44,11 @@ const initialState = {
       }
     }
   }
-  , creatureConfig: {
-    count: 50
-    , template: DEFAULT_CREATURE_PROPS
+  , creatureConfigs: {
+    'default': {
+      count: 50
+      , template: DEFAULT_CREATURE_PROPS
+    }
   }
 
   , canContinue: true
@@ -68,7 +71,7 @@ function sanitizeConfig( cfg ){
     let value = cfg[k]
     if ( Array.isArray(value) ){
       value = value.map(strTypeToNumber)
-    } else {
+    } else if (k !== 'species') {
       value = strTypeToNumber( value )
     }
 
@@ -95,6 +98,25 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
   }
 }
 
+function getCreatureConfigs(preset, cfgs){
+  let ret = []
+  let specieses = Object.keys(cfgs) // shhhhhh.....
+
+  if (preset !== 'invasive_species'){
+    specieses = ['default']
+  }
+
+  for (let species of specieses){
+    let cfg = cfgs[species]
+    ret.push({
+      count: cfg.count | 0
+      , template: getCreatureTemplate(cfg.template)
+    })
+  }
+
+  return ret
+}
+
 export const simulation = {
   namespaced: true
   , state: initialState
@@ -105,9 +127,8 @@ export const simulation = {
     , canContinue: state => state.canContinue
     , presets: () => PRESETS
     , config: state => state.config
-    , creatureConfig: state => state.creatureConfig
-    , creatureTemplate: state => state.creatureConfig.template
-    , creatureCount: state => state.creatureConfig.count
+    , creatureConfig: state => species => state.creatureConfigs[species]
+    , creatureTemplate: state => species => state.creatureConfigs[species].template
     , getCurrentGeneration: state => state.getCurrentGeneration
     , currentGenerationIndex: (state, getters, rootState) =>
         rootState.route ? +rootState.route.params.generationIndex - 1 : 0
@@ -126,10 +147,10 @@ export const simulation = {
 
       commit('start', true)
       try {
-        await worker.initSimulation(state.config, {
-          count: state.creatureConfig.count | 0
-          , template: getCreatureTemplate(state.creatureConfig.template)
-        })
+        await worker.initSimulation(
+          state.config
+          , getCreatureConfigs(state.config.preset.name, state.creatureConfigs)
+        )
 
         await worker.advanceSimulation(preload)
         commit('setMeta', {
@@ -192,9 +213,6 @@ export const simulation = {
     , setCreatureTemplate({ commit }, config = {}){
       commit('setCreatureTemplate', _cloneDeep(config))
     }
-    , setCreatureCount({ commit }, count){
-      commit('setCreatureCount', count | 0)
-    }
   }
   , mutations: {
     start(state, isRestart){
@@ -233,24 +251,20 @@ export const simulation = {
       }
     }
     , setCreatureConfig(state, cfg){
-      state.creatureConfig = {
-        ...state.creatureConfig
+      let species = cfg.species || 'default'
+      state.creatureConfigs[species] = {
+        ...state.creatureConfigs[species]
         , ...cfg
       }
     }
     , setCreatureTemplate(state, cfg){
-      state.creatureConfig = {
-        ...state.creatureConfig
+      let species = cfg.species || 'default'
+      state.creatureConfigs[species] = {
+        ...state.creatureConfigs[species]
         , template: {
-          ...state.creatureConfig.template
+          ...state.creatureConfigs[species].template
           , ...cfg
         }
-      }
-    }
-    , setCreatureCount(state, count){
-      state.creatureConfig = {
-        ...state.creatureConfig
-        , count
       }
     }
   }
