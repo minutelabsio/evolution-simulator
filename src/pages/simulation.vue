@@ -54,6 +54,10 @@
                 .more-btn
                   b-button.btn-dark(@click="continueSimulation", :loading="isContinuing", size="is-large", icon-right="layers-plus")
                 .flower-timeline-spacer
+              template(v-else, #after)
+                .extinct-status
+                  img(src="@/assets/status-icons/extinction.svg", width="70")
+                .flower-timeline-spacer
 </template>
 
 <script>
@@ -396,13 +400,6 @@ export default {
 .loading-overlay
   z-index: 2
   background: rgba(0, 0, 0, .5)
-.generation-selector.is-finished
-  >>> .flower-timeline .inner:after
-    content: ''
-    background: center center url('https://cdn0.iconfinder.com/data/icons/nature-and-environment-1/64/skeleton-pirate-crossbones-danger-deadly-skull-512.png') no-repeat
-    background-size: contain
-    width: 120px
-    flex: 0 0 auto
 .more-btn
   display: flex
   align-items: center
@@ -410,7 +407,17 @@ export default {
   min-width: 100px
   .button
     margin-top: -60px
-
+.extinct-status
+  flex: 0 0 auto
+  width: 92px
+  height: 92px
+  margin: 4px
+  margin-right: 2rem
+  border: 1px solid $grey-darker
+  border-radius: 50%
+  display: flex
+  align-items: center
+  justify-content: center
 .bottom-drawer-slide-enter-active, .bottom-drawer-slide-leave-active
   transition: margin-bottom 0.3s ease
 .bottom-drawer-slide-enter, .bottom-drawer-slide-leave-to
