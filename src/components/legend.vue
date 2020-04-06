@@ -20,7 +20,9 @@ export default {
   flex-direction: row
   flex-wrap: wrap
   padding-left: 2em
-  li
+  font-family: $family-monospace
+  font-size: 0.95rem
+  li:not(:last-child)
     display: flex
     align-items: center
     // margin-right: 1em
@@ -35,4 +37,5 @@ export default {
   height: 1em
   margin-right: 1ex
   border-radius: 3px
+  flex-shrink: 0
 </style>

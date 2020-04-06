@@ -18,6 +18,8 @@ import './styles/main.scss'
 
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
+import labConfig from '../lab-config'
+
 
 Vue.component('VueSlider', VueSlider)
 
@@ -34,26 +36,26 @@ Copilot.registerType({
   }
 })
 
-// const isProduction = process.env.NODE_ENV === 'production'
-// Vue.use(VueAnalytics, {
-//   id: 'UA-46248430-1'
-//   , router
-//   , debug: {
-//     enabled: !isProduction
-//     , trace: false
-//     , sendHitTask: isProduction
-//   }
-//   , autoTracking: {
-//     exception: true
-//     , pageviewTemplate (route) {
-//       return {
-//         title: route.name
-//         , page: `/what-is-a-day${route.path}`
-//         , location: window.location.href
-//       }
-//     }
-//   }
-// })
+const isProduction = process.env.NODE_ENV === 'production'
+Vue.use(VueAnalytics, {
+  id: 'UA-46248430-1'
+  , router
+  , debug: {
+    enabled: !isProduction
+    , trace: false
+    , sendHitTask: isProduction
+  }
+  , autoTracking: {
+    exception: true
+    , pageviewTemplate (route) {
+      return {
+        title: route.name
+        , page: `/${labConfig.repo}${route.path}`
+        , location: window.location.href
+      }
+    }
+  }
+})
 
 Vue.use(Buefy, {
   defaultContainerElement: '#app .below-nav'

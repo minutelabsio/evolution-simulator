@@ -5,15 +5,12 @@ import traitColors from '@/config/trait-colors'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
-// const BEHAVIOURS = [
-//   { name: 'WanderBehaviour' }
-//   , { name: 'ScavengeBehaviour' }
-//   , { name: 'BasicMoveBehaviour' }
-//   , { name: 'HomesickBehaviour' }
-//   , { name: 'StarveBehaviour' }
-// ]
+const PRESETS = [
+  'default'
+  , 'home_remove'
+]
 
-function getTraitsForPreset(name){
+function getTraitsForPreset(){
   return [ 'age', 'speed', 'size', 'sense_range' ]
 }
 
@@ -29,6 +26,8 @@ const DEFAULT_CREATURE_PROPS = {
 
 const initialState = {
   isBusy: false
+  , isRestarting: false
+  , isContinuing: false
   , startedAt: 0
   , computeTime: 0
 
@@ -39,7 +38,9 @@ const initialState = {
     , size: 500
     , preset: {
       name: 'default'
-      , foods_before_home: 2
+      , options: {
+        step: 10
+      }
     }
   }
   , creatureConfig: {
@@ -81,7 +82,7 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
 
   return {
     state: 'ACTIVE'
-    , foods_eaten: 0
+    , foods_eaten: []
     , age: 0
     , energy_consumed: 0
     // gets overridden
@@ -89,6 +90,7 @@ function getCreatureTemplate( creatureProps = DEFAULT_CREATURE_PROPS ){
     , home_pos: [0, 0]
     , movement_history: [[0, 0]]
     , status_history: []
+    , id: '00000000000000000000000000000000'
     , ...props
   }
 }
@@ -97,15 +99,18 @@ export const simulation = {
   namespaced: true
   , state: initialState
   , getters: {
-    isLoading: state => state.isBusy
+    isLoading: state => state.isRestarting
+    , isContinuing: state => state.isContinuing
+    , isBusy: state => state.isBusy
     , canContinue: state => state.canContinue
+    , presets: () => PRESETS
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
     , creatureTemplate: state => state.creatureConfig.template
     , creatureCount: state => state.creatureConfig.count
     , getCurrentGeneration: state => state.getCurrentGeneration
     , currentGenerationIndex: (state, getters, rootState) =>
-      rootState.route ? +rootState.route.params.generationIndex - 1 : 0
+        rootState.route ? +rootState.route.params.generationIndex - 1 : 0
     , statistics: state => state.statistics
 
     , traits: state => getTraitsForPreset(state.config.preset.name)
@@ -113,43 +118,50 @@ export const simulation = {
     , getTraitColors: () => (traits) => traits.map(k => traitColors[k])
   }
   , actions: {
-    async run({ state, dispatch, commit }) {
+    async run({ state, dispatch, commit, getters }, fresh = true) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
 
-      commit('start')
+      let preload = fresh ? 1 : getters.currentGenerationIndex + 1
+      let postload = state.config.max_generations - preload
+
+      commit('start', true)
       try {
         await worker.initSimulation(state.config, {
           count: state.creatureConfig.count | 0
           , template: getCreatureTemplate(state.creatureConfig.template)
         })
 
-        await worker.advanceSimulation(state.config.max_generations)
+        await worker.advanceSimulation(preload)
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })
         commit('setStatistics', await worker.getStatistics())
 
-        await dispatch('loadGeneration', 0)
+        await dispatch('loadGeneration', fresh ? 0 : getters.currentGenerationIndex)
 
       } catch ( error ){
         dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
       } finally {
         commit('stop')
       }
+
+      if (postload && getters.canContinue) {
+        dispatch('continue', postload)
+      }
     }
-    , async continue({ state, getters, dispatch, commit }) {
+    , async continue({ state, getters, dispatch, commit }, numGenerations) {
       if ( state.isBusy ){ return Promise.reject(new Error('Busy')) }
       if ( !getters.canContinue ){ return Promise.reject(new Error('No Results')) }
 
       commit('start')
       try {
-        await worker.advanceSimulation(state.config.max_generations)
+        await worker.advanceSimulation((numGenerations | 0) || state.config.max_generations)
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })
         commit('setStatistics', await worker.getStatistics())
 
-        await dispatch('loadGeneration', getters.currentGenerationIndex)
+        // await dispatch('loadGeneration', getters.currentGenerationIndex)
 
       } catch ( error ){
         dispatch('error', { error, context: 'while calculating simulation results' }, { root: true })
@@ -185,13 +197,17 @@ export const simulation = {
     }
   }
   , mutations: {
-    start(state){
+    start(state, isRestart){
       state.isBusy = true
+      state.isRestarting = !!isRestart
+      state.isContinuing = !isRestart
       state.computeTime = 0
       state.startedAt = performance.now()
     }
     , stop(state){
       state.isBusy = false
+      state.isRestarting = false
+      state.isContinuing = false
       state.computeTime = performance.now() - state.startedAt
       state.startedAt = 0
     }

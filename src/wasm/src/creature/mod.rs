@@ -1,30 +1,17 @@
+use crate::simulation::Edible;
+use crate::simulation::Step;
+use crate::math::*;
 use crate::na::{Point2, Unit, Vector2};
 use std::cell::{RefMut};
 use rand::{rngs::SmallRng};
+use uuid::Uuid;
+
+fn get_uuid() -> Uuid {
+  Uuid::new_v4()
+}
 
 mod mutatable;
 use mutatable::*;
-
-// r1, r2. Points defining line segment
-// https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation
-fn distance_to_line(r1 : &Point2<f64>, r2 : &Point2<f64>, p : &Point2<f64>) -> Option<f64> {
-  let a = r1;
-  let v = r2 - r1;
-  let n = v.normalize();
-  // vector from the point to first point on line
-  let pa = a - p;
-  let pb = r2 - p;
-  // this means we're outside the line segment
-  if pa.dot(&pb) > 0. {
-    return None
-  }
-
-  // projection of pa onto the line
-  let z = pa.dot(&n) * n;
-
-  let d = pa - z;
-  Some(d.norm())
-}
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 enum CreatureState {
@@ -61,6 +48,7 @@ pub struct Objective {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Creature {
+  pub id : Uuid,
   // mutatable
   speed : PositiveNonZeroMutatable<f64>, // how far can it move in one step?
   size : PositiveNonZeroMutatable<f64>,
@@ -70,7 +58,7 @@ pub struct Creature {
   life_span: PositiveNonZeroMutatable<f64>,
 
   // other
-  pub foods_eaten : u32,
+  pub foods_eaten : Vec<(Step, Uuid)>,
   pub energy : f64,
   pub energy_consumed: f64,
   pub age : u32,
@@ -85,9 +73,16 @@ pub struct Creature {
   objective: Option<Objective>
 }
 
+impl Edible for Creature {
+  fn get_edible_id(&self) -> Uuid {
+    self.id
+  }
+}
+
 impl Creature {
   pub fn default( pos : &Point2<f64> ) -> Self {
     Creature {
+      id: get_uuid(),
       state: CreatureState::ACTIVE,
       speed: PositiveNonZeroMutatable(1.0, 1.),
       size: PositiveNonZeroMutatable(1.0, 1.),
@@ -97,7 +92,7 @@ impl Creature {
       life_span: PositiveNonZeroMutatable(1.0, 1.0),
       energy: 500.0,
 
-      foods_eaten: 0,
+      foods_eaten: vec![],
       energy_consumed: 0.0,
 
       age: 0,
@@ -114,6 +109,7 @@ impl Creature {
   //------------------
   pub fn with_new_position(&self, pos : &Point2<f64>) -> Self {
     let mut ret = self.clone();
+    ret.id = get_uuid();
     ret.pos = pos.clone();
     ret.home_pos = pos.clone();
     ret.movement_history = vec![pos.clone()];
@@ -139,6 +135,7 @@ impl Creature {
   // copy self, but increase age.
   pub fn grow_older(&self) -> Self {
     let Creature {
+      id,
       speed,
       size,
       sense_range,
@@ -150,6 +147,7 @@ impl Creature {
     } = *self;
 
     Creature {
+      id,
       speed,
       size,
       sense_range,
@@ -164,7 +162,7 @@ impl Creature {
   }
 
   pub fn get_size(&self) -> f64 { self.size.0 }
-  pub fn get_speed(&self) -> f64 { self.speed.0 }
+  pub fn get_speed(&self) -> f64 { self.speed.0 * self.size.0 / 10. }
   pub fn get_sense_range(&self) -> f64 { self.sense_range.0 }
   pub fn get_reach(&self) -> f64 { self.reach.0 }
   pub fn get_life_span(&self) -> f64 { self.life_span.0 }
@@ -249,8 +247,8 @@ impl Creature {
     self.objective = None;
   }
 
-  pub fn eat_food(&mut self){
-    self.foods_eaten += 1;
+  pub fn eat_food(&mut self, step: Step, food: &dyn Edible){
+    self.foods_eaten.push((step, food.get_edible_id()))
   }
 
   pub fn sleep(&mut self){

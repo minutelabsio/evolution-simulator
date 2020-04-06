@@ -1,6 +1,7 @@
 // import moment from 'moment'
 // import momentDurationFormatSetup from 'moment-duration-format'
 import _capitalize from 'lodash/capitalize'
+import _kebabCase from 'lodash/kebabCase'
 import _find from 'lodash/find'
 import _filter from 'lodash/filter'
 import _startCase from 'lodash/startCase'
@@ -55,6 +56,7 @@ function truncate( str = '', len = 30, sfx = '...' ){
 export default {
   install( Vue ){
     Vue.filter('capitalize', _capitalize)
+    Vue.filter('kebabCase', _kebabCase)
     Vue.filter('titleCase', titleCase)
     Vue.filter('startCase', _startCase)
     Vue.filter('filter', _filter)

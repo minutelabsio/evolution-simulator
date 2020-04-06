@@ -1,12 +1,22 @@
 <template lang="pug">
 .simulation-statistics.scrollbars
+  .columns
+    .column.is-two-thirds
+    .column
+      b-field.generation-controls
+        p.control
+          b-button.btn-dark(@click="restart()") Restart
+        p.control
+          b-button.btn-dark(@click="shuffleSimulation()") Shuffle
+        p.control
+          b-button.btn-dark(@click="keepGoing()") Generate more data
   .field.is-grouped.is-grouped.multiline
     .tags
       .tag.is-large.clickable(v-for="plot in hiddenPlots", :style="{ color: plot.titleColor }", @click="showPlot(plot)")
         b-icon(icon="plus-box")
         span {{ plot.name | startCase }}
   .columns.is-multiline
-    .column(v-for="plot in plots", :key="plot.name")
+    .column.is-half-tablet.is-one-third-fullhd(v-for="plot in plots", :key="plot.name")
       h2.heading.plot-title.clickable(:style="{ color: plot.titleColor }", @click="hidePlot(plot)")
         b-icon(icon="minus-box")
         | &nbsp;
@@ -15,7 +25,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import _mapValues from 'lodash/mapValues'
 import _findIndex from 'lodash/findIndex'
 import chroma from 'chroma-js'
@@ -90,6 +100,15 @@ export default {
     , hidePlot(plot){
       this.hiddenPlots.push(plot)
     }
+    , shuffleSimulation(){
+      let seed = (Math.random() * 1000) | 0
+      this.$store.dispatch('simulation/setConfig', { seed })
+      this.restart()
+    }
+    , ...mapActions('simulation', {
+      restart: 'run'
+      , keepGoing: 'continue'
+    })
   }
 }
 </script>
@@ -107,4 +126,6 @@ export default {
     top: 2px
   .name
     font-size: 24px
+.field.generation-controls
+  justify-content: flex-end
 </style>

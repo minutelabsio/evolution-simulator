@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::{RunningStatistics, RunningStatisticsResults};
 use wasm_bindgen::prelude::*;
 use super::*;
@@ -18,22 +19,43 @@ pub struct SimulationResults {
 #[derive(Serialize, Deserialize)]
 pub struct PresetConfig {
   name: String,
-  foods_before_home: i32,
+  options: HashMap<String, f64>,
+}
+
+fn primer_behaviours() -> Vec<Box<dyn StepBehaviour>>{
+  vec![
+    Box::new(behaviours::BasicMoveBehaviour),
+    Box::new(behaviours::WanderBehaviour),
+    Box::new(behaviours::CannibalismBehaviour { size_ratio: 0.8 }),
+    Box::new(behaviours::ScavengeBehaviour),
+    Box::new(behaviours::SatisfiedBehaviour),
+    Box::new(behaviours::EdgeHomeBehaviour { disabled_edges: vec![] }),
+    Box::new(behaviours::StarveBehaviour),
+  ]
 }
 
 fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
-  match preset.name {
+  let mut behaviours = match preset.name.as_str() {
+    "home_remove" => {
+      let step_at_home_change = preset.options["step"] as usize;
+      sim.add_generation_callback(move |sim| {
+        if sim.generations.len() == step_at_home_change {
+          sim.behaviours[6] = Box::new(behaviours::EdgeHomeBehaviour {
+            disabled_edges: vec![0, 1, 2],
+          });
+        }
+      });
+
+      primer_behaviours()
+    },
     _ => {
       // default
-      sim.add_behavour(Box::new(behaviours::BasicMoveBehaviour));
-      sim.add_behavour(Box::new(behaviours::WanderBehaviour));
-      sim.add_behavour(Box::new(behaviours::CannibalismBehaviour { size_ratio: 0.8 }));
-      sim.add_behavour(Box::new(behaviours::ScavengeBehaviour));
-      sim.add_behavour(Box::new(behaviours::SatisfiedBehaviour));
-      // sim.add_behavour(Box::new(behaviours::HomesickBehaviour));
-      sim.add_behavour(Box::new(behaviours::EdgeHomeBehaviour));
-      sim.add_behavour(Box::new(behaviours::StarveBehaviour));
+      primer_behaviours()
     }
+  };
+
+  for b in behaviours.drain(0..behaviours.len()) {
+    sim.add_behavour(b);
   }
 }
 

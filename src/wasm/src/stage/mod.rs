@@ -5,7 +5,11 @@ use super::creature::*;
 // The stage defines the borders of the simulation
 // It's the area the creatures can evolve inside
 
+pub struct Edge(pub Point2<f64>, pub Point2<f64>);
+
 pub trait Stage {
+  // counter clockwise
+  fn get_edges(&self) -> Vec<Edge>;
   // can this creature move here?
   fn can_move_to(&self, to : &Point2<f64>, creature : &Creature ) -> bool;
   fn get_center(&self) -> Point2<f64>;
@@ -20,6 +24,16 @@ pub trait Stage {
 pub struct SquareStage(pub f64);
 
 impl Stage for SquareStage {
+
+  fn get_edges(&self) -> Vec<Edge> {
+    vec![
+      Edge(Point2::new(0., 0.), Point2::new(self.0, 0.)),
+      Edge(Point2::new(self.0, 0.), Point2::new(self.0, self.0)),
+      Edge(Point2::new(self.0, self.0), Point2::new(0., self.0)),
+      Edge(Point2::new(0., self.0), Point2::new(0., 0.)),
+    ]
+  }
+
   fn can_move_to(&self, to : &Point2<f64>, _creature : &Creature ) -> bool {
     to.x >= 0. &&
     to.y >= 0. &&

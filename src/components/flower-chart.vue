@@ -1,16 +1,16 @@
 <template lang="pug">
 .flower-chart(
   :style="{ width: size + 'px', height: size + 'px', transform: 'rotate(-0.25turn)' }"
-  , :class="{ 'show-center-value': centerHover, 'show-values': showValues }"
+  , :class="{ 'show-center-value': centerHover, 'show-values': showValues, 'no-hover': valuesOutside }"
 )
   svg(ref="svg", :viewBox="viewbox", :width="size", :height="size")
-    circle.outer(r="1", fill="none")
+    circle.outer(:r="valuesOutside ? 0.5 : 1", fill="none")
     g.petals(:transform="`rotate(${globalAngle})`")
       g.petal(v-for="(svg, index) in petalSVG", v-bind="svg.group", @click="onPetalClick(index)")
         path.hover-area(v-bind="svg.hoverArea")
         path(v-bind="svg.petal")
-        text(v-bind="svg.text") {{ svg.value.toFixed(2) }}
-    g.center(@mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false", @click="onCenterClick")
+        text(v-bind="svg.text") {{ svg.value | fixed(2) }}
+    g.center(v-if="showCenter", @mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false", @click="onCenterClick")
       circle(:r="center", :fill="colors.center")
       circle.hover-area(r="0.3")
       text(transform="rotate(90)", :dy="showValues ? 0.03 : -0.3", alignment-baseline="middle") {{ data.center }}
@@ -41,6 +41,12 @@ function petalPath(r, arc){
 
 export default {
   name: 'FlowerChart'
+  , filters: {
+    fixed(v, n){
+      if (v === undefined){ return '' }
+      return v.toFixed(n)
+    }
+  }
   , props: {
     size: {
       type: Number
@@ -76,6 +82,14 @@ export default {
       type: Number
       , default: 0
     }
+    , showCenter: {
+      type: Boolean
+      , default: true
+    }
+    , valuesOutside: {
+      type: Boolean
+      , default: false
+    }
   }
   , data: () => ({
     viewbox: '-1.1 -1.1 2.2 2.2'
@@ -102,7 +116,7 @@ export default {
     , petals(){
       return (this.data.petals || []).map((value, i) => ({
         value
-        , scaled: this.petalScales[i](value)
+        , scaled: this.petalScales[i](value) * (this.valuesOutside ? 0.5 : 1)
       }))
     }
     , petalScales(){
@@ -142,10 +156,12 @@ export default {
         d = petalPath(1, Pi2 / len)
 
         let hoverArea = { d, fill }
+
+        let textFill = chroma.mix(fill, this.valuesOutside ? 'black' : 'white', 0.6).css()
         let text = {
           transform: `translate(0.8, 0) rotate(${-rot - ga + 90})`
           , 'alignment-baseline': 'middle'
-          , style: { stroke: fill }
+          , style: { stroke: textFill, fill: textFill }
         }
 
         return {
@@ -186,7 +202,7 @@ svg
 text
   fill: white
   stroke: black
-  stroke-width: 0.004px
+  stroke-width: 0
   text-anchor: middle
   text-shadow: 0 0 1px white
 .petals
@@ -212,7 +228,7 @@ circle
   stroke: #222
 circle.outer
   stroke-width: 0.01
-  stroke: rgba(160, 160, 160, 0.1)
+  stroke: rgb(43, 43, 43)
 .center
   cursor: pointer
   text
@@ -231,7 +247,10 @@ circle.outer
   .center
     text
       opacity: 1
-
+.no-hover
+  .center, .petal
+    text
+      opacity: 1
 // overrides to show values only
 .show-values
   .petal,

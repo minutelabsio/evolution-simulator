@@ -31,8 +31,10 @@ const watchableProps = {
   , right: Number
   , top: Number
   , bottom: Number
+}
 
-  , zoom: {
+const positionProps = {
+  zoom: {
     type: Number
     , default: 1
   }
@@ -54,8 +56,10 @@ export default {
       , default: 'perspective'
     }
 
+    , preventUpdate: Boolean
     , lookAt: Array
     , ...watchableProps
+    , ...positionProps
   }
   , components: {
   }
@@ -66,6 +70,7 @@ export default {
     camera.position.z = 1
 
     this.v3object = camera
+    this.assignProps( this.v3object, positionProps )
 
     this.$watch(() => {
       // watch these
@@ -96,6 +101,9 @@ export default {
   , methods: {
     updateObjects(){
       this.assignProps( this.v3object, watchableProps )
+      if (!this.preventUpdate){
+        this.assignProps( this.v3object, positionProps )
+      }
       if ( this.lookAt ){
         this.v3object.lookAt(this.lookAtV)
       }

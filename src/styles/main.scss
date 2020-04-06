@@ -23,7 +23,7 @@ body {
 
 ::selection {
   color: $text;
-  background: $blue;
+  background: $seafoam;
 }
 
 .content,
@@ -142,7 +142,7 @@ a:hover {
   }
   .active &,
   &.active {
-    color: $blue;
+    color: $primary;
   }
 }
 
@@ -158,13 +158,13 @@ a:hover {
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
-    background-color: mix($blue, $black-ter, 40);
+    background-color: mix($primary, $black-ter, 40);
   }
   &:hover::-webkit-scrollbar-thumb {
-    background-color: darken($blue, 10);
+    background-color: darken($primary, 10);
   }
   &::-webkit-scrollbar-thumb:hover {
-    background-color: $blue;
+    background-color: $primary;
   }
 }
 
@@ -235,6 +235,15 @@ a:hover {
 }
 .checkbox-btn-dark .button {
   @extend .btn-dark;
+}
+
+.button.is-text {
+  text-decoration: none;
+  &:hover,
+  &:active,
+  &:focus {
+    color: $text;
+  }
 }
 
 .button .icon.icon-only:first-child {
@@ -310,4 +319,20 @@ $pulseEnd: transparentize($blue, 1);
 
 .pulse-text {
   animation: pulse-text 2s infinite ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-down-enter, .slide-down-leave-to {
+  transform: translateY(-150%);
 }

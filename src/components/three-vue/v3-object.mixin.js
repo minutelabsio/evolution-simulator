@@ -53,7 +53,11 @@ export default {
   , beforeDestroy(){
     this.threeVue.$emit('scene:changed', { type: 'remove', component: this, object: this.v3object })
 
-    this.registerDisposables([ this.v3object, this.v3object.geometry, this.v3object.material ])
+    // set this to false to prevent autoclean
+    if ( this.autoClean !== false ){
+      this.registerDisposables([ this.v3object, this.v3object.geometry, this.v3object.material ])
+    }
+
     this.disposables.forEach( thing => {
       thing.dispose()
     })
@@ -84,8 +88,19 @@ export default {
       // abstract
     }
 
-    , registerDisposables( thing ){
+    , registerDisposables( thing, deep ){
       if ( !thing || this.disposables.indexOf(thing) > -1 ){ return this }
+      if ( deep ){
+        if ( thing.children ){
+          this.registerDisposables(thing.children, deep)
+        }
+        if ( thing.material ){
+          this.registerDisposables(thing.material, deep)
+        }
+        if ( thing.geometry ){
+          this.registerDisposables(thing.material, deep)
+        }
+      }
       if ( thing.dispose ){
         this.disposables.push( thing )
 
@@ -95,7 +110,7 @@ export default {
       } else if ( Array.isArray( thing ) ){
 
         for ( let th of thing ){
-          this.registerDisposables( th )
+          this.registerDisposables( th, deep )
         }
       }
 
@@ -113,6 +128,7 @@ export default {
     }
 
     , assignProps( dest, props ){
+      if ( !dest ){ return }
       for ( let prop of Object.keys(props) ){
         if ( prop in dest ){
           let val = this[prop]

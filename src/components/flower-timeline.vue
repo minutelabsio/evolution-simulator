@@ -37,6 +37,30 @@ const computed = {
 
 const watch = {
   value(){
+    this.focusSelected()
+  }
+  , data(data, oldValue){
+    if (!oldValue || !oldValue.length){
+      this.focusSelected()
+    }
+  }
+}
+
+const methods = {
+  onScroll( e ){
+    // e.preventDefault()
+    const el = this.$el
+    if ( e.deltaY ){
+      el.scrollLeft += e.deltaY
+    }
+  }
+  , onFlowerSelect( selected, generation ){
+    this.$emit('dataSelect', {
+      generation
+      , selected
+    })
+  }
+  , focusSelected(){
     this.$nextTick(() => {
       scrollTo('.selected', 500, {
         container: this.$el
@@ -46,20 +70,6 @@ const watch = {
           return -(this.$el.offsetWidth - el.offsetWidth) / 2
         }
       })
-    })
-  }
-}
-
-const methods = {
-  onScroll( e ){
-    e.preventDefault()
-    const el = this.$el
-    el.scrollLeft += e.deltaY
-  }
-  , onFlowerSelect( selected, generation ){
-    this.$emit('dataSelect', {
-      generation
-      , selected
     })
   }
 }
@@ -105,7 +115,7 @@ export default {
     &:active,
     &.selected
       transition: none
-      background-color: transparentize($blue, 0.8)
+      background-color: transparentize($primary, 0.8)
   .gen-label
     margin-bottom: 1em
   >>>

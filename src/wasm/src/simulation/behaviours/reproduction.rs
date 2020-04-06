@@ -8,7 +8,7 @@ pub struct BasicReproductionBehaviour;
 
 impl BasicReproductionBehaviour {
   fn will_reproduce(&self, creature : &Creature) -> bool {
-    creature.foods_eaten > 1
+    creature.foods_eaten.len() > 1
   }
 
   fn reproduce(&self, creature : &Creature, rng : &mut RefMut<SmallRng>) -> Vec<Creature> {

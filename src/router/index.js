@@ -1,3 +1,4 @@
+import _get from 'lodash/get'
 import Vue from 'vue'
 import Router from 'vue-router'
 import PlayerUI from '@/pages/player-ui'
@@ -17,13 +18,25 @@ import ViewScreen from '@/components/view-screen'
 
 Vue.use(Router)
 
-export default new Router({
+let shownIntro = false
+
+const parseProps = (route) => {
+  return {
+    ...route.params
+    , showConfig: !!route.query.cfg
+    , showIntro: route.query.intro | 0
+    , generationIndex: route.params.generationIndex
+    , hideControls: route.name === 'about' || route.name === 'stats'
+  }
+}
+
+const router = new Router({
   routes: [
     {
       path: '/'
       , name: 'home'
       , component: PlayerUI
-      , redirect: { name: 'simulation' }
+      , redirect: { name: 'viewscreen', params: { generationIndex: 1, intro: 1 } }
       , meta: {
         // music: {
         //   maxVolume: 0.7
@@ -46,23 +59,31 @@ export default new Router({
       ]
     }
     , {
-      path: '/s/:generationIndex?'
+      path: '/s/:generationIndex'
       , name: 'simulation'
-      , redirect: { name: 'viewscreen' }
+      , redirect: (route) => ({
+          name: 'viewscreen'
+          , params: {
+            generationIndex: +_get(route, 'params.generationIndex', 1)
+          }
+          , append: true
+        })
       , component: Simulation
-      , props(route){
-        return {
-          ...route.params
-          , showConfig: !!route.query.cfg
-          , generationIndex: +route.params.generationIndex
-        }
-      }
+      , props: parseProps
       , children: [
         {
           path: 'viewer'
           , name: 'viewscreen'
           , component: ViewScreen
-          , props: true
+          , props: parseProps
+          , beforeEnter(to, from, next) {
+            if (shownIntro){
+              return next()
+            }
+
+            shownIntro = true
+            next({ ...to, query: { intro: 1 }, append: true, replace: true })
+          }
         }
         , {
           path: 'stats'
@@ -70,16 +91,18 @@ export default new Router({
           , component: SimulationStatistics
           , props: true
         }
+        , {
+          path: 'about'
+          , name: 'about'
+          , component: About
+        }
       ]
     }
     , {
-      path: '/about'
-      , name: 'about'
-      , component: About
-    }
-    , {
       path: '*'
-      , redirect: { name: 'viewscreen' }
+      , redirect: { name: 'viewscreen', params: { generationIndex: 1 } }
     }
   ]
 })
+
+export default router

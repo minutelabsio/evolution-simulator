@@ -4,7 +4,14 @@ import sougy from '@/config/sougy-colors'
 import chroma from 'chroma-js'
 
 const foodSize = 2
-const foodColor = chroma(sougy.green).darken(0.8).num()
+const foodColor = chroma(sougy.green).darken(1).saturate(0.2).num()
+
+const foodGeometry = new THREE.SphereGeometry( foodSize, 64, 64 )
+const foodMaterial = new THREE.MeshLambertMaterial({
+  transparent: true
+  , opacity: 0
+  , color: foodColor
+})
 
 export default {
   name: 'food'
@@ -33,15 +40,10 @@ export default {
   }
   , methods: {
     createObject(){
-      let material = new THREE.MeshLambertMaterial({
-        transparent: true
-        , opacity: 0
-      })
-      let geometry = new THREE.SphereGeometry( foodSize, 64, 64 )
-      this.v3object = new THREE.Mesh( geometry, material )
+      this.v3object = new THREE.Mesh( foodGeometry, foodMaterial )
+      this.autoClean = false
     }
     , updateObjects(){
-      this.v3object.material.color = new THREE.Color(foodColor)
       let pos = this.food.position
       this.v3object.position.set(pos[0], foodSize + 0.2, pos[1])
     }

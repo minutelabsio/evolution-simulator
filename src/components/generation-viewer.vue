@@ -26,29 +26,7 @@
       //-   , :position="orthCameraPos"
       //-   , :look-at="origin"
       //- )
-      v3-camera(
-        ref="camera"
-        , :position="persCameraPos"
-        , :far="5000"
-        , :aspect="viewWidth / viewHeight"
-      )
-      v3-light(type="ambient", :intensity="0.9")
-      v3-light(
-        type="directional"
-        , :intensity="0.3"
-        , :position="[100, 200, -10]"
-        , :cast-shadow="true"
-        , :shadow-camera="shadowCamera"
-        , :shadow-bias="0.0001"
-        , :shadow-radius="0"
-        , :shadow-map-size-power="4"
-      )
-      v3-light(
-        type="directional"
-        , :intensity="0.05"
-        , :position="[10, 200, 100]"
-      )
-      v3-fog(:near="1000", :far="3000", :color="0xFFFFFF")
+
       //- v3-grid(
       //-   :size="gridSize - 10"
       //-   , :position="[0, 0.01, 0]",
@@ -56,22 +34,49 @@
       //-   , :color1="0x999999"
       //-   , :color2="0x999999"
       //- )
+      v3-camera(
+        ref="camera"
+        , :position="persCameraPos"
+        , prevent-update
+        , :far="4500"
+        , :near="1"
+        , :aspect="viewWidth / viewHeight"
+      )
+        v3-dom(ref="tour", :position="tourPosition")
+          Tour
+      v3-light(type="ambient", :intensity="0.9")
+      v3-light(
+        type="directional"
+        , :intensity="0.25"
+        , :position="[100, 200, -10]"
+        , :cast-shadow="true"
+        , :shadow-camera="shadowCamera"
+        , :shadow-bias="0.0001"
+        , :shadow-radius="0"
+        , :shadow-map-size-power="2"
+      )
+      v3-fog(:near="1000", :far="3000", :color="0xc9d7e6")
+
       //- Board
-      v3-plane(:width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
-      //- Thick board undernieth
-      v3-box(:width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
-      v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+      fadeTransition
+        v3-plane(v-if="showWorld", :width="gridSize", :height="gridSize", :position="[0, -0.05, 0]", :color="0xFFFFFF", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+      fadeTransition
+        //- Thick board undernieth
+        v3-box(v-if="showWorld", :width="gridSize + 40", :height="gridSize + 40", :depth="10", :position="[0, -6, 0]", :color="0xAAAAAA", :rotation="[-Math.PI / 2, 0, 0]", :receive-shadow="true")
+
+      v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
         Food(v-for="(food, index) in generation.food", :key="index", :food="food", :cast-shadow="true", :receive-shadow="true")
-      v3-group(v-if="generation", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
-        Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators")
-          v3-group(v-if="index === followCreatureIndex")
-            v3-dom(:position="[0, 1.5 * c.size[0], 0]")
+      v3-group(v-if="showWorld", :position="[-gridSize * 0.5, 0, -gridSize * 0.5]")
+        Creature(ref="v3Creatures", v-for="(c, index) in generation.creatures", :key="index", :creature="c", :size="3", v-bind="creatureIndicators", :color="speedIndicators ? speedColorScale(c.speed[0]).num() : undefined")
+          v3-group(v-if="c.id === followCreatureId")
+            v3-dom(:position="[0, 13 * (c.size[0]/10 + 0.5), 0]")
               CreatureStatus(:creature="c")
             v3-group(:position="[-100, 50, 0]", ref="cameraGoal")
             v3-group(:position="[0, 30, 0]", ref="cameraFocusGoal")
 </template>
 
 <script>
+import Copilot from 'copilot'
 import { mapGetters } from 'vuex'
 import chroma from 'chroma-js'
 import sougy from '@/config/sougy-colors'
@@ -79,6 +84,7 @@ import * as THREE from 'three'
 import _throttle from 'lodash/throttle'
 import _findIndex from 'lodash/findIndex'
 import v3Renderer from '@/components/three-vue/v3-renderer'
+import fadeTransition from '@/components/three-vue/fade.transition'
 import Gestures from '@/components/three-vue/gestures'
 import v3Scene from '@/components/three-vue/v3-scene'
 import v3Camera from '@/components/three-vue/v3-camera'
@@ -92,10 +98,12 @@ import v3Fog from '@/components/three-vue/v3-fog'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 import CreatureStatus from '@/components/3d-objects/creature-status'
+import Tour from '@/components/tour'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const components = {
   v3Renderer
+  , fadeTransition
   , Gestures
   , v3Scene
   , v3Camera
@@ -110,6 +118,7 @@ const components = {
   , Food
   , Creature
   , CreatureStatus
+  , Tour
 }
 
 const computed = {
@@ -122,17 +131,31 @@ const computed = {
   , creatureIndicators(){
     return {
       showSightIndicator: this.sightIndicators
-      , showSpeedIndicator: this.speedIndicators
+      // , showSpeedIndicator: this.speedIndicators
       , showEnergyIndicator: this.energyIndicators
+      , showFoodIndicator: this.foodIndicators
     }
+  }
+  , tourStepNumber(){
+    return this.$route.query.intro | 0
+  }
+  , showWorld(){
+    return this.generation && !this.hideStage
+  }
+  , speedColorScale(){
+    return chroma.scale([
+      chroma(sougy.red).desaturate(4)
+      , chroma(sougy.red).desaturate(0.5)
+    ]).mode('lab').domain([this.statistics.speed.min, this.statistics.speed.max])
   }
   , ...mapGetters('simulation', {
     'getCurrentGeneration': 'getCurrentGeneration'
+    , 'statistics': 'statistics'
   })
 }
 
 const watch = {
-  followCreatureIndex(){
+  followCreatureId(){
     this.checkFollowCreature()
   }
 }
@@ -150,7 +173,7 @@ const methods = {
     // controls
     let controls = this.controls = new OrbitControls( camera, renderer.domElement )
     controls.rotateSpeed = 0.2
-    controls.zoomSpeed = 1
+    controls.zoomSpeed = 0.5
     controls.panSpeed = 0.8
     controls.enableZoom = true
     controls.enablePan = false
@@ -159,7 +182,7 @@ const methods = {
     controls.dampingFactor = 0.1
     controls.minZoom = 1
     controls.maxZoom = 500
-    controls.maxDistance = 2500
+    controls.maxDistance = 4000
     let epsilon = 0.001
     controls.minPolarAngle = epsilon
     controls.maxPolarAngle = Math.PI - epsilon
@@ -178,6 +201,7 @@ const methods = {
       this.camera.position.lerp(this.cameraGoal, 0.05)
     }
     this.controls.target.copy(this.cameraFocusGoal)
+
     this.controls.update()
     this.$refs.renderer.draw()
   }
@@ -185,21 +209,22 @@ const methods = {
     let goal = this.$refs.cameraGoal && this.$refs.cameraGoal[0]
     let focusGoal = this.$refs.cameraFocusGoal && this.$refs.cameraFocusGoal[0]
     if (!goal){ return }
-    // let creature = this.$refs.v3Creatures[this.followCreatureIndex]
+    // let creature = this.$refs.v3Creatures[this.followCreatureId]
     this.cameraGoal.setFromMatrixPosition(goal.v3object.matrixWorld)
     tmpV.setFromMatrixPosition(focusGoal.v3object.matrixWorld)
     this.cameraFocusGoal.lerp(tmpV, 0.05)
   }
   , checkFollowCreature(){
-    let active = this.followCreatureIndex !== undefined
+    let active = this.followCreatureId !== undefined
     // this.controls.enabled = !active
-    this.transitionCamera = true
     if (!active){
       this.cameraGoal.fromArray(this.persCameraPos)
       this.cameraFocusGoal.copy(this.scene.position)
       setTimeout(() => {
         this.transitionCamera = false
       }, 1500)
+    } else {
+      this.transitionCamera = true
     }
   }
   , onResize(){
@@ -215,16 +240,108 @@ const methods = {
     if (!intersects.length){ return }
     let blob = intersects[0].object
     let index = _findIndex(this.$refs.v3Creatures, c => c.v3object === blob.parent.parent)
-    let creature = this.$refs.v3Creatures[index]
+    let creature = this.generation.creatures[index]
     this.$emit('tap-creature', {creature, index})
   }
   , onHover: _throttle(function({ intersects }){
     let renderer = this.renderer
     renderer.removeOutline()
     if (intersects.length){
-      renderer.addOutline( intersects[0].object )
+      let blob = intersects[0].object
+      let index = _findIndex(this.$refs.v3Creatures, c => c.v3object === blob.parent.parent)
+      let id = this.generation.creatures[index].id
+
+      renderer.addOutline( blob )
+      this.$emit('creature-hover', { index, id, creature: blob })
     }
   }, 100)
+  , initTour(){
+    let frames = Copilot({
+      cameraPosition: {
+        type: 'Vector3'
+        , default: new THREE.Vector3(0, 4000, 300)
+        , easing: Copilot.Easing.Quadratic.InOut
+      }
+      , cameraRotation: {
+        type: 'Vector3'
+        , default: new THREE.Vector3(0, 0, 0)
+      }
+      , hideStage: false
+      , tourPosition: [0, 0, -100]
+    })
+
+    frames.add({}, {
+      id: 'step-1'
+      , time: 0
+    })
+
+    // frames.add({ hideStage: false }, { time: 1, duration: 1 })
+
+    frames.add({
+      tourPosition: [0, 25, -100]
+    }, {
+      time: '1s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    // step 1
+    frames.add({
+      cameraPosition: new THREE.Vector3().fromArray(this.persCameraPos)
+    }, {
+      id: 'step-2'
+      , time: '5s'
+      , duration: '5s'
+    })
+
+    frames.add({
+      tourPosition: [0, 0, -100]
+    }, {
+      id: 'step-6'
+      , time: '6s'
+      , duration: '1s'
+      , easing: Copilot.Easing.Quadratic.InOut
+    })
+
+    this.tourActive = false
+    let player = Copilot.Player({ manager: frames })
+
+    frames.on('update', () => {
+      if (!this.tourActive){return}
+      let state = frames.state
+
+      if (!this.transitionCamera){
+        this.camera.position.copy(state.cameraPosition)
+      }
+      this.hideStage = state.hideStage
+      this.tourPosition = state.tourPosition
+    })
+
+    this.$watch('tourStepNumber', (n) => {
+      if (!n){
+        player.seek(player.totalTime)
+        this.tourActive = false
+        this.controls.enabled = true
+        return
+      }
+
+      this.tourActive = true
+      this.controls.enabled = false
+
+      let f = frames.getFrame('step-' + n)
+      while (!f && n > 0){
+        n--
+        f = frames.getFrame('step-' + n)
+      }
+
+      player.playTo(f.meta.time)
+    }, { immediate: true })
+
+    this.$on('hook:beforeDestroy', () => {
+      player.destroy()
+      frames.off(true)
+    })
+  }
 }
 
 export default {
@@ -238,7 +355,8 @@ export default {
     , sightIndicators: Boolean
     , speedIndicators: Boolean
     , energyIndicators: Boolean
-    , followCreatureIndex: Number
+    , foodIndicators: Boolean
+    , followCreatureId: String
   }
   , inject: [ 'getTime' ]
   , data: () => ({
@@ -249,17 +367,19 @@ export default {
     , persCameraPos: [600, 300, 600]
     , orthCameraPos: [100, 50, 100]
     , shadowCamera: {
-      near: 10
-      , far: 500
-      , left: -300
-      , right: 300
-      , top: 300
-      , bottom: -300
+      near: 100
+      , far: 380
+      , left: -280
+      , right: 280
+      , top: 280
+      , bottom: -280
     }
     , cameraGoal: new THREE.Vector3()
     , cameraFocusGoal: new THREE.Vector3()
     , interactiveObjects: ['blob']
     , highlightColor: chroma(sougy.red).num()
+    , hideStage: false
+    , tourPosition: [0, 0, -100]
   })
   , components
   , computed
@@ -274,6 +394,7 @@ export default {
     this.initCamera()
     // this.debug()
     this.checkFollowCreature()
+    this.initTour()
 
     // Initialize drawing
     let stop = false
@@ -293,5 +414,6 @@ export default {
 
 <style lang="sass" scoped>
 .generation-viewer
-  background: #333333
+  max-width: 100vw
+  background: $grey-darker
 </style>

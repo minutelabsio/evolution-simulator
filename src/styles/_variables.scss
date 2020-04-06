@@ -40,9 +40,9 @@ $yellow-dark: hsl(54, 71%, 31%);
 
 $black:        hsl(0, 0%, 4%) !default;
 $black-bis:    hsl(0, 0%, 7%) !default;
-$black-ter:    hsl(0, 0%, 10%) !default;
+$black-ter:    hsl(0, 0%, 9%) !default;
 
-$grey-darker:  hsl(0, 0%, 18%) !default;
+$grey-darker:  hsl(0, 0%, 14%) !default;
 $grey-dark:    hsl(0, 0%, 26%) !default;
 $grey:         hsl(0, 0%, 38%) !default;
 $grey-light:   hsl(0, 0%, 86%) !default;
@@ -55,7 +55,7 @@ $white:        hsl(0, 0%, 100%) !default;
 $orange:       hsl(30, 85%, 58%) !default;
 $yellow:       hsl(47, 78%, 41%) !default;
 $green:        hsl(90, 100%, 25%) !default;
-$turquoise:    hsl(171, 94%, 45%) !default;
+$seafoam:      hsl(171, 94%, 45%) !default;
 $cyan:         hsl(196, 100%, 50%) !default;
 $blue:         hsl(210, 79%, 38%) !default;
 $purple:       hsl(315, 69%, 30%) !default;
@@ -66,13 +66,13 @@ $red: #d20f18;
 $crimson: #640302;
 $blue: #1f698e;
 $cyan: #07C7FB;
-$green: #94C158;
+$green: #b7d65a;
 $lime: #97F61B;
 $darkGreen: #246B26;
 $orange: #f47e18;
 $yellow: #FDDE3B;
 $violet: #c86f87;
-$turquoise: #6dc0b4;
+$seafoam: #1cc1aa;
 $cream: #EEEDD6;
 $ivory: #FFFDFC;
 $pink: #e71376;
@@ -81,15 +81,15 @@ $lightBrown: #643D37;
 $grey: #5f5e55;
 
 
-$primary: $blue;
-$link:    $blue;
-$info:    $cyan;
-$success: $green;
+$primary: darken($seafoam, 12);
+$link:    $primary;
+$info:    darken($blue, 4);
+$success: $darkGreen;
 $warning: $yellow;
 $danger:  $red;
 $background: $black-ter;
-$text: $white;
-
+$text: $ivory;
+$light: $cream;
 // Typography
 
 $family-sans-serif: 'Source Sans Pro', BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;

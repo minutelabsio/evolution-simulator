@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import _get from 'lodash/get'
 
 export default {
   name: 'Gestures'
@@ -9,8 +10,6 @@ export default {
   , components: {
   }
   , data: () => ({
-    dragging: false
-    , dragged: false
   })
   , created(){
     this.raycaster = new THREE.Raycaster()
@@ -143,7 +142,7 @@ export default {
 
       let ray = this.raycaster.ray.clone()
 
-      this.dragging = true
+      this.dragging = { intersects, ray }
       this.dragged = false
 
       this.$emit('dragstart', { intersects, ray })
@@ -151,15 +150,16 @@ export default {
     , dragEnd( pos ){
       let intersects = this.raycast( pos )
 
-      if ( !this.dragging && !intersects.length ){ return }
+      let dragging = this.dragging
+      this.dragging = false
+
+      if ( !dragging ){ return }
 
       let ray = this.raycaster.ray.clone()
 
-      this.dragging = false
-
       if ( this.dragged ){
         this.$emit('dragend', { intersects, ray })
-      } else {
+      } else if (_get(intersects[0], 'object') === _get(dragging.intersects[0], 'object')){
         this.$emit('tap', { intersects, ray })
       }
     }

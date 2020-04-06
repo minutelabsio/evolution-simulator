@@ -4,6 +4,7 @@ use std::cell::{RefCell};
 use std::rc::Rc;
 use rand::{SeedableRng, Rng, rngs::SmallRng};
 use rand::distributions::{Normal, Distribution};
+use uuid::Uuid;
 use crate::creature::*;
 use crate::stage::*;
 // use crate::timer::Timer;
@@ -12,6 +13,8 @@ pub mod behaviours;
 
 // just to prevent infinite loops
 const MAX_STEPS : usize = 1_000_000;
+
+pub type Step = usize;
 
 // what phase of the time step is it?
 #[derive(Debug, Copy, Clone)]
@@ -63,6 +66,7 @@ pub struct Simulation {
   pub generations : Vec<Generation>,
   pub behaviours : Vec<Box<dyn StepBehaviour>>,
   pub reproduction_behaviour : Box<dyn ReproductionBehaviour>,
+  callbacks : Vec<Box<dyn FnMut(&mut Simulation) -> ()>>,
 }
 
 // Starting point for creating simulations
@@ -78,7 +82,8 @@ impl Simulation {
       behaviours : vec![Box::new(ResetBehaviour)],
       reproduction_behaviour : Box::new(behaviours::BasicReproductionBehaviour),
       // prepare a deterministic generator:
-      rng: Rc::new(RefCell::new(SmallRng::seed_from_u64(seed)))
+      rng: Rc::new(RefCell::new(SmallRng::seed_from_u64(seed))),
+      callbacks: vec![],
     }
   }
 
@@ -88,6 +93,18 @@ impl Simulation {
 
   pub fn set_reproduction_behaviour(&mut self, b : Box<dyn ReproductionBehaviour>){
     self.reproduction_behaviour = b;
+  }
+
+  pub fn add_generation_callback<F: 'static>(&mut self, f : F)
+  where F : FnMut(&mut Simulation) -> () {
+    self.callbacks.push(Box::new(f));
+  }
+
+  fn call_callbacks(&mut self){
+    let mut cbs = vec![];
+    std::mem::swap(&mut self.callbacks, &mut cbs);
+    cbs.iter_mut().for_each(|f| f(self));
+    std::mem::swap(&mut self.callbacks, &mut cbs);
   }
 
   pub fn run(&mut self, creatures: Vec<Creature>, max_generations : u32){
@@ -100,13 +117,15 @@ impl Simulation {
 
       let food_locations = self.generate_food();
       let creatures = self.exec_reproduction(&generation.creatures);
-      let next = Generation::new( self, creatures, food_locations );
       self.generations.push(generation);
+      self.call_callbacks();
+      let next = Generation::new( self, creatures, food_locations );
       generation = next;
       keep_going = generation.has_living_creatures();
     }
 
     self.generations.push(generation);
+    self.call_callbacks();
   }
 
   pub fn exec_reproduction(&self, creatures : &Vec<Creature>) -> Vec<Creature> {
@@ -140,19 +159,37 @@ pub enum FoodStatus {
   Eaten(usize), // step the food was eaten at
 }
 
+pub trait Edible {
+  fn get_edible_id(&self) -> Uuid;
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Food {
-  position: Point2<f64>,
-  status: FoodStatus,
+  pub id : Uuid,
+  pub position: Point2<f64>,
+  pub status: FoodStatus,
 }
 impl Food {
+  pub fn new(position: Point2<f64>) -> Self {
+    Self {
+      id: Uuid::new_v4(),
+      position,
+      status: FoodStatus::Available
+    }
+  }
   pub fn is_eaten(&self) -> bool { self.status != FoodStatus::Available }
+}
+
+impl Edible for Food {
+  fn get_edible_id(&self) -> Uuid {
+    self.id
+  }
 }
 
 // Each generation of the simulation. A collection of creatures
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Generation {
-  pub steps : usize, // total steps this generation took to complete
+  pub steps : Step, // total steps this generation took to complete
   pub creatures : Vec<Creature>,
   pub food : Vec<Food>, // tuple showing the step the food was eaten
 }
@@ -165,10 +202,7 @@ impl Generation {
 
   fn generate(sim : &Simulation, creatures: Vec<Creature>, food_locations: Vec<Point2<f64>>) -> Self {
     let food = food_locations.iter().map(|p| {
-      Food {
-        position: *p,
-        status: FoodStatus::Available,
-      }
+      Food::new(*p)
     }).collect();
 
     let mut gen = Generation {
