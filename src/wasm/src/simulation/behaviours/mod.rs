@@ -31,3 +31,7 @@ pub use edge_home::*;
 
 mod cannibalism;
 pub use cannibalism::*;
+
+// doesn't work the way i wanted it to
+// mod event;
+// pub use event::*;

@@ -6,6 +6,7 @@ pub struct Timer {
 }
 
 impl Timer {
+  #[allow(dead_code)]
   pub fn new(name: String) -> Timer {
     console::time_with_label(&name);
     Timer { name }
