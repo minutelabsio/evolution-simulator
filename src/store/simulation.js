@@ -5,13 +5,10 @@ import traitColors from '@/config/trait-colors'
 import createWorker from '@/workers/simulation'
 const worker = createWorker()
 
-// const BEHAVIOURS = [
-//   { name: 'WanderBehaviour' }
-//   , { name: 'ScavengeBehaviour' }
-//   , { name: 'BasicMoveBehaviour' }
-//   , { name: 'HomesickBehaviour' }
-//   , { name: 'StarveBehaviour' }
-// ]
+const PRESETS = [
+  'default'
+  , 'home_remove'
+]
 
 function getTraitsForPreset(){
   return [ 'age', 'speed', 'size', 'sense_range' ]
@@ -41,7 +38,9 @@ const initialState = {
     , size: 500
     , preset: {
       name: 'default'
-      , foods_before_home: 2
+      , options: {
+        step: 10
+      }
     }
   }
   , creatureConfig: {
@@ -104,6 +103,7 @@ export const simulation = {
     , isContinuing: state => state.isContinuing
     , isBusy: state => state.isBusy
     , canContinue: state => state.canContinue
+    , presets: () => PRESETS
     , config: state => state.config
     , creatureConfig: state => state.creatureConfig
     , creatureTemplate: state => state.creatureConfig.template

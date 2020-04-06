@@ -8,8 +8,19 @@
 
   .content
     .has-text-centered
+      .preset-config
+        b-field
+          b-select(v-model="currentPreset")
+            option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
+
+        .preset-config(v-if="currentPreset === 'home_remove'")
+          p Remove the blob's homes from three edges at the following generation:
+          b-field
+            NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
+      br/
       p More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
+  hr/
   .content
     .has-text-centered
       h2.title.is-size-4 First
@@ -115,19 +126,40 @@ export default {
   , data: () => ({
     traitColors
     , foodColor: sougy.green
+
+    , presetOptions: {}
   })
   , components: {
     NumberInput
   }
   , mounted(){
+    this.presetOptions = {...this.config.preset.options}
+    this.$watch('presetOptions', () => {
+      this.$store.dispatch('simulation/setConfig', { preset: {
+        ...this.config.preset
+        , options: this.presetOptions
+      } })
+    }, { deep: true })
   }
   , computed: {
     ...mapGetters('simulation', {
       isLoading: 'isLoading'
       , config: 'config'
       , creatureTemplate: 'creatureTemplate'
+      , presets: 'presets'
     })
 
+    , currentPreset: {
+      get(){
+        return this.config.preset.name
+      }
+      , set(name){
+        this.$store.dispatch('simulation/setConfig', { preset: {
+          ...this.config.preset
+          , name
+        } })
+      }
+    }
     , seed: storeParam('seed', 'config', 'simulation/setConfig')
     , maxGenerations: storeParam('max_generations', 'config', 'simulation/setConfig')
     , foodPerGeneration: storeParam('food_per_generation', 'config', 'simulation/setConfig')
@@ -167,4 +199,9 @@ export default {
     top: 1rem
     right: 1rem
     color: lighten($grey, 20)
+
+.preset-config
+  display: flex
+  flex-direction: column
+  align-items: center
 </style>
