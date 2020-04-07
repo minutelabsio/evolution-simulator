@@ -74,7 +74,7 @@
             , :creature="c"
             , :size="3"
             , v-bind="creatureIndicators"
-            , :color="speedIndicators ? speedColorScale(c.speed[0]).num() : c.species === 'foreign' ? 0xcc0000 : undefined"
+            , :color="speedIndicators ? speedColorScale(c.speed[0]).num() : getCreatureColor(c.species)"
           )
           v3-group(v-if="c.id === followCreatureId")
             v3-dom(:position="[0, 13 * (c.size[0]/10 + 0.5), 0]")
@@ -108,6 +108,8 @@ import Creature from '@/components/3d-objects/creature'
 import CreatureStatus from '@/components/3d-objects/creature-status'
 import Tour from '@/components/tour'
 const OrbitControls = require('three-orbit-controls')(THREE)
+
+const defaultCreatureColor = chroma(sougy.blue).desaturate(0.5).num()
 
 const components = {
   v3Renderer
@@ -174,6 +176,13 @@ const methods = {
     // The X axis is red. The Y axis is green. The Z axis is blue.
     var axesHelper = new THREE.AxesHelper( 5 )
     this.scene.add( axesHelper )
+  }
+  , getCreatureColor(species){
+     let color = defaultCreatureColor
+     if (species === 'invasive_species'){
+       color = 0xcc0000
+     }
+     return color
   }
   , initCamera(){
     const renderer = this.$refs.renderer.renderer

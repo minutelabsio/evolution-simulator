@@ -20,23 +20,17 @@
       br/
       p More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
+  .invasive(v-if="currentPreset === 'invasive_species'")
+    .content
+      .has-text-centered
+        h2.title.is-size-4 Invasive Species
+      CreatureTemplateConfig(species="invasive_species")
   hr/
   .content
     .has-text-centered
       h2.title.is-size-4 First
-    .columns
-      .column.has-text-right-tablet.has-text-centered
-        p We will start with this many creatures
-        .is-inline-block
-          NumberInput(v-model="creatureCount", label="Creatures to Start", :min="1", :change-rate="10", condensed)
+    CreatureTemplateConfig(species="default")
 
-      .column.has-text-left-tablet.has-text-centered
-        p ...and each creature will start with these properties
-        .is-inline-block
-          .number-input-group
-            NumberInput(v-model="speedValue", label="Speed", :min="0.05", :change-rate="10", :color="traitColors.speed")
-            NumberInput(v-model="sizeValue", label="Size", :min="0.05", :change-rate="10", :color="traitColors.size")
-            NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
   .content
     .has-text-centered
       h2.title.is-size-4 Each generation
@@ -50,21 +44,6 @@
         .is-inline-block
           NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :change-rate="10", condensed, :color="foodColor")
 
-  .content
-    .has-text-centered
-      h2.title.is-size-4 When they reproduce
-    .columns
-      .column.has-text-right-tablet.has-text-centered
-        p.
-          The traits will mutate by randomly selecting a value
-          (in a gaussian normal distribution) centered around their current trait value
-          with a variance of...
-      .column.has-text-left-tablet.has-text-centered
-        .is-inline-block
-          .number-input-group
-            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.speed")
-            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.size")
-            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.sense_range")
 
   //- b-field(grouped)
   //-   b-field(label="Reach")
@@ -95,6 +74,7 @@ import { mapGetters } from 'vuex'
 import traitColors from '@/config/trait-colors'
 import sougy from '@/config/sougy-colors'
 import NumberInput from '@/components/inputs/number-input'
+import CreatureTemplateConfig from '@/components/creature-template-config'
 
 function storeParam(key, src, action){
   return {
@@ -134,6 +114,7 @@ export default {
   })
   , components: {
     NumberInput
+    , CreatureTemplateConfig
   }
   , mounted(){
     this.presetOptions = {...this.config.preset.options}
@@ -200,6 +181,9 @@ export default {
   font-size: 18px
   p
     font-family: $family-sans-serif
+  >>> .content
+    margin-bottom: 2rem
+
   .close
     position: absolute
     top: 1rem

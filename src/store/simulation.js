@@ -8,6 +8,7 @@ const worker = createWorker()
 const PRESETS = [
   'default'
   , 'home_remove'
+  , 'invasive_species'
 ]
 
 function getTraitsForPreset(){
@@ -47,7 +48,17 @@ const initialState = {
   , creatureConfigs: {
     'default': {
       count: 50
-      , template: DEFAULT_CREATURE_PROPS
+      , template: {
+        ...DEFAULT_CREATURE_PROPS
+      }
+    }
+    , 'invasive_species': {
+      count: 1
+      , template: {
+        ...DEFAULT_CREATURE_PROPS
+        , sense_range: [50, 0.5]
+        , species: 'invasive_species'
+      }
     }
   }
 
