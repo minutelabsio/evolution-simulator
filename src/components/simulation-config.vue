@@ -23,12 +23,12 @@
   .invasive(v-if="currentPreset === 'invasive_species'")
     .content
       .has-text-centered
-        h2.title.is-size-4 Invasive Species
+        h2.title.is-size-4 Invasive Species (Orange Blobs)
       CreatureTemplateConfig(species="invasive_species")
   hr/
   .content
     .has-text-centered
-      h2.title.is-size-4 First
+      h2.title.is-size-4 Blob Creatures
     CreatureTemplateConfig(species="default")
 
   .content

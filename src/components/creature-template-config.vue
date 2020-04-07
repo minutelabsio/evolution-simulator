@@ -4,11 +4,14 @@
     .columns
       .column.has-text-right-tablet.has-text-centered
         p We will start with this many creatures
-        .is-inline-block
-          NumberInput(v-model="creatureCount", label="Creatures to Start", :min="1", :change-rate="10", condensed)
-
       .column.has-text-left-tablet.has-text-centered
-        p ...and each creature will start with these properties
+        .is-inline-block
+          NumberInput(v-model="creatureCount", label="Num. Blobs at Start", :min="1", :change-rate="10", condensed)
+
+    .columns
+      .column.has-text-right-tablet.has-text-centered
+        p and each creature will start with these properties
+      .column.has-text-left-tablet.has-text-centered
         .is-inline-block
           .number-input-group
             NumberInput(v-model="speedValue", label="Speed", :min="0.05", :change-rate="10", :color="traitColors.speed")
