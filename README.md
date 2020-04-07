@@ -30,3 +30,7 @@ yarn run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+# Notes
+
+Staging deployment: `NODE_ENV=staging yarn build && now`

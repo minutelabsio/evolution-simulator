@@ -13,10 +13,10 @@
           b-select(v-model="currentPreset")
             option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
 
-        .preset-config(v-if="currentPreset === 'home_remove'")
-          p Remove the blob's homes from three edges at the following generation:
-          b-field
-            NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
+        //- .preset-config(v-if="currentPreset === 'home_remove'")
+        //-   p Remove the blob's homes from three edges at the following generation:
+        //-   b-field
+        //-     NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
       br/
       p More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
