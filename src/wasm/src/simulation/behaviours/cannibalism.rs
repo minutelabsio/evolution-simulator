@@ -57,7 +57,7 @@ impl StepBehaviour for CannibalismBehaviour {
         }
 
         if let Some(prev_speed) = target_prey_speed.get(&predator.id) {
-          if *prev_speed < prey.get_speed() {
+          if *prev_speed <= prey.get_speed() {
             // seeing many, so favour the one that's slower
             return;
           }

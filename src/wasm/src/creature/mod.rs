@@ -172,7 +172,9 @@ impl Creature {
   pub fn set_speed(&mut self, speed : f64) { self.speed.0 = speed }
   pub fn get_sense_range(&self) -> f64 { self.sense_range.0 }
   pub fn set_sense_range(&mut self, sense : f64) { self.sense_range.0 = sense }
-  pub fn get_reach(&self) -> f64 { self.reach.0 }
+  // Reach is at least one quarter of the blob's size (which means they can reach what
+  // they touch with their bodies)
+  pub fn get_reach(&self) -> f64 { self.reach.0.max(self.get_size() / 4.) }
   pub fn get_life_span(&self) -> f64 { self.life_span.0 }
 
   pub fn is_alive(&self) -> bool {
@@ -239,7 +241,7 @@ impl Creature {
         let dist_to_old = (pos - o.pos).norm();
         let dist_to_new = (pos - obj.pos).norm();
 
-        if dist_to_new > dist_to_old {
+        if dist_to_new < dist_to_old {
           self.objective = Some(obj)
         }
       },

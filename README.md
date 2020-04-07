@@ -1,6 +1,7 @@
 # Evolution Simulator
 
 This project uses vue-cli. Enjoy!
+You'll need to install [rust](https://www.rust-lang.org/learn/get-started) and [wasm-pack](https://rustwasm.github.io/wasm-pack/).
 
 ## Project setup
 ```
