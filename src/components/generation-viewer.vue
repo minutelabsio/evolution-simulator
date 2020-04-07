@@ -110,6 +110,9 @@ import Tour from '@/components/tour'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const defaultCreatureColor = chroma(sougy.blue).desaturate(0.5).num()
+const creatureColors = {
+  'invasive_species': chroma(sougy.orange).num()
+}
 
 const components = {
   v3Renderer
@@ -178,11 +181,7 @@ const methods = {
     this.scene.add( axesHelper )
   }
   , getCreatureColor(species){
-     let color = defaultCreatureColor
-     if (species === 'invasive_species'){
-       color = 0xcc0000
-     }
-     return color
+    return creatureColors[species] || defaultCreatureColor
   }
   , initCamera(){
     const renderer = this.$refs.renderer.renderer
