@@ -1,4 +1,4 @@
-const app = import('@/wasm/pkg/app')
+const app = import(/* webpackPreload: true */ '@/wasm/pkg/app')
 app.then( mod => {
   console.log('setting debug hook')
   mod.browser_debug()

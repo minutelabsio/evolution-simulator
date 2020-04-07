@@ -6,21 +6,26 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1a1a1a">
+    <link rel="prefetch" href="//cdn.minutelabs.io/logos/logo-minutelabs-off.jpg">
+    <link rel="prefetch" href="//cdn.minutelabs.io/logos/logo-minutelabs-on.jpg">
+    <link rel="preload" as="font" href="https://cdn.minutelabs.io/webfonts/Latin-Modern-Mono/latinmodernmono_10regular_macroman/lmmono10-regular-webfont.woff">
+    <link rel="stylesheet" href="//cdn.minutelabs.io/spinner/ml-spinner.css">
     <link rel="icon" sizes="192x192" href="//cdn.minutelabs.io/logos/logo-minutelabs-192x192.png">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i">
-    <link rel=stylesheet href=https://use.fontawesome.com/releases/v5.3.1/css/all.css integrity=sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU crossorigin=anonymous>
-    <title>Evolution Simulator | MinuteLabs.io</title>
-    <meta name="og:title" property="og:title" content="Evolution Simulator | MinuteLabs.io">
-    <meta name="description" content="">
-    <meta property="og:image" content="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i&display=swap">
+    <link rel="stylesheet" href="https://cdn.minutelabs.io/webfonts/Latin-Modern-Mono/latinmodernmono_10regular_macroman/stylesheet.css">
+    <!-- <link rel=stylesheet href=https://use.fontawesome.com/releases/v5.3.1/css/all.css integrity=sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU crossorigin=anonymous> -->
+    <title><%= VUE_APP_LAB_NAME %> | MinuteLabs.io</title>
+    <meta name="og:title" property="og:title" content="<%= VUE_APP_LAB_NAME %> | MinuteLabs.io">
+    <meta name="description" content="<%= VUE_APP_LAB_DESCRIPTION %>">
+    <meta property="og:image" content="<%= VUE_APP_LAB_BASE %>/social-thumbnail.png">
     <meta property="og:type" content="website">
-    <meta property="og:description" content="">
+    <meta property="og:description" content="<%= VUE_APP_LAB_DESCRIPTION %>">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="">
+    <meta name="twitter:image" content="<%= VUE_APP_LAB_BASE %>/social-thumbnail.png">
     <meta name="twitter:site" content="@minutelabsio">
     <meta name="twitter:creator" content="@minutelabsio">
   </head>
@@ -28,7 +33,9 @@
     <noscript>
       <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <div id="app"></div>
+    <div id="app">
+      <div class="ml-spinner"></div>
+    </div>
     <!-- built files will be auto injected -->
   </body>
 </html>

@@ -3,6 +3,10 @@ const path = require('path')
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
 const labConfig = require('./lab-config')
 
+process.env.VUE_APP_LAB_NAME = labConfig.title
+process.env.VUE_APP_LAB_DESCRIPTION = labConfig.description
+process.env.VUE_APP_LAB_BASE = '//labs.minutelabs.io/' + labConfig.repo
+
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production'
     ? `/${labConfig.repo}/`

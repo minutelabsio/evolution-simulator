@@ -298,7 +298,7 @@ export default {
 
   // max-height: calc(100vh - 214px)
 .bottom-drawer-content
-  height: 255px
+  height: 262px
   &.collapse-enter-active, &.collapse-leave-active
     transition: height .3s ease
     .legend-drawer
