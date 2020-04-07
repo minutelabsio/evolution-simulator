@@ -22,7 +22,7 @@ const DEFAULT_CREATURE_PROPS = {
   , reach: [1, 0]
   , flee_distance: [1e12, 0] // for now flee within sight range
   , life_span: [1e4, 0]
-  , energy: 5000000
+  , energy: 500
   , species: 'default'
 }
 

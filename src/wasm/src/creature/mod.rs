@@ -6,6 +6,8 @@ use std::cell::{RefMut};
 use rand::{rngs::SmallRng};
 use uuid::Uuid;
 
+const ENERGY_COST_SCALE_FACTOR : f64 = 1. / 10_000.;
+
 fn get_uuid() -> Uuid {
   Uuid::new_v4()
 }
@@ -198,7 +200,8 @@ impl Creature {
 
   pub fn get_motion_energy_cost(&self) -> f64 {
     // primer's energy cost equation
-    self.get_size().powi(3) * self.get_speed().powi(2) + self.get_sense_range()
+    ENERGY_COST_SCALE_FACTOR *
+    (self.get_size().powi(3) * self.get_speed().powi(2) + self.get_sense_range())
   }
 
   pub fn get_direction(&self) -> Unit<Vector2<f64>> {
