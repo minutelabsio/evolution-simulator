@@ -184,7 +184,7 @@ export default {
   , mounted() {
     this.render()
 
-    const onClick = e => {
+    const onClick = () => {
       let tooltip = this._data._chart.tooltip
       if (!tooltip._active){ return }
       let gen = tooltip._active[0]._index + 1
