@@ -4,6 +4,10 @@ use super::*;
 #[derive(Debug, Copy, Clone)]
 pub struct ScavengeBehaviour;
 impl ScavengeBehaviour {
+  fn is_creature_hungry(creature : &Creature) -> bool {
+    creature.is_active() && creature.foods_eaten.len() < 2
+  }
+
   fn look_for_food(&self, creature : &mut Creature, available_food : &Vec<Food>){
     if let Some(food) = self.nearest_food(creature, available_food) {
       if creature.can_see(&food.position) {
@@ -56,19 +60,17 @@ impl StepBehaviour for ScavengeBehaviour {
       let available_food = generation.get_available_food();
 
       generation.creatures.iter_mut()
-        .filter(|c| c.is_active())
+        .filter(|c| Self::is_creature_hungry(&c))
         .for_each(|c| self.look_for_food(c, &available_food));
     }
 
     // when it is able to interact
-    // FIXME: high speed and low sense, means this creature might pass right through food
-    // need ray tracing
     if let Phase::ACT = phase {
       let mut available_food = generation.get_available_food();
 
       for index in 0..generation.creatures.len() {
         let creature = &mut generation.creatures[index];
-        if creature.is_alive() {
+        if Self::is_creature_hungry(&creature) {
           if let Some(food) = self.try_find_food(creature, &available_food) {
             creature.eat_food(generation.steps, &food);
             generation.mark_food_eaten(&food);
