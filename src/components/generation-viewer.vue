@@ -231,12 +231,13 @@ const methods = {
     this.cameraFocusGoal.lerp(tmpV, 0.05)
   }
   , checkFollowCreature(){
+    clearTimeout(this.followTO)
     let active = this.followCreatureId !== undefined
     // this.controls.enabled = !active
     if (!active){
       this.cameraGoal.fromArray(this.persCameraPos)
       this.cameraFocusGoal.copy(this.scene.position)
-      setTimeout(() => {
+      this.followTO = setTimeout(() => {
         this.transitionCamera = false
       }, 1500)
     } else {
