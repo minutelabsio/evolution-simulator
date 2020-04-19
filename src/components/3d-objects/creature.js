@@ -181,6 +181,10 @@ const blobMaterialProps = {
   }
 }
 
+const tmpV = new THREE.Vector3()
+const axisX = new THREE.Vector3(1, 0, 0)
+const axisY = new THREE.Vector3(0, 1, 0)
+
 export default {
   name: 'creature'
   , mixins: [ THREEObjectMixin ]
@@ -244,10 +248,17 @@ export default {
       if (this.showFoodIndicator){
         let foods = this.creature.foods_eaten
         let foodIndicators = this.foodIndicators.children
+        // console.log(foods, foodIndicators)
         for (let i = 0, l = foodIndicators.length; i < l; i++){
           let f = foods[i]
-          foodIndicators[i].visible = f && (f[0] < stepFrac)
+          foodIndicators[i].visible = !!(f && (f[0] < stepFrac))
         }
+
+        // rotate food indicators with camera
+        let dir = this.threeVue.camera.getWorldDirection( tmpV ).projectOnPlane( axisY )
+        let rot = dir.angleTo( axisX )
+        let sign = dir.cross( axisX ).y < 0 ? 1 : -1
+        this.foodIndicators.rotation.y = rot * sign - this.v3object.rotation.y
       }
     })
   }
@@ -296,6 +307,7 @@ export default {
           f.visible = false
           f.position.set(0, 0, 4).applyAxisAngle(new THREE.Vector3(0, 1, 0), -0.6 * i)
           foodIndicators.add(f)
+          this.registerDisposables(f)
         }
       }, { immediate: true })
 
