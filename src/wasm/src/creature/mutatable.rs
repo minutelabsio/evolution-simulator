@@ -17,6 +17,10 @@ where T: std::convert::From<f64>, f64: std::convert::From<T> {
     Self(v.into(), self.1)
   }
 }
+impl<T> From<Mutatable<T>> for (T, f64)
+where T: std::convert::From<f64>, f64: std::convert::From<T> {
+  fn from(m : Mutatable<T>) -> Self { (m.0, m.1) }
+}
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct PositiveMutatable<T>(pub T, pub f64);
@@ -27,6 +31,10 @@ where T: std::convert::From<f64>, f64: std::convert::From<T> {
     Self(v.into(), self.1)
   }
 }
+impl<T> From<PositiveMutatable<T>> for (T, f64)
+where T: std::convert::From<f64>, f64: std::convert::From<T> {
+  fn from(m : PositiveMutatable<T>) -> Self { (m.0, m.1) }
+}
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct PositiveNonZeroMutatable<T>(pub T, pub f64);
@@ -36,4 +44,8 @@ where T: std::convert::From<f64>, f64: std::convert::From<T> {
     let v = mutate(rng, self.0.into(), self.1.into()).max(std::f64::MIN_POSITIVE);
     Self(v.into(), self.1)
   }
+}
+impl<T> From<PositiveNonZeroMutatable<T>> for (T, f64)
+where T: std::convert::From<f64>, f64: std::convert::From<T> {
+  fn from(m : PositiveNonZeroMutatable<T>) -> Self { (m.0, m.1) }
 }

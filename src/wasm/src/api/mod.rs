@@ -104,11 +104,12 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
     let mut age = RunningStatistics::new();
 
     g.creatures.iter().for_each(|c|{
-      speed.push(c.get_speed());
-      size.push(c.get_size());
-      sense_range.push(c.get_sense_range());
-      reach.push(c.get_reach());
-      life_span.push(c.get_life_span());
+      let t = c.get_traits();
+      speed.push(t["speed"].0);
+      size.push(t["size"].0);
+      sense_range.push(t["sense_range"].0);
+      reach.push(t["reach"].0);
+      life_span.push(t["life_span"].0);
       age.push(c.age as f64);
     });
 

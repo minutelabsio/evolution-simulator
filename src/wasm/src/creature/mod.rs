@@ -2,6 +2,7 @@ use crate::simulation::Edible;
 use crate::simulation::Step;
 use crate::math::*;
 use crate::na::{Point2, Unit, Vector2};
+use std::collections::HashMap;
 use std::cell::{RefMut};
 use rand::{rngs::SmallRng};
 use uuid::Uuid;
@@ -176,6 +177,17 @@ impl Creature {
   // they touch with their bodies)
   pub fn get_reach(&self) -> f64 { self.reach.0.max(self.get_size() / 4.) }
   pub fn get_life_span(&self) -> f64 { self.life_span.0 }
+
+  pub fn get_traits(&self) -> HashMap<&'static str, (f64, f64)> {
+    let mut traits = HashMap::new();
+    traits.insert("size", self.size.into());
+    traits.insert("speed", self.speed.into());
+    traits.insert("sense_range", self.sense_range.into());
+    traits.insert("reach", self.reach.into());
+    traits.insert("life_span", self.life_span.into());
+    traits.insert("flee_distance", self.flee_distance.into());
+    traits
+  }
 
   pub fn is_alive(&self) -> bool {
     match self.state {
