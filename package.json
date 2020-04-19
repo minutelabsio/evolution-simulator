@@ -49,7 +49,8 @@
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.22.10",
     "sass-loader": "^7.3.1",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "wasm-opt": "^1.1.1"
   },
   "resolutions": {
     "comlink-loader": "https://github.com/wellcaffeinated/comlink-loader#dist",
