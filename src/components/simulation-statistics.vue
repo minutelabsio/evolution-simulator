@@ -21,7 +21,7 @@
         b-icon(icon="minus-box")
         | &nbsp;
         span.name {{ plot.name | startCase }}
-      TraitPlot(:data="plot.data", :label="plot.name | startCase", :color="plot.color")
+      TraitPlot(:data="plot.data", :label="plot.name | startCase", :color="plot.color", @click="loadGeneration")
 </template>
 
 <script>
@@ -104,6 +104,12 @@ export default {
       let seed = (Math.random() * 1000) | 0
       this.$store.dispatch('simulation/setConfig', { seed })
       this.restart()
+    }
+    , loadGeneration(generationIndex){
+      let route = this.$route
+      let params = route ? route.params : {}
+      let query = route ? route.query : {}
+      this.$router.push({ name: 'viewscreen', params: { ...params, generationIndex }, query })
     }
     , ...mapActions('simulation', {
       restart: 'run'

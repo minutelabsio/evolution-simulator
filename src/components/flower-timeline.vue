@@ -36,8 +36,11 @@ const computed = {
 }
 
 const watch = {
-  value(){
-    this.focusSelected()
+  value: {
+    handler(){
+      this.focusSelected()
+    }
+    , immediate: true
   }
   , data(data, oldValue){
     if (!oldValue || !oldValue.length){

@@ -32,6 +32,7 @@ export default {
   })
   , computed: {
     options(){
+      let self = this
       // let titleColor = chroma(this.color).desaturate(1).css()
       return {
         responsive: true
@@ -39,6 +40,27 @@ export default {
         , hoverMode: 'index'
         , animation: {
           duration: 0
+        }
+        , tooltips: {
+          intersect: false
+          , mode: 'index'
+          , position: 'nearest'
+          , callbacks: {
+            label(tooltipItem, data){
+              let idx = tooltipItem.datasetIndex
+              if (idx === 2){
+                let stddev = self.data[tooltipItem.xLabel - 1].deviation.toFixed(2)
+                return `average: ${tooltipItem.yLabel.toFixed(2)} ± ${stddev}`
+              } else if (idx === 0 || idx === 4){
+                let label = data.datasets[idx].label
+                return `${label}: ${tooltipItem.yLabel.toFixed(2)}`
+              }
+            }
+            , title(tooltipItem){
+              let gen = tooltipItem[0].xLabel
+              return 'Generation: ' + gen
+            }
+          }
         }
         , scales: {
           xAxes: [{
@@ -116,32 +138,37 @@ export default {
         datasets: [{
           ...options
           , pointRadius: 0
-          , data: this.data.map((d, x) => ({ y: d.min, x: x + 1 }))
+          , data: this.data.map((d, x) => ({ y: d.max, x: x + 1 }))
           // , borderDash: [5, 5]
           , borderColor: maxMinColor
+          , label: 'max'
         } , {
-          ...options
-          , pointRadius: 0
-          , data: this.data.map((d, x) => ({ y: clamp(d.mean - d.deviation, d.min, d.max), x: x + 1 }))
-          , borderColor: devColor
-          , backgroundColor: bgColor
-          , fill: 2
-        }, {
-          ...options
-          , data: this.data.map((d, x) => ({ y: d.mean, x: x + 1 }))
-        }, {
           ...options
           , pointRadius: 0
           , data: this.data.map((d, x) => ({ y: clamp(d.mean + d.deviation, d.min, d.max), x: x + 1 }))
           , borderColor: devColor
           , backgroundColor: bgColor
           , fill: 2
+          , label: 'stddev (+)'
+        }, {
+          ...options
+          , data: this.data.map((d, x) => ({ y: d.mean, x: x + 1 }))
+          , label: 'average'
         }, {
           ...options
           , pointRadius: 0
-          , data: this.data.map((d, x) => ({ y: d.max, x: x + 1 }))
+          , data: this.data.map((d, x) => ({ y: clamp(d.mean - d.deviation, d.min, d.max), x: x + 1 }))
+          , borderColor: devColor
+          , backgroundColor: bgColor
+          , fill: 2
+          , label: 'stddev (-)'
+        }, {
+          ...options
+          , pointRadius: 0
+          , data: this.data.map((d, x) => ({ y: d.min, x: x + 1 }))
           // , borderDash: [5, 5]
           , borderColor: maxMinColor
+          , label: 'min'
         }]
       }
     }
@@ -156,6 +183,17 @@ export default {
   }
   , mounted() {
     this.render()
+
+    const onClick = e => {
+      let tooltip = this._data._chart.tooltip
+      if (!tooltip._active){ return }
+      let gen = tooltip._active[0]._index + 1
+      this.$emit('click', gen)
+    }
+    this.$el.addEventListener('click', onClick)
+    this.$on('hook:beforeDestroy', () => {
+      this.$el.removeEventListener('click', onClick)
+    })
   }
   , methods: {
     render(){
