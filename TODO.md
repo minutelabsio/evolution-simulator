@@ -18,3 +18,10 @@ competition
 hunting/fishing larger make more babies
 
 k-means clustering for species?
+
+
+= fixes =
+refresh object on error
+speed stats measure effective speed
+energy cost uses effective speed which is proportional to size
+Switching between pages results in unresponsiveness
