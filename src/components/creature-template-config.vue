@@ -19,7 +19,7 @@
             NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
         p.warning
           b-icon(icon="alert-box-outline")
-          span Caution: setting these values too low will result in a very long calculation.
+          span Caution: setting these values too low without also lowering the energy will result in a very long calculation.
   .content
     .has-text-centered
       h2.title.is-size-4 When they reproduce
