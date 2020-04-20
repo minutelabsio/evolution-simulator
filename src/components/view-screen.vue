@@ -326,6 +326,13 @@ export default {
   >>> .scrubber
     pointer-events: all
 
+  >>> .vue-slider-process
+    background-color: $primary
+  >>> .vue-slider-rail
+    background-color: $sand
+  >>> .vue-slider-dot-tooltip-inner
+    background-color: $primary
+
   .left
     position: absolute
     left: 1.5rem
@@ -351,5 +358,5 @@ export default {
     margin-bottom: 0
 
 >>> .scrubber .inner
-  background: darken($grey-light, 45)
+  background: $sand
 </style>

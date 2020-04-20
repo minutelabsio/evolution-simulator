@@ -135,7 +135,7 @@ a:hover {
   @extend .clickable;
 
   transition: color 0.15s ease;
-  color: darken($grey-light, 25);
+  color: $sand;
   text-shadow: 0 0 1px $black-ter;
   &:hover {
     color: $grey-lighter;

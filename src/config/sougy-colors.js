@@ -16,5 +16,6 @@ export default Object.freeze({
   , pink: '#e71376'
   , brown: '#23070C'
   , lightBrown: '#643D37'
+  , sand: '#615c45'
   , grey: '#5f5e55'
 })
