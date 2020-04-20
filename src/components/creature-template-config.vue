@@ -6,7 +6,7 @@
         p We will start with this many creatures
       .column.has-text-left-tablet.has-text-centered
         .is-inline-block
-          NumberInput(v-model="creatureCount", label="Num. Blobs at Start", :min="1", :change-rate="10", condensed)
+          NumberInput(v-model="creatureCount", label="Num. Blobs at Start", :min="1", :max="1000", :change-rate="10", condensed)
 
     .columns
       .column.has-text-right-tablet.has-text-centered
@@ -17,6 +17,9 @@
             NumberInput(v-model="speedValue", label="Speed", :min="0.05", :change-rate="10", :color="traitColors.speed")
             NumberInput(v-model="sizeValue", label="Size", :min="0.05", :change-rate="10", :color="traitColors.size")
             NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
+        p.warning
+          b-icon(icon="alert-box-outline")
+          span Caution: setting these values too low will result in a very long calculation.
   .content
     .has-text-centered
       h2.title.is-size-4 When they reproduce
@@ -102,4 +105,7 @@ export default {
   font-size: 18px
   p
     font-family: $family-sans-serif
+.warning
+  color: darken($grey-light, 20)
+  max-width: 400px
 </style>

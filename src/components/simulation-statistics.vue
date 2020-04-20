@@ -1,15 +1,15 @@
 <template lang="pug">
 .simulation-statistics.scrollbars
   .columns
-    .column.is-two-thirds
+    .column.is-one-half
     .column
       b-field.generation-controls
         p.control
-          b-button.btn-dark(@click="restart()") Restart
+          b-button.btn-dark(@click="restart()", :loading="isContinuing") Restart
         p.control
-          b-button.btn-dark(@click="shuffleSimulation()") Shuffle
+          b-button.btn-dark(@click="shuffleSimulation()", :loading="isContinuing") Shuffle
         p.control
-          b-button.btn-dark(@click="keepGoing()") Generate more data
+          b-button.btn-dark(@click="keepGoing()", :loading="isContinuing") Generate more data
   .field.is-grouped.is-grouped.multiline
     .tags
       .tag.is-large.clickable(v-for="plot in hiddenPlots", :style="{ color: plot.titleColor }", @click="showPlot(plot)")
@@ -57,10 +57,11 @@ export default {
   }
   , computed: {
     ...mapGetters('simulation', {
-      isLoading: 'isLoading'
-      , generationIndex: 'currentGenerationIndex'
+      generationIndex: 'currentGenerationIndex'
       , statistics: 'statistics'
       , traits: 'traits'
+      , isLoading: 'isLoading'
+      , isContinuing: 'isContinuing'
     })
     , plots(){
       return [{

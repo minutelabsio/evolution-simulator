@@ -42,7 +42,7 @@
       .column.has-text-left-tablet.has-text-centered
         p ...and we will randomly place this much food
         .is-inline-block
-          NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :change-rate="10", condensed, :color="foodColor")
+          NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
 
 
   //- b-field(grouped)
@@ -63,10 +63,11 @@
       .column.has-text-centered
         b-field.is-inline-block
           .number-input-group
-            NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :change-rate="10")
+            NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
             NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
         b-field
           b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
+        p.has-text-grey (by natural selection)
 </template>
 
 <script>

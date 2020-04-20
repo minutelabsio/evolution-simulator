@@ -49,7 +49,7 @@ Vue.use(VueAnalytics, {
     exception: true
     , pageviewTemplate (route) {
       return {
-        title: route.name
+        title: `${labConfig.title} | ${route.name}`
         , page: `/${labConfig.repo}${route.path}`
         , location: window.location.href
       }

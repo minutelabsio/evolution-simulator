@@ -212,8 +212,9 @@ export default {
     , paused(){
       this.player.togglePause(this.paused)
     }
-    , generation(g){
-      let index = _findIndex(g.creatures, c => c.id === this.followCreatureId)
+    , genIndex(g, oldg){
+      if (g === oldg){ return }
+      let index = _findIndex(this.generation.creatures, c => c.id === this.followCreatureId)
 
       if ( index < 0 ){
         this.followCreature = false
