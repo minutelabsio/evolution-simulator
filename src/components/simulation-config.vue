@@ -8,16 +8,17 @@
 
   .content
     .has-text-centered
-      //- .preset-config
-      //-   b-field
-      //-     b-select(v-model="currentPreset")
-      //-       option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
-      //-
-      //-   .preset-config(v-if="currentPreset === 'home_remove'")
-      //-     p Remove the blob's homes from three edges at the following generation:
-      //-     b-field
-      //-       NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
-      //- br/
+      .preset-config
+        b-field
+          b-select(v-model="currentPreset")
+            option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
+
+        FoodControl
+        .preset-config(v-if="currentPreset === 'home_remove'")
+          p Remove the blob's homes from three edges at the following generation:
+          b-field
+            NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
+      br/
       p More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
   .invasive(v-if="currentPreset === 'invasive_species'")
@@ -76,6 +77,7 @@ import traitColors from '@/config/trait-colors'
 import sougy from '@/config/sougy-colors'
 import NumberInput from '@/components/inputs/number-input'
 import CreatureTemplateConfig from '@/components/creature-template-config'
+import FoodControl from '@/components/food-control'
 
 function storeParam(key, src, action){
   return {
@@ -116,6 +118,7 @@ export default {
   , components: {
     NumberInput
     , CreatureTemplateConfig
+    , FoodControl
   }
   , mounted(){
     this.presetOptions = {...this.config.preset.options}

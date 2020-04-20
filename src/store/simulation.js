@@ -40,6 +40,7 @@ const initialState = {
     , size: 500
     , preset: {
       name: 'default'
+      , food_vector: [[0, 50]]
       , options: {
         step: 10
       }

@@ -19,6 +19,7 @@ pub struct SimulationResults {
 #[derive(Serialize, Deserialize)]
 pub struct PresetConfig {
   name: String,
+  food_vector: Vec<(usize, u32)>,
   options: HashMap<String, f64>,
 }
 
