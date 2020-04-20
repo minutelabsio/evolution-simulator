@@ -14,14 +14,20 @@
     .tags
       .tag.is-large.clickable(v-for="plot in hiddenPlots", :style="{ color: plot.titleColor }", @click="showPlot(plot)")
         b-icon(icon="plus-box")
-        span {{ plot.name | startCase }}
+        span {{ plot.label | startCase }}
+
   .columns.is-multiline
-    .column.is-half-tablet.is-one-third-fullhd(v-for="plot in plots", :key="plot.name")
+    .column.is-half-tablet.is-one-third-fullhd(v-for="plot in plots", :key="plot.label")
       h2.heading.plot-title.clickable(:style="{ color: plot.titleColor }", @click="hidePlot(plot)")
         b-icon(icon="minus-box")
         | &nbsp;
-        span.name {{ plot.name | startCase }}
-      TraitPlot(:data="plot.data", :label="plot.name | startCase", :color="plot.color", @click="loadGeneration")
+        span.name {{ plot.label | startCase }}
+      TraitPlot(:data="plot.data", :label="plot.label | startCase", :color="plot.color", @click="loadGeneration")
+  .columns
+    .column
+      h2.heading.plot-title
+        span.name Overview
+      OverviewPlot(:data="plots", label="Overview")
 </template>
 
 <script>
@@ -31,6 +37,7 @@ import _findIndex from 'lodash/findIndex'
 import chroma from 'chroma-js'
 import traitColors from '@/config/trait-colors'
 import TraitPlot from '@/components/trait-plot'
+import OverviewPlot from '@/components/overview-plot'
 
 const titleColors = _mapValues(traitColors, c => chroma(c).desaturate(1).css())
 
@@ -46,6 +53,7 @@ export default {
   })
   , components: {
     TraitPlot
+    , OverviewPlot
   }
   , created(){
   }
@@ -68,15 +76,16 @@ export default {
         color: traitColors.population
         , titleColor: traitColors.population
         , data: this.populationData
-        , name: 'population'
+        , label: 'population'
+        , yAxisID: 'population'
       }].concat(
         this.traits.map(t => ({
           color: traitColors[t]
           , titleColor: titleColors[t]
           , data: this.traitData[t]
-          , name: t
+          , label: t
         }))
-      ).filter(v => _findIndex(this.hiddenPlots, ['name', v.name]) < 0)
+      ).filter(v => _findIndex(this.hiddenPlots, ['label', v.label]) < 0)
     }
     , traitData(){
       if (!this.statistics){ return {} }
