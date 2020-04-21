@@ -10,8 +10,12 @@
 
         h2.title.is-size-3 How to use this thing
 
-        p TODO ML VIDEO TOUR
+        p This video will give you a good introduction to the simulator
 
+        responsive-embed(:ratio="16/9", :max-width="560")
+          iframe(width="560", height="315", src="https://www.youtube.com/embed/6nMo8T3T0L4", frameborder="0", allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture", allowfullscreen)
+
+        br/
         p.
           The idea for this lab came from Primer. This video explains the basics of the model.
 
@@ -20,20 +24,6 @@
         br/
         p.
           Soon more complex models will be added with different rules... so stay tuned!
-
-
-
-        h2.title.is-size-3 Credits
-        p.
-          The original idea behind this came from
-          <a href="https://www.youtube.com/watch?v=0ZGbIKd0XrM" target="_blank">Primer's wonderful video.</a>
-        p.
-          All of the code was written by yours truly (Jasper), but I couldn't
-          have made it look so good without Sarah Berman's artistic direction and
-          drawings.
-        p.
-          And as always, this was made possible by ths support of the
-          <a href="https://minuteearth.com" target="_blank">MinuteEarth team</a>.
 
         h3.title.is-size-3 How to Support my Work
 
@@ -44,6 +34,7 @@
 
         p Besides sharing the apps with others, here are some other ways to help:
 
+        br/
         .columns
           .column.has-text-centered
             p Donate through <br/>
@@ -56,6 +47,18 @@
               <a href="https://www.patreon.com/bePatron?u=617966" target="_blank">
                 <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="217" height="51">
               </a>
+
+        h2.title.is-size-3 Credits
+        p.
+          The original idea behind this came from
+          <a href="https://www.youtube.com/watch?v=0ZGbIKd0XrM" target="_blank">Primer's wonderful video.</a>
+        p.
+          All of the code was written by yours truly (Jasper), but I couldn't
+          have made it look so good without Sarah Berman's artistic direction and
+          drawings.
+        p.
+          And as always, this was made possible by ths support of the
+          <a href="https://minuteearth.com" target="_blank">MinuteEarth team</a>.
 
         h3.title.is-size-3 Source Code
         p.
