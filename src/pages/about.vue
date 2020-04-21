@@ -3,6 +3,11 @@
   .container
     .section
       .content
+        .has-text-centered
+          .is-inline-block
+            img(src="social-thumbnail.jpg", alt="Evolution Simulator by MinuteLabs.io and Primer")
+          h1.is-sr-only Evolution Simulator by MinuteLabs.io and Primer
+
         h2.title.is-size-3 How to use this thing
 
         p TODO ML VIDEO TOUR
