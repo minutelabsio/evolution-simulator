@@ -3,6 +3,7 @@ ul.legend
   li.clickable(v-for="(item, index) in data", @click="$emit('select', { item, index })")
     span.color(:style="{ 'background-color': item.color }")
     span {{ item.name | startCase }}
+  slot
 </template>
 
 <script>

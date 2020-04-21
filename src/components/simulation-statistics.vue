@@ -5,11 +5,14 @@
     .column
       b-field.generation-controls
         p.control
-          b-button.btn-dark(@click="restart()", :loading="isContinuing") Restart
+          b-tooltip(label="Run the simulation again", position="is-left")
+            b-button.btn-dark(@click="restart()", :loading="isContinuing", icon-right="reload")
         p.control
-          b-button.btn-dark(@click="shuffleSimulation()", :loading="isContinuing") Shuffle
+          b-tooltip(label="Run the simulation with a new random seed", position="is-left")
+            b-button.btn-dark(@click="shuffleSimulation()", :loading="isContinuing", icon-right="dice-5")
         p.control
-          b-button.btn-dark(@click="keepGoing()", :loading="isContinuing") Generate more data
+          b-tooltip(label="See more generations", position="is-left")
+            b-button.btn-dark(@click="keepGoing()", :loading="isContinuing", icon-right="layers-plus")
   .field.is-grouped.is-grouped.multiline
     .tags
       .tag.is-large.clickable(v-for="plot in hiddenPlots", :style="{ color: plot.titleColor }", @click="showPlot(plot)")

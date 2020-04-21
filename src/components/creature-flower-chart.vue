@@ -10,7 +10,10 @@
       , :show-values="false"
       , :values-outside="true"
     )
-  label Current Creature
+  label
+    span='Current Creature '
+    b-tooltip(label="Flower diagram is sized relative to averages in the current generation", position="is-left", multilined)
+      b-icon(icon="help-circle", size="is-small")
 </template>
 
 <script>

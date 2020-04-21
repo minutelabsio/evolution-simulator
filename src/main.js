@@ -58,7 +58,7 @@ Vue.use(VueAnalytics, {
 })
 
 Vue.use(Buefy, {
-  defaultContainerElement: '#app .below-nav'
+  defaultContainerElement: '#app'
   // , defaultIconPack: 'fas'
 })
 

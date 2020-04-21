@@ -1,5 +1,5 @@
 <template lang="pug">
-.playground
+.playground(:class="{ 'header-bg': $route.name !== 'viewscreen' }")
   SimulationConfig.cfg.scrollbars(v-if="showConfig")
   transition(name="slide-down", appear)
     .top-bar(v-if="!showIntro")
@@ -39,6 +39,12 @@
           b-loading.loading-overlay(:is-full-page="false", :active="isLoading")
           Drawer.legend-drawer(direction="right", :start-open="legendStartsOpen")
             Legend.legend(:data="flowerLegend", @select="propertySelect($event.index)")
+              li
+              li.clickable.has-text-right
+                b-tooltip(label="Flower diagrams show the averages of traits relative to the maximum and minimum values over all generations", position="is-top", multilined)
+                  b-icon(icon="help-circle")
+                  span info
+
           .generation-selector(:class="{ 'is-finished': !canContinue }")
             FlowerTimeline(
               v-model="genIndex"
@@ -215,6 +221,19 @@ export default {
   display: flex
   flex-direction: column
   min-height: 0
+
+  &.header-bg:after
+    content: ''
+    position: absolute
+    top: 0
+    left: 0
+    right: 8px
+    height: 5rem
+    // background: $grey-darker
+    background: transparentize($grey-darker, 0.8)
+    backdrop-filter: blur(5px)
+    z-index: 2
+
 .cfg
   position: absolute
   top: 0
@@ -255,7 +274,7 @@ export default {
     img
       width: 40px
   a
-    color: lighten($grey, 10)
+    color: lighten($sand, 10)
     font-size: 24px
     transition: color .15s ease
     &.router-link-active,

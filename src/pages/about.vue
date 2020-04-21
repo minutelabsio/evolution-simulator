@@ -30,13 +30,27 @@
           And as always, this was made possible by ths support of the
           <a href="https://minuteearth.com" target="_blank">MinuteEarth team</a>.
 
-        h3.title.is-size-4 Thank you, Patreon Supporters! (so much)
-        p.
-          Geeks like you are the reason I build things.
+        h3.title.is-size-3 How to Support my Work
 
-        <a href="https://www.patreon.com/bePatron?u=617966" target="_blank">
-          <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="217" height="51">
-        </a>
+        p.
+          I release all content online for free, so user support is the only way I can continue
+          making things like this. If my work helps you as much as a cup of coffee does,
+          consider supporting current and future work any way you can.
+
+        p Besides sharing the apps with others, here are some other ways to help:
+
+        .columns
+          .column.has-text-centered
+            p Donate through <br/>
+              a.button.is-info.is-medium(href="https://github.com/sponsors/wellcaffeinated", target="_blank")
+                b-icon(icon="heart")
+                span Github Sponsors
+          .column.has-text-centered
+            p.
+              Subscribe on Patreon <br/>
+              <a href="https://www.patreon.com/bePatron?u=617966" target="_blank">
+                <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="217" height="51">
+              </a>
 
         h3.title.is-size-3 Source Code
         p.
@@ -67,7 +81,7 @@ export default {
 
 <style lang="sass" scoped>
 .about
-  padding-top: 4rem
+  padding-top: 5rem
   max-height: 100%
   overflow: auto
   .container
