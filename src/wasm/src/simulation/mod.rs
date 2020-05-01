@@ -5,6 +5,7 @@ use std::rc::Rc;
 use rand::{SeedableRng, Rng, rngs::SmallRng};
 use rand::distributions::{Normal, Distribution};
 use uuid::Uuid;
+use crate::math::Interpolator;
 use crate::creature::*;
 use crate::stage::*;
 // use crate::timer::Timer;
@@ -62,7 +63,7 @@ pub struct Simulation {
   pub rng : Rc<RefCell<SmallRng>>,
   // Area this simulation occurs in
   pub stage : Box<dyn Stage>,
-  pub food_per_generation : u32,
+  pub food_per_generation : Interpolator,
   pub generations : Vec<Generation>,
   pub behaviours : Vec<Box<dyn StepBehaviour>>,
   pub reproduction_behaviour : Box<dyn ReproductionBehaviour>,
@@ -71,7 +72,7 @@ pub struct Simulation {
 
 // Starting point for creating simulations
 impl Simulation {
-  pub fn new( stage : Box<dyn Stage>, seed: u64, food_per_generation: u32 ) -> Self {
+  pub fn new( stage : Box<dyn Stage>, seed: u64, food_per_generation: Interpolator ) -> Self {
 
     let generations = Vec::new();
 
@@ -85,6 +86,10 @@ impl Simulation {
       rng: Rc::new(RefCell::new(SmallRng::seed_from_u64(seed))),
       callbacks: vec![],
     }
+  }
+
+  pub fn set_food_per_generation(&mut self, food_per_generation: Interpolator) {
+    self.food_per_generation = food_per_generation;
   }
 
   pub fn add_behavour(&mut self, b : Box<dyn StepBehaviour>){
@@ -108,18 +113,16 @@ impl Simulation {
   }
 
   pub fn run(&mut self, creatures: Vec<Creature>, max_generations : u32){
-    let food_locations = self.generate_food();
-    let mut generation = Generation::new(self, creatures, food_locations);
+    let mut generation = Generation::new(self, creatures, self.generate_food());
     let mut keep_going = generation.has_living_creatures();
 
     for _gen in 1..max_generations {
       if !keep_going { break; }
 
-      let food_locations = self.generate_food();
       let creatures = self.exec_reproduction(&generation.creatures);
       self.generations.push(generation);
       self.call_callbacks();
-      let next = Generation::new( self, creatures, food_locations );
+      let next = Generation::new( self, creatures, self.generate_food() );
       generation = next;
       keep_going = generation.has_living_creatures();
     }
@@ -147,7 +150,9 @@ impl Simulation {
   }
 
   pub fn generate_food(&self) -> Vec<Point2<f64>> {
-    (0..self.food_per_generation).map(|_n|
+    let gen = self.generations.len();
+    let num_foods = self.food_per_generation.get(gen as f64).round() as u32;
+    (0..num_foods).map(|_n|
       self.get_random_location()
     ).collect()
   }

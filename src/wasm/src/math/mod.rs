@@ -3,6 +3,10 @@ use nalgebra::Point2;
 
 mod stats;
 pub use stats::*;
+mod lerp;
+pub use lerp::*;
+mod interpolator;
+pub use interpolator::*;
 
 // r1, r2. Points defining line segment
 // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation

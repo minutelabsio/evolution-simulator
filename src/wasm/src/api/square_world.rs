@@ -13,7 +13,7 @@ impl SquareWorld {
 
     let preset_cfg = preset_cfg.into_serde().map_err(|e| e.to_string())?;
 
-    let mut sim = Simulation::new(stage, seed as u64, food_per_generation);
+    let mut sim = Simulation::new(stage, seed as u64, Interpolator::new(&vec![(0., food_per_generation.into())]));
     use_preset(&mut sim, &preset_cfg);
 
     Ok(Self {

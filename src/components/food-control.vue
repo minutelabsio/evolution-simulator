@@ -9,10 +9,12 @@
       b-input(type="text", v-model.number="entry[1]", :disabled="index === 0", @blur="commit")
   .col
     .mid
-      b-button.btn-dark(@click="addCol")
-        b-icon(icon="plus")
-      b-button.btn-dark(@click="data = []; commit()")
-        b-icon(icon="undo")
+      b-tooltip(label="Add a control point", position="is-top")
+        b-button.btn-dark(@click="addCol")
+          b-icon(icon="plus")
+      b-tooltip(label="Clear", position="is-top")
+        b-button.btn-dark(@click="data = []; commit()")
+          b-icon(icon="delete")
 </template>
 
 <script>
