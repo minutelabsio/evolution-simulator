@@ -19,9 +19,13 @@ hunting/fishing larger make more babies
 
 k-means clustering for species?
 
+Try this?
+https://en.wikipedia.org/wiki/Principal_component_analysis
+
+
+Shorter version of the video as quick overview of how to use it
+
+investigate age when energy high, food low
 
 = fixes =
 refresh object on error
-speed stats measure effective speed
-energy cost uses effective speed which is proportional to size
-Switching between pages results in unresponsiveness
