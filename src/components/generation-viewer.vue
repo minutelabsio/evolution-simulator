@@ -53,7 +53,7 @@
         , :shadow-camera="shadowCamera"
         , :shadow-bias="0.0001"
         , :shadow-radius="0"
-        , :shadow-map-size-power="2"
+        , :shadow-map-size-power="1"
       )
       v3-fog(:near="1000", :far="3000", :color="0xc9d7e6")
 

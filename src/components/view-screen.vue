@@ -343,14 +343,6 @@ export default {
     right: 1.5rem
     bottom: 1.5rem
 
-  @media(pointer: fine)
-    .inner
-      opacity: 0.5
-      transition: opacity 0.3s ease
-
-    .inner:hover
-      opacity: 1
-
   >>> .field
     margin-bottom: 0.5em
 
