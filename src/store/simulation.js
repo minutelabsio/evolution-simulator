@@ -35,12 +35,11 @@ const initialState = {
 
   , config: {
     seed: 118
-    , food_per_generation: 50
+    , food_per_generation: [[0, 50]]
     , max_generations: 50
     , size: 500
     , preset: {
       name: 'default'
-      , food_vector: [[0, 50]]
       , options: {
         step: 10
       }

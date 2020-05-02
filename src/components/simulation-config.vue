@@ -13,7 +13,6 @@
           b-select(v-model="currentPreset")
             option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
 
-        FoodControl
         .preset-config(v-if="currentPreset === 'home_remove'")
           p Remove the blob's homes from three edges at the following generation:
           b-field
@@ -34,16 +33,25 @@
 
   .content
     .has-text-centered
-      h2.title.is-size-4 Each generation
+      h2.title.is-size-4 Food
     .columns
       .column.has-text-right-tablet.has-text-centered
+        p We will randomly place this much food to start
+        .is-inline-block
+          NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
+      .column.has-text-left-tablet.has-text-centered
+        p And can change the food over time...
+        .is-inline-block
+          FoodControl
+  .content
+    .has-text-centered
+      h2.title.is-size-4 Each generation
+    .columns
+      .column.has-text-centered
         p Creatures will start with this much energy
         .is-inline-block
           NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="traitColors.energy")
-      .column.has-text-left-tablet.has-text-centered
-        p ...and we will randomly place this much food
-        .is-inline-block
-          NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
+
 
 
   //- b-field(grouped)
@@ -150,7 +158,16 @@ export default {
     }
     , seed: storeParam('seed', 'config', 'simulation/setConfig')
     , maxGenerations: storeParam('max_generations', 'config', 'simulation/setConfig')
-    , foodPerGeneration: storeParam('food_per_generation', 'config', 'simulation/setConfig')
+    , foodPerGeneration: {
+      get(){
+        return this.$store.getters['simulation/config'].food_per_generation[0][1]
+      }
+      , set(v){
+        let food_per_generation = this.$store.getters['simulation/config'].food_per_generation.slice()
+        food_per_generation[0][1] = v
+        this.$store.dispatch('simulation/setConfig', { food_per_generation })
+      }
+    }
 
     , creatureCount: {
       get(){ return this.$store.getters['simulation/creatureConfig']('default').count }

@@ -1,39 +1,55 @@
 <template lang="pug">
 .food-control
-  .col
-    label Gen.:
-    label Food:
-  .inner.scrollbars
-    .col(v-for="(entry, index) in data")
-      b-input(type="text", v-model.number="entry[0]", :disabled="index === 0", @blur="commit")
-      b-input(type="text", v-model.number="entry[1]", :disabled="index === 0", @blur="commit")
-  .col
-    .mid
-      b-tooltip(label="Add a control point", position="is-top")
-        b-button.btn-dark(@click="addCol")
-          b-icon(icon="plus")
-      b-tooltip(label="Clear", position="is-top")
-        b-button.btn-dark(@click="data = []; commit()")
-          b-icon(icon="delete")
+  .cols
+    .col
+      label Gen.:
+      label Food:
+    .inner.scrollbars
+      .col(v-for="(entry, index) in data")
+        b-input(type="text", v-model.number="entry[0]", :disabled="index === 0", @blur="commit")
+        b-input(type="text", v-model.number="entry[1]", :disabled="index === 0", @blur="commit")
+    .col.btns
+      .mid
+        b-tooltip(label="Add a control point", position="is-top")
+          b-button.btn-dark(@click="addCol")
+            b-icon(icon="plus")
+        b-tooltip(label="Clear", position="is-top")
+          b-button.btn-dark(@click="data = []; commit()")
+            b-icon(icon="delete")
+  .plot
+    FoodPlot(:data="foodPlotData", :styles="{ height: '160px' }")
 </template>
 
 <script>
-import _cloneDeep from 'lodash/cloneDeep'
+// import _cloneDeep from 'lodash/cloneDeep'
+import _times from 'lodash/times'
+import _flatten from 'lodash/flatten'
 import { mapGetters } from 'vuex'
+import FoodPlot from '@/components/food-plot'
+import sougy from '@/config/sougy-colors'
+import interpolator from '@/lib/interpolator'
+
+const foodColor = sougy.green
 
 const components = {
+  FoodPlot
 }
 
 const computed = {
   ...mapGetters('simulation', {
     config: 'config'
   })
+  , foodPlotData(){
+    let generate = interpolator(_flatten(this.data))
+    let data = _times(this.config.max_generations, (n) => [n, Math.round(generate(n))])
+    return [{ label: 'Available Food', color: foodColor, data }]
+  }
 }
 
 const watch = {
-  'config.preset.food_vector': {
-    handler(f){
-      this.data = _cloneDeep(f)
+  'config.food_per_generation': {
+    handler(data){
+      this.data = data.map(([g, f]) => [g + 1, f])
     }
     , immediate: true
   }
@@ -42,20 +58,19 @@ const watch = {
 const methods = {
   addCol(){
     let last = this.data[this.data.length - 1]
-    this.data.push([last[0]+1, 0])
+    this.data.push([last[0]+1, last[1]])
     this.commit()
   }
   , commit(){
     this.data = this.data.filter(d => {
-      return Number.isFinite(d[0]) && Number.isFinite(d[1]) && d[0] > 0
+      return Number.isFinite(d[0]) && Number.isFinite(d[1]) && d[0] > 1
     })
     this.data.sort((a, b) => a[0] - b[0])
-    this.data.unshift([0, this.config.food_per_generation])
+    this.data.unshift([1, this.config.food_per_generation[0][1]])
 
-    this.$store.dispatch('simulation/setConfig', { preset: {
-      ...this.config.preset
-      , food_vector: _cloneDeep(this.data)
-    } })
+    this.$store.dispatch('simulation/setConfig', {
+      food_per_generation: this.data.map(([g, f]) => [g - 1, f])
+    })
   }
 }
 
@@ -65,6 +80,7 @@ export default {
   }
   , data: () => ({
     data: [[1, 50]]
+    , foodColor
   })
   , components
   , computed
@@ -76,12 +92,20 @@ export default {
 <style lang="sass" scoped>
 .food-control
   display: flex
+  flex-direction: column
+  align-items: flex-start
+.plot
+  position: relative
+  max-height: 10rem
+.cols
+  display: flex
   flex-direction: row
+  margin-left: 0.5rem
 .inner
   display: flex
   flex-direction: row
   overflow-x: auto
-  max-width: 720px
+  max-width: 360px
   @media screen and (max-width: $tablet)
     max-width: 70vw
 .col
@@ -103,4 +127,6 @@ export default {
     top: -1px
 .col:not(:first-child)
   margin-left: -1px
+.col.btns
+  margin-left: 0.5rem
 </style>

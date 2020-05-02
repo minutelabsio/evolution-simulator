@@ -19,7 +19,6 @@ pub struct SimulationResults {
 #[derive(Serialize, Deserialize)]
 pub struct PresetConfig {
   name: String,
-  food_vector: Vec<(f64, f64)>,
   options: HashMap<String, f64>,
 }
 
@@ -54,8 +53,6 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
       primer_behaviours()
     }
   };
-
-  sim.set_food_per_generation(Interpolator::new(&preset.food_vector));
 
   for b in behaviours.drain(0..behaviours.len()) {
     sim.add_behavour(b);

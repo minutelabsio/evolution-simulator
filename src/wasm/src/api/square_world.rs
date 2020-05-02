@@ -8,12 +8,13 @@ pub struct SquareWorld {
 
 #[wasm_bindgen]
 impl SquareWorld {
-  pub fn new(size : f64, seed : u32, food_per_generation : u32, preset_cfg : &JsValue) -> Result<SquareWorld, JsValue> {
+  pub fn new(size : f64, seed : u32, food_per_generation : &JsValue, preset_cfg : &JsValue) -> Result<SquareWorld, JsValue> {
     let stage = Box::new(stage::SquareStage(size));
 
+    let food_per_generation = food_per_generation.into_serde::<Vec<(f64, f64)>>().map_err(|e| e.to_string())?;
     let preset_cfg = preset_cfg.into_serde().map_err(|e| e.to_string())?;
 
-    let mut sim = Simulation::new(stage, seed as u64, Interpolator::new(&vec![(0., food_per_generation.into())]));
+    let mut sim = Simulation::new(stage, seed as u64, Interpolator::new(&food_per_generation));
     use_preset(&mut sim, &preset_cfg);
 
     Ok(Self {
