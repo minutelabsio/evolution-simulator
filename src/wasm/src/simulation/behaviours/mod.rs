@@ -1,6 +1,19 @@
 use super::*;
 use std::f64::consts::FRAC_PI_4;
 
+// what phase of the time step is it?
+#[derive(Debug, Copy, Clone)]
+pub enum Phase {
+  REPRODUCE, // only called when going from previous step
+  INIT, // setup
+  PRE, // before each step
+  ORIENT,
+  MOVE,
+  ACT,
+  POST, // after each step
+  FINAL,
+}
+
 pub trait StepBehaviour {
   // if you need &mut self, use Cell or RefCell
   fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation);

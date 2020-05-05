@@ -1,4 +1,4 @@
-use crate::simulation::Edible;
+use crate::simulation::{Edible, FoodType};
 use crate::simulation::Step;
 use crate::math::*;
 use crate::na::{Point2, Unit, Vector2};
@@ -62,7 +62,7 @@ pub struct Creature {
   life_span: PositiveNonZeroMutatable<f64>,
 
   // other
-  pub foods_eaten : Vec<(Step, Uuid)>,
+  pub foods_eaten : Vec<(Step, Uuid, FoodType)>,
   pub energy : f64,
   pub energy_consumed: f64,
   pub age : u32,
@@ -78,9 +78,8 @@ pub struct Creature {
 }
 
 impl Edible for Creature {
-  fn get_edible_id(&self) -> Uuid {
-    self.id
-  }
+  fn get_edible_id(&self) -> Uuid { self.id }
+  fn get_type(&self) -> FoodType { "creature".into() }
 }
 
 impl Creature {
@@ -271,7 +270,7 @@ impl Creature {
   }
 
   pub fn eat_food(&mut self, step: Step, food: &dyn Edible){
-    self.foods_eaten.push((step, food.get_edible_id()))
+    self.foods_eaten.push((step, food.get_edible_id(), food.get_type()))
   }
 
   pub fn sleep(&mut self){
