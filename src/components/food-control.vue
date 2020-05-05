@@ -17,7 +17,7 @@
           b-button.btn-dark(@click="data = []; commit()")
             b-icon(icon="delete")
   .plot
-    FoodPlot(:data="foodPlotData", :styles="{ height: '160px' }")
+    FoodPlot(:data="foodPlotData", :styles="{ height: '160px' }", :responsive="false")
 </template>
 
 <script>
@@ -97,6 +97,7 @@ export default {
 .plot
   position: relative
   max-height: 10rem
+  line-height: 0
 .cols
   display: flex
   flex-direction: row

@@ -31,6 +31,11 @@
       h2.heading.plot-title
         span.name Overview
       OverviewPlot(:data="plots", label="Overview")
+  .columns
+    .column
+      h2.heading.plot-title
+        span.name Food
+      FoodPlot(:data="foodData", :maxFood="maxFood")
 </template>
 
 <script>
@@ -38,9 +43,11 @@ import { mapGetters, mapActions } from 'vuex'
 import _mapValues from 'lodash/mapValues'
 import _findIndex from 'lodash/findIndex'
 import chroma from 'chroma-js'
+import sougy from '@/config/sougy-colors'
 import traitColors from '@/config/trait-colors'
 import TraitPlot from '@/components/trait-plot'
 import OverviewPlot from '@/components/overview-plot'
+import FoodPlot from '@/components/food-plot'
 
 const titleColors = _mapValues(traitColors, c => chroma(c).desaturate(1).css())
 
@@ -56,6 +63,7 @@ export default {
   })
   , components: {
     TraitPlot
+    , FoodPlot
     , OverviewPlot
   }
   , created(){
@@ -89,6 +97,31 @@ export default {
           , label: t
         }))
       ).filter(v => _findIndex(this.hiddenPlots, ['label', v.label]) < 0)
+    }
+    , foodData(){
+      const gs = this.statistics.generation_statistics
+      return [{
+        color: sougy.red
+        , backgroundColor: chroma(sougy.red).alpha(0.2).css()
+        , fill: 'origin'
+        , label: 'Creatures Eaten'
+        , data: gs.map((g, i) => [i + 1, g.creatures_eaten])
+      }, {
+        color: sougy.yellow
+        , backgroundColor: chroma(sougy.yellow).alpha(0.2).css()
+        , fill: '+1'
+        , label: 'Food Available'
+        , data: gs.map((g, i) => [i + 1, g.food_balls_available])
+      }, {
+        color: sougy.green
+        , backgroundColor: chroma(sougy.green).alpha(0.2).css()
+        , fill: 'origin'
+        , label: 'Food Eaten'
+        , data: gs.map((g, i) => [i + 1, g.food_balls_eaten])
+      }]
+    }
+    , maxFood(){
+      return this.statistics.generation_statistics.reduce((a, g) => Math.max(a, g.food_balls_available), 0)
     }
     , traitData(){
       if (!this.statistics){ return {} }

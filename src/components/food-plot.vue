@@ -15,6 +15,11 @@ export default {
       type: String
       , default: '#FCFDF4'
     }
+    , responsive: {
+      type: Boolean
+      , default: true
+    }
+    , maxFood: Number
   }
   , components: {
   }
@@ -25,7 +30,7 @@ export default {
 
       // let titleColor = chroma(this.color).desaturate(1).css()
       return {
-        responsive: true
+        responsive: this.responsive
         , maintainAspectRatio: false
         , hoverMode: 'index'
         , animation: {
@@ -67,6 +72,7 @@ export default {
             , display: true
             , ticks: {
               fontColor: this.textColor
+              , max: this.maxFood
             }
             , stacked: true
             , position: 'left'
@@ -109,9 +115,9 @@ export default {
       let datasets = this.data.map(d => {
         return {
           ...options
-          , ...d
           , borderColor: d.color
           , backgroundColor: d.color
+          , ...d
           , data: d.data ? d.data.map((d) => ({ y: d[1], x: d[0] })) : []
         }
       })

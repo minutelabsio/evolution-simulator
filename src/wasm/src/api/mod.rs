@@ -69,6 +69,10 @@ struct GenerationStatistics {
   reach : RunningStatisticsResults,
   life_span : RunningStatisticsResults,
   age : RunningStatisticsResults,
+  // food related
+  food_balls_available: u32,
+  food_balls_eaten: u32,
+  creatures_eaten: u32,
 }
 
 #[derive(Serialize)]
@@ -104,6 +108,10 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
     let mut life_span = RunningStatistics::new();
     let mut age = RunningStatistics::new();
 
+    let mut food_balls_eaten = 0;
+    let mut creatures_eaten = 0;
+    let food_balls_available = g.food.len() as u32;
+    
     g.creatures.iter().for_each(|c|{
       let t = c.get_traits();
       speed.push(t["speed"].0);
@@ -112,6 +120,18 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
       reach.push(t["reach"].0);
       life_span.push(t["life_span"].0);
       age.push(c.age as f64);
+
+      for eaten in &c.foods_eaten {
+        match eaten.2.as_str() {
+          "food_ball" => {
+            food_balls_eaten += 1;
+          },
+          "creature" => {
+            creatures_eaten += 1;
+          },
+          _ => {}
+        }
+      }
     });
 
     population.push(g.creatures.len() as f64);
@@ -130,6 +150,10 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
       reach: reach.as_results(),
       life_span: life_span.as_results(),
       age: age.as_results(),
+
+      food_balls_available,
+      food_balls_eaten,
+      creatures_eaten,
     }
   }).collect();
 
