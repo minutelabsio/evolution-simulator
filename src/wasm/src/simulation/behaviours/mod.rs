@@ -1,6 +1,15 @@
 use super::*;
 use std::f64::consts::FRAC_PI_4;
 
+pub trait StepBehaviour {
+  // if you need &mut self, use Cell or RefCell
+  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation);
+}
+
+pub trait ReproductionBehaviour {
+  fn reproduce(&self, creatures : &Vec<Creature>, sim : &Simulation) -> Vec<Creature>;
+}
+
 mod reproduction;
 pub use reproduction::*;
 

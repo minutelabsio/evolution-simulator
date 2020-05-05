@@ -30,19 +30,10 @@ pub enum Phase {
   FINAL,
 }
 
-pub trait StepBehaviour {
-  // if you need &mut self, use Cell or RefCell
-  fn apply(&self, phase : Phase, generation : &mut Generation, sim : &Simulation);
-}
-
-pub trait ReproductionBehaviour {
-  fn reproduce(&self, creatures : &Vec<Creature>, sim : &Simulation) -> Vec<Creature>;
-}
-
 // behaviour to reset parameters on step
 #[derive(Debug, Copy, Clone)]
 pub struct ResetBehaviour;
-impl StepBehaviour for ResetBehaviour {
+impl behaviours::StepBehaviour for ResetBehaviour {
   fn apply(&self, phase : Phase, generation : &mut Generation, _sim : &Simulation){
     // setup
     if let Phase::PRE = phase {
@@ -65,8 +56,8 @@ pub struct Simulation {
   pub stage : Box<dyn Stage>,
   pub food_per_generation : Interpolator,
   pub generations : Vec<Generation>,
-  pub behaviours : Vec<Box<dyn StepBehaviour>>,
-  pub reproduction_behaviour : Box<dyn ReproductionBehaviour>,
+  pub behaviours : Vec<Box<dyn behaviours::StepBehaviour>>,
+  pub reproduction_behaviour : Box<dyn behaviours::ReproductionBehaviour>,
   callbacks : Vec<Box<dyn FnMut(&mut Simulation) -> ()>>,
 }
 
@@ -92,11 +83,11 @@ impl Simulation {
     self.food_per_generation = food_per_generation;
   }
 
-  pub fn add_behavour(&mut self, b : Box<dyn StepBehaviour>){
+  pub fn add_behavour(&mut self, b : Box<dyn behaviours::StepBehaviour>){
     self.behaviours.push(b)
   }
 
-  pub fn set_reproduction_behaviour(&mut self, b : Box<dyn ReproductionBehaviour>){
+  pub fn set_reproduction_behaviour(&mut self, b : Box<dyn behaviours::ReproductionBehaviour>){
     self.reproduction_behaviour = b;
   }
 

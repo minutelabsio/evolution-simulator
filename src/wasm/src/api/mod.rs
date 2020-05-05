@@ -4,6 +4,7 @@ use wasm_bindgen::prelude::*;
 use super::*;
 use simulation::*;
 use creature::*;
+use behaviours::StepBehaviour;
 
 #[derive(Deserialize)]
 pub struct RandomCreatureConfig {
