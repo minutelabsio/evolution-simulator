@@ -1,9 +1,10 @@
 <script>
-import { Scatter } from 'vue-chartjs'
+import _times from 'lodash/times'
+import { Bar } from 'vue-chartjs'
 
 export default {
   name: 'FoodPlot'
-  , extends: Scatter
+  , extends: Bar
   , props: {
     'data': {
       type: Array
@@ -51,7 +52,7 @@ export default {
               return `${label}: ${tooltipItem.yLabel.toFixed(0)}`
             }
             , title(tooltipItem){
-              let gen = tooltipItem[0].xLabel
+              let gen = tooltipItem[0].index + 1
               return 'Generation: ' + gen
             }
           }
@@ -82,7 +83,7 @@ export default {
             , position: 'left'
             , scaleLabel: {
               display: true
-              , labelString: 'Foods'
+              , labelString: '# Blobs'
               , fontColor: this.textColor
               , fontSize: 16
             }
@@ -122,11 +123,14 @@ export default {
           , borderColor: d.color
           , backgroundColor: d.color
           , ...d
-          , data: d.data ? d.data.map((d) => ({ x: d[0], y: d[1] })) : []
+          , data: d.data ? d.data.map((d) => d[1]) : []
         }
       })
 
-      return { datasets }
+      return { 
+        labels: this.data.length ? _times(this.data[0].data.length, () => "") : []
+        , datasets 
+      }
     }
   }
   , watch: {

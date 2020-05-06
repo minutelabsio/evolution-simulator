@@ -150,7 +150,9 @@ export default {
       let { population } = this.stats
       return {
         center: [population.min, population.max]
-        , petals: this.traits.map(k => this.stats[k]).map(t => [t.min, t.max])
+        , petals: this.flowerTimelineData.reduce((maxMin, g) => {
+          return g.petals.map((v, i) => [Math.min(v, maxMin[i][0]), Math.max(v, maxMin[i][1])])
+        }, this.flowerTimelineData[0].petals.map(p => [p, p]))
       }
     }
     , flowerLegend(){

@@ -17,7 +17,7 @@
           b-button.btn-dark(@click="data = []; commit()")
             b-icon(icon="delete")
   .plot
-    FoodPlot(:data="foodPlotData", :styles="{ height: '160px' }", :responsive="false")
+    FoodPlot(:data="foodPlotData", :styles="{ height: '160px' }")
 </template>
 
 <script>

@@ -12,7 +12,7 @@ const PRESETS = [
 ]
 
 function getTraitsForPreset(){
-  return [ 'age', 'speed', 'size', 'sense_range' ]
+  return [ 'age', 'age_at_death', 'speed', 'size', 'sense_range' ]
 }
 
 const DEFAULT_CREATURE_PROPS = {

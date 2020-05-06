@@ -7,12 +7,12 @@ use rand::{rngs::SmallRng};
 pub struct BasicReproductionBehaviour;
 
 impl BasicReproductionBehaviour {
-  fn will_reproduce(&self, creature : &Creature) -> bool {
+  pub fn will_reproduce(creature : &Creature) -> bool {
     creature.foods_eaten.len() > 1
   }
 
   fn reproduce(&self, creature : &Creature, rng : &mut RefMut<SmallRng>) -> Vec<Creature> {
-    if self.will_reproduce(&creature) {
+    if Self::will_reproduce(&creature) {
       vec![creature.mutate(rng)]
     } else {
       vec![]

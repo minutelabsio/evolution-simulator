@@ -19,13 +19,6 @@
         b-icon(icon="plus-box")
         span {{ plot.label | startCase }}
 
-  .columns.is-multiline
-    .column.is-half-tablet.is-one-third-fullhd(v-for="plot in plots", :key="plot.label")
-      h2.heading.plot-title.clickable(:style="{ color: plot.titleColor }", @click="hidePlot(plot)")
-        b-icon(icon="minus-box")
-        | &nbsp;
-        span.name {{ plot.label | startCase }}
-      TraitPlot(:data="plot.data", :label="plot.label | startCase", :color="plot.color", @click="loadGeneration")
   .columns
     .column
       h2.heading.plot-title
@@ -34,8 +27,19 @@
   .columns
     .column
       h2.heading.plot-title
+        span.name Births and Deaths
+      BirthDeathPlot(:data="birthsDeathsData", :stacked="true", @click="loadGeneration")
+    .column
+      h2.heading.plot-title
         span.name Food
-      FoodPlot(:data="foodData", :maxFood="maxFood")
+      FoodPlot(:data="foodData", :maxFood="maxFood", @click="loadGeneration")
+  .columns.is-multiline
+    .column.is-half-tablet.is-one-third-fullhd(v-for="plot in plots", :key="plot.label")
+      h2.heading.plot-title.clickable(:style="{ color: plot.titleColor }", @click="hidePlot(plot)")
+        b-icon(icon="minus-box")
+        | &nbsp;
+        span.name {{ plot.label | startCase }}
+      TraitPlot(:data="plot.data", :label="plot.label | startCase", :color="plot.color", @click="loadGeneration")
 </template>
 
 <script>
@@ -48,6 +52,7 @@ import traitColors from '@/config/trait-colors'
 import TraitPlot from '@/components/trait-plot'
 import OverviewPlot from '@/components/overview-plot'
 import FoodPlot from '@/components/food-plot'
+import BirthDeathPlot from '@/components/birth-death-plot'
 
 const titleColors = _mapValues(traitColors, c => chroma(c).desaturate(1).css())
 
@@ -65,6 +70,7 @@ export default {
     TraitPlot
     , FoodPlot
     , OverviewPlot
+    , BirthDeathPlot
   }
   , created(){
   }
@@ -98,30 +104,60 @@ export default {
         }))
       ).filter(v => _findIndex(this.hiddenPlots, ['label', v.label]) < 0)
     }
-    , foodData(){
+    , birthsDeathsData(){
+      if (!this.statistics){ return [] }
       const gs = this.statistics.generation_statistics
       return [{
-        color: sougy.red
-        , backgroundColor: chroma(sougy.red).alpha(0.2).css()
+        color: sougy.ivory
+        , backgroundColor: chroma(sougy.ivory).alpha(0.5).css()
         , fill: 'origin'
-        , label: 'Creatures Eaten'
-        , data: gs.map((g, i) => [i + 1, g.creatures_eaten])
+        , label: 'Net Change'
+        , type: 'line'
+        , data: gs.map((g, i) => [i + 1, g.births - g.deaths])
       }, {
-        color: sougy.yellow
-        , backgroundColor: chroma(sougy.yellow).alpha(0.2).css()
+        color: sougy.green
+        , backgroundColor: chroma(sougy.green).alpha(0.5).css()
+        , fill: 'origin'
+        , label: 'Births'
+        , stack: 'stack'
+        , data: gs.map((g, i) => [i + 1, g.births])
+      }, {
+        color: sougy.red
+        , backgroundColor: chroma(sougy.red).alpha(0.5).css()
+        , fill: 'origin'
+        , label: 'Deaths'
+        , stack: 'stack'
+        , data: gs.map((g, i) => [i + 1, -g.deaths])
+      }]
+    }
+    , foodData(){
+      if (!this.statistics){ return [] }
+      const gs = this.statistics.generation_statistics
+      return [{
+        color: sougy.ivory
+        , backgroundColor: chroma(sougy.ivory).alpha(0.2).css()
         , fill: '+1'
         , label: 'Food Available'
         , data: gs.map((g, i) => [i + 1, g.food_balls_available])
       }, {
         color: sougy.green
-        , backgroundColor: chroma(sougy.green).alpha(0.2).css()
+        , backgroundColor: chroma(sougy.green).alpha(0.5).css()
         , fill: 'origin'
         , label: 'Food Eaten'
         , data: gs.map((g, i) => [i + 1, g.food_balls_eaten])
+      }, {
+        color: sougy.red
+        , backgroundColor: chroma(sougy.red).alpha(0.5).css()
+        , fill: 'origin'
+        , label: 'Creatures Eaten'
+        , data: gs.map((g, i) => [i + 1, g.creatures_eaten])
       }]
     }
     , maxFood(){
-      return this.statistics.generation_statistics.reduce((a, g) => Math.max(a, g.food_balls_available), 0)
+      if (!this.statistics){ return 0 }
+      return this.statistics.generation_statistics.reduce((a, g) => 
+        Math.max(a, g.food_balls_available)
+      , 0)
     }
     , traitData(){
       if (!this.statistics){ return {} }

@@ -27,7 +27,7 @@ export default {
     display: flex
     align-items: center
     // margin-right: 1em
-    margin-bottom: 0.5em
+    // margin-bottom: 0.5em
     width: 50%
     white-space: nowrap
     &:hover

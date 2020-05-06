@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use super::*;
 use simulation::*;
 use creature::*;
-use behaviours::StepBehaviour;
+use behaviours::{BasicReproductionBehaviour, StepBehaviour};
 
 #[derive(Deserialize)]
 pub struct RandomCreatureConfig {
@@ -63,16 +63,25 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
 #[derive(Serialize)]
 struct GenerationStatistics {
   population: usize,
+  
+  // traits
   speed : RunningStatisticsResults,
   size : RunningStatisticsResults,
   sense_range : RunningStatisticsResults,
   reach : RunningStatisticsResults,
   life_span : RunningStatisticsResults,
+  
+  // longevity
   age : RunningStatisticsResults,
+  age_at_death : RunningStatisticsResults,
   // food related
   food_balls_available: u32,
   food_balls_eaten: u32,
   creatures_eaten: u32,
+
+  // births/deaths
+  births: u32,
+  deaths: u32,
 }
 
 #[derive(Serialize)]
@@ -86,6 +95,7 @@ struct SimulationStatistics {
   reach : RunningStatisticsResults,
   life_span : RunningStatisticsResults,
   age : RunningStatisticsResults,
+  age_at_death : RunningStatisticsResults,
 
   generation_statistics: Vec<GenerationStatistics>,
 }
@@ -98,6 +108,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
   let mut tot_reach = RunningStatistics::new();
   let mut tot_life_span = RunningStatistics::new();
   let mut tot_age = RunningStatistics::new();
+  let mut tot_age_at_death = RunningStatistics::new();
 
   // every generation
   let generation_statistics = sim.generations.iter().map(|g| {
@@ -107,10 +118,14 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
     let mut reach = RunningStatistics::new();
     let mut life_span = RunningStatistics::new();
     let mut age = RunningStatistics::new();
+    let mut age_at_death = RunningStatistics::new();
 
     let mut food_balls_eaten = 0;
     let mut creatures_eaten = 0;
     let food_balls_available = g.food.len() as u32;
+
+    let mut births = 0;
+    let mut deaths = 0;
     
     g.creatures.iter().for_each(|c|{
       let t = c.get_traits();
@@ -132,28 +147,45 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
           _ => {}
         }
       }
+
+      if BasicReproductionBehaviour::will_reproduce(&c) {
+        births += 1;
+      }
+
+      if !c.is_alive() {
+        deaths += 1;
+        age_at_death.push(c.age as f64);
+        tot_age_at_death.push(c.age as f64);
+      }
+
+
+      tot_speed.push(t["speed"].0);
+      tot_size.push(t["size"].0);
+      tot_sense_range.push(t["sense_range"].0);
+      tot_reach.push(t["reach"].0);
+      tot_life_span.push(t["life_span"].0);
+      tot_age.push(c.age as f64);
     });
 
     population.push(g.creatures.len() as f64);
-    tot_speed.push(speed.mean());
-    tot_size.push(size.mean());
-    tot_sense_range.push(sense_range.mean());
-    tot_reach.push(reach.mean());
-    tot_life_span.push(life_span.mean());
-    tot_age.push(age.mean());
 
     GenerationStatistics {
-      population: g.creatures.len(),
       speed: speed.as_results(),
       size: size.as_results(),
       sense_range: sense_range.as_results(),
       reach: reach.as_results(),
       life_span: life_span.as_results(),
+      
+      population: g.creatures.len(),
       age: age.as_results(),
+      age_at_death: age_at_death.as_results(),
 
       food_balls_available,
       food_balls_eaten,
       creatures_eaten,
+
+      births,
+      deaths,
     }
   }).collect();
 
@@ -167,6 +199,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
     reach: tot_reach.as_results(),
     life_span: tot_life_span.as_results(),
     age: tot_age.as_results(),
+    age_at_death: tot_age_at_death.as_results(),
 
     generation_statistics,
   };

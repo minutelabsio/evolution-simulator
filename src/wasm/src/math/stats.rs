@@ -32,6 +32,9 @@ impl RunningStatistics {
     }
   }
 
+  // Push a value to a running average calculation.
+  // see [http://www.johndcook.com/blog/standard_deviation]
+  // Note: variance can be calculated from the "s" value by multiplying it by `1/(n-1)`
   pub fn push(&mut self, v : f64){
     self.n += 1;
     let x = v - self.m;
@@ -46,6 +49,18 @@ impl RunningStatistics {
     self._min = v.min(self._min);
     self.total += v;
   }
+
+  // pub fn join(&mut self, other : &RunningStatistics){
+  //   if other.n == 0 { return }
+
+  //   let frac = (self.n as f64) / (other.n as f64);
+  //   let m = self.m / (1. + 1. / frac) + other.m / (1. + frac);
+
+  //   self.m = m;
+  //   self.n += other.n;
+
+  //   // Note to self... not sure how to add variances
+  // }
 
   pub fn mean(&self) -> f64 { self.m }
   pub fn variance(&self) -> f64 { if self.n <= 1 { 0. } else { self.s / ((self.n - 1) as f64) } }
