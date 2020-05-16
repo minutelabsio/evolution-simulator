@@ -69,7 +69,7 @@ impl SquareWorld {
     Ok(JsValue::from_serde(gen).unwrap())
   }
 
-  pub fn get_statistics(&self) -> JsValue {
-    get_statistics(&self.sim)
+  pub fn get_statistics(&self, species_filter : Option<String>) -> JsValue {
+    get_statistics(&self.sim, species_filter)
   }
 }

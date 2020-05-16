@@ -63,14 +63,14 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
 #[derive(Serialize)]
 struct GenerationStatistics {
   population: usize,
-  
+
   // traits
   speed : RunningStatisticsResults,
   size : RunningStatisticsResults,
   sense_range : RunningStatisticsResults,
   reach : RunningStatisticsResults,
   life_span : RunningStatisticsResults,
-  
+
   // longevity
   age : RunningStatisticsResults,
   age_at_death : RunningStatisticsResults,
@@ -100,7 +100,7 @@ struct SimulationStatistics {
   generation_statistics: Vec<GenerationStatistics>,
 }
 
-pub fn get_statistics(sim : &Simulation) -> JsValue {
+pub fn get_statistics(sim : &Simulation, species_filter : Option<String>) -> JsValue {
   let mut population = RunningStatistics::new();
   let mut tot_speed = RunningStatistics::new();
   let mut tot_size = RunningStatistics::new();
@@ -126,8 +126,10 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
 
     let mut births = 0;
     let mut deaths = 0;
-    
-    g.creatures.iter().for_each(|c|{
+
+    g.creatures.iter().filter(|c| {
+      species_filter.as_ref().map_or(true, |s| *s == c.species)
+    }).for_each(|c|{
       let t = c.get_traits();
       speed.push(t["speed"].0);
       size.push(t["size"].0);
@@ -175,7 +177,7 @@ pub fn get_statistics(sim : &Simulation) -> JsValue {
       sense_range: sense_range.as_results(),
       reach: reach.as_results(),
       life_span: life_span.as_results(),
-      
+
       population: g.creatures.len(),
       age: age.as_results(),
       age_at_death: age_at_death.as_results(),

@@ -70,6 +70,6 @@ export function getGeneration(index){
   return simulation.get_generation(index)
 }
 
-export function getStatistics(){
-  return simulation.get_statistics()
+export function getStatistics(species){
+  return simulation.get_statistics(species)
 }

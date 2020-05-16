@@ -7,7 +7,7 @@ const worker = createWorker()
 
 const PRESETS = [
   'default'
-  , 'home_remove'
+  // , 'home_remove'
   , 'invasive_species'
 ]
 
@@ -32,6 +32,12 @@ const initialState = {
   , isContinuing: false
   , startedAt: 0
   , computeTime: 0
+  , statsSpeciesFilter: 0
+  , speciesFilterList: [
+    [null, 'All']
+    , ['default', 'Blue Blobs']
+    , ['invasive_species', 'Orange Blobs']
+  ]
 
   , config: {
     seed: 118
@@ -148,6 +154,8 @@ export const simulation = {
     , traits: state => getTraitsForPreset(state.config.preset.name)
     , traitColors: (state, getters) => getters.getTraitColors(getters.traits)
     , getTraitColors: () => (traits) => traits.map(k => traitColors[k])
+
+    , speciesFilterKey: (state) => state.speciesFilterList[state.statsSpeciesFilter][0]
   }
   , actions: {
     async run({ state, dispatch, commit, getters }, fresh = true) {
@@ -167,7 +175,7 @@ export const simulation = {
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })
-        commit('setStatistics', await worker.getStatistics())
+        await dispatch('getStats')
 
         await dispatch('loadGeneration', fresh ? 0 : getters.currentGenerationIndex)
 
@@ -191,7 +199,7 @@ export const simulation = {
         commit('setMeta', {
           canContinue: await worker.canContinue()
         })
-        commit('setStatistics', await worker.getStatistics())
+        await dispatch('getStats')
 
         // await dispatch('loadGeneration', getters.currentGenerationIndex)
 
@@ -214,6 +222,13 @@ export const simulation = {
 
       commit('setGenerationIndex', idx)
       commit('setGeneration', await worker.getGeneration(idx))
+    }
+    , async setStatsFilter({ commit, dispatch }, statsSpeciesFilter){
+      commit('setSpeciesFilter', statsSpeciesFilter)
+      await dispatch('getStats')
+    }
+    , async getStats({ commit, getters, state }){
+      commit('setStatistics', await worker.getStatistics(getters.speciesFilterKey))
     }
     , setConfig({ commit }, config = {}){
       commit('setConfig', _cloneDeep(config))
@@ -277,6 +292,9 @@ export const simulation = {
           , ...cfg
         }
       }
+    }
+    , setSpeciesFilter(state, idx){
+      state.statsSpeciesFilter = idx
     }
   }
 }

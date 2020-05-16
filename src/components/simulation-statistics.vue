@@ -2,6 +2,9 @@
 .simulation-statistics.scrollbars
   .columns
     .column.is-one-half
+      b-field(label="Filter By Species")
+        b-select(v-model="statsSpeciesFilter")
+          option(v-for="(p, i) in speciesFilterList", :value="i", :key="p[1]") {{ p[1] }}
     .column
       b-field.generation-controls
         p.control
@@ -88,6 +91,17 @@ export default {
       , isLoading: 'isLoading'
       , isContinuing: 'isContinuing'
     })
+    , speciesFilterList(){
+      return this.$store.state.simulation.speciesFilterList
+    }
+    , statsSpeciesFilter: {
+      get(){
+        return this.$store.state.simulation.statsSpeciesFilter
+      }
+      , set(v){
+        this.$store.dispatch('simulation/setStatsFilter', v)
+      }
+    }
     , plots(){
       return [{
         color: traitColors.population
@@ -155,7 +169,7 @@ export default {
     }
     , maxFood(){
       if (!this.statistics){ return 0 }
-      return this.statistics.generation_statistics.reduce((a, g) => 
+      return this.statistics.generation_statistics.reduce((a, g) =>
         Math.max(a, g.food_balls_available)
       , 0)
     }
