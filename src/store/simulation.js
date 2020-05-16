@@ -227,7 +227,7 @@ export const simulation = {
       commit('setSpeciesFilter', statsSpeciesFilter)
       await dispatch('getStats')
     }
-    , async getStats({ commit, getters, state }){
+    , async getStats({ commit, getters }){
       commit('setStatistics', await worker.getStatistics(getters.speciesFilterKey))
     }
     , setConfig({ commit }, config = {}){
