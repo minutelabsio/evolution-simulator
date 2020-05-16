@@ -1,6 +1,22 @@
 <template lang="pug">
 .food-control
-  .cols
+  b-field(grouped).ctrls
+    b-tooltip(label="Clear", position="is-top")
+      b-button.btn-dark(@click="data = []; commit()", size="is-small", icon-left="delete")
+        span clear
+    b-checkbox-button.checkbox-btn-dark(size="is-small", v-model="showGraph")
+      span(v-if="showGraph") edit values
+      span(v-else) show graph
+  .plot(v-if="showGraph")
+    FoodPlot(
+      ref="foodPlot"
+      , :data="foodPlotData"
+      , :styles="{ height: '160px' }"
+      , :tooltips="false"
+      , @mousedown.native="setControlPointOnInteract"
+      , @mousemove.native="setControlPointOnInteract"
+    )
+  .cols(v-else)
     .col
       label Gen.:
       label Food:
@@ -13,16 +29,13 @@
         b-tooltip(label="Add a control point", position="is-top")
           b-button.btn-dark(@click="addCol")
             b-icon(icon="plus")
-        b-tooltip(label="Clear", position="is-top")
-          b-button.btn-dark(@click="data = []; commit()")
-            b-icon(icon="delete")
-  .plot
-    FoodPlot(:data="foodPlotData", :styles="{ height: '160px' }")
+
 </template>
 
 <script>
 // import _cloneDeep from 'lodash/cloneDeep'
 import _times from 'lodash/times'
+import _find from 'lodash/find'
 import _flatten from 'lodash/flatten'
 import { mapGetters } from 'vuex'
 import FoodPlot from '@/components/food-plot'
@@ -72,6 +85,20 @@ const methods = {
       food_per_generation: this.data.map(([g, f]) => [g - 1, f])
     })
   }
+  , setControlPointOnInteract(e){
+    if (!e.buttons){ return }
+    let [gen, food] = this.$refs.foodPlot.getCoordsAtEvent(e)
+    gen = Math.round(gen)
+    food = Math.round(food)
+    let existing = _find(this.data, e => e[0] === gen)
+    if (existing){
+      existing[1] = food
+    } else {
+      this.data.push([gen, food])
+    }
+
+    this.commit()
+  }
 }
 
 export default {
@@ -81,6 +108,7 @@ export default {
   , data: () => ({
     data: [[1, 50]]
     , foodColor
+    , showGraph: true
   })
   , components
   , computed
@@ -102,6 +130,7 @@ export default {
   display: flex
   flex-direction: row
   margin-left: 0.5rem
+  margin-bottom: 2rem
 .inner
   display: flex
   flex-direction: row
@@ -130,4 +159,7 @@ export default {
   margin-left: -1px
 .col.btns
   margin-left: 0.5rem
+.field.ctrls
+  width: 100%
+  justify-content: flex-end
 </style>

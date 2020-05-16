@@ -23,6 +23,10 @@ export default {
       type: Boolean
       , default: false
     }
+    , tooltips: {
+      type: Boolean
+      , default: true
+    }
     , maxFood: Number
   }
   , components: {
@@ -41,7 +45,8 @@ export default {
           duration: 0
         }
         , tooltips: {
-          intersect: false
+          enabled: this.tooltips
+          , intersect: false
           , mode: 'index'
           , position: 'nearest'
           , callbacks: {
@@ -72,11 +77,11 @@ export default {
           }]
           , yAxes: [{
             type: 'linear'
-            , beginAtZero: true
             , display: true
             , ticks: {
               fontColor: this.textColor
               , max: this.maxFood
+              , beginAtZero: true
             }
             , stacked: this.stacked
             , position: 'left'
@@ -101,9 +106,7 @@ export default {
         , elements: {
           line: {
             borderWidth: 1
-            , line: {
-              tension: 0.000001
-            }
+            , tension: 0
           }
         }
       }
@@ -155,6 +158,34 @@ export default {
     render(){
       this.options.scales.xAxes[0].max = this.chartdata.length
       this.renderChart(this.chartdata, this.options)
+    }
+    , getCoordsAtEvent(event){
+      let chart = this.$data._chart
+      let yTop = chart.chartArea.top
+      let yBottom = chart.chartArea.bottom
+
+      let yMin = chart.scales['y-axis-1'].min
+      let yMax = chart.scales['y-axis-1'].max
+      let newY = 0
+
+      if (event.offsetY <= yBottom && event.offsetY >= yTop) {
+        newY = Math.abs((event.offsetY - yTop) / (yBottom - yTop))
+        newY = (newY - 1) * -1
+        newY = newY * (Math.abs(yMax - yMin)) + yMin
+      }
+
+      let xTop = chart.chartArea.left
+      let xBottom = chart.chartArea.right
+      let xMin = chart.scales['x-axis-1'].min
+      let xMax = chart.scales['x-axis-1'].max
+      let newX = 0
+
+      if (event.offsetX <= xBottom && event.offsetX >= xTop) {
+        newX = Math.abs((event.offsetX - xTop) / (xBottom - xTop))
+        newX = newX * (Math.abs(xMax - xMin)) + xMin
+      }
+
+      return [newX, newY]
     }
   }
 }

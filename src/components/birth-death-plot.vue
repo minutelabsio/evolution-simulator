@@ -102,9 +102,7 @@ export default {
         , elements: {
           line: {
             borderWidth: 1
-            , line: {
-              tension: 0.000001
-            }
+            , tension: 0
           }
         }
       }
@@ -127,9 +125,9 @@ export default {
         }
       })
 
-      return { 
+      return {
         labels: this.data.length ? _times(this.data[0].data.length, () => "") : []
-        , datasets 
+        , datasets
       }
     }
   }

@@ -106,9 +106,7 @@ export default {
         , elements: {
           line: {
             borderWidth: 1
-            , line: {
-              tension: 0.000001
-            }
+            , tension: 0
           }
         }
       }

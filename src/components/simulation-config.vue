@@ -41,6 +41,8 @@
           NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
       .column.has-text-left-tablet.has-text-centered
         p And can change the food over time...
+          br
+          span.has-text-grey (click the graph to add control points)
         .is-inline-block
           FoodControl
   .content
