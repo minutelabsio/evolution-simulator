@@ -127,9 +127,13 @@ pub fn get_statistics(sim : &Simulation, species_filter : Option<String>) -> JsV
     let mut births = 0;
     let mut deaths = 0;
 
+    let mut count = 0;
+
     g.creatures.iter().filter(|c| {
       species_filter.as_ref().map_or(true, |s| *s == c.species)
     }).for_each(|c|{
+      count += 1;
+
       let t = c.get_traits();
       speed.push(t["speed"].0);
       size.push(t["size"].0);
@@ -169,7 +173,7 @@ pub fn get_statistics(sim : &Simulation, species_filter : Option<String>) -> JsV
       tot_age.push(c.age as f64);
     });
 
-    population.push(g.creatures.len() as f64);
+    population.push(count as f64);
 
     GenerationStatistics {
       speed: speed.as_results(),
@@ -178,7 +182,7 @@ pub fn get_statistics(sim : &Simulation, species_filter : Option<String>) -> JsV
       reach: reach.as_results(),
       life_span: life_span.as_results(),
 
-      population: g.creatures.len(),
+      population: count,
       age: age.as_results(),
       age_at_death: age_at_death.as_results(),
 

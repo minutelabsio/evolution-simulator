@@ -8,7 +8,7 @@ const worker = createWorker()
 const PRESETS = [
   'default'
   // , 'home_remove'
-  , 'invasive_species'
+  // , 'invasive_species'
 ]
 
 function getTraitsForPreset(){
@@ -33,11 +33,6 @@ const initialState = {
   , startedAt: 0
   , computeTime: 0
   , statsSpeciesFilter: 0
-  , speciesFilterList: [
-    [null, 'All']
-    , ['default', 'Blue Blobs']
-    , ['invasive_species', 'Orange Blobs']
-  ]
 
   , config: {
     seed: 118
@@ -54,16 +49,31 @@ const initialState = {
   , creatureConfigs: {
     'default': {
       count: 50
+      , name: 'Blue'
+      , active: true
       , template: {
         ...DEFAULT_CREATURE_PROPS
       }
     }
-    , 'invasive_species': {
+    , 'orange': {
       count: 1
+      , name: 'Orange'
+      , active: false
       , template: {
         ...DEFAULT_CREATURE_PROPS
         , sense_range: [50, 0.5]
-        , species: 'invasive_species'
+        , species: 'orange'
+      }
+    }
+    , 'pink': {
+      count: 1
+      , name: 'Pink'
+      , active: false
+      , template: {
+        ...DEFAULT_CREATURE_PROPS
+        , size: [9, 0.5]
+        , speed: [9, 0.5]
+        , species: 'pink'
       }
     }
   }
@@ -119,16 +129,14 @@ function getCreatureConfigs(preset, cfgs){
   let ret = []
   let specieses = Object.keys(cfgs) // shhhhhh.....
 
-  if (preset !== 'invasive_species'){
-    specieses = ['default']
-  }
-
   for (let species of specieses){
     let cfg = cfgs[species]
-    ret.push({
-      count: cfg.count | 0
-      , template: getCreatureTemplate(cfg.template)
-    })
+    if (cfg.active){
+      ret.push({
+        count: cfg.count | 0
+        , template: getCreatureTemplate(cfg.template)
+      })
+    }
   }
 
   return ret
@@ -144,6 +152,7 @@ export const simulation = {
     , canContinue: state => state.canContinue
     , presets: () => PRESETS
     , config: state => state.config
+    , speciesKeys: state => Object.keys(state.creatureConfigs)
     , creatureConfig: state => species => state.creatureConfigs[species]
     , creatureTemplate: state => species => state.creatureConfigs[species].template
     , getCurrentGeneration: state => state.getCurrentGeneration
@@ -155,7 +164,19 @@ export const simulation = {
     , traitColors: (state, getters) => getters.getTraitColors(getters.traits)
     , getTraitColors: () => (traits) => traits.map(k => traitColors[k])
 
-    , speciesFilterKey: (state) => state.speciesFilterList[state.statsSpeciesFilter][0]
+    , speciesFilterList: (state) => {
+      let filters = Object.keys(state.creatureConfigs)
+        .filter(k => state.creatureConfigs[k].active)
+        .map(k => {
+          return [k, state.creatureConfigs[k].name + ' Blobs']
+        })
+
+      return [
+        [null, 'All']
+        , ...filters
+      ]
+    }
+    , speciesFilterKey: (state, getters) => getters.speciesFilterList[state.statsSpeciesFilter][0]
   }
   , actions: {
     async run({ state, dispatch, commit, getters }, fresh = true) {

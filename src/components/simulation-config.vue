@@ -9,41 +9,44 @@
     p Modify the settings then click "Evolve!". <br/>More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
   .content
+    //- .has-text-centered
+    //-   h2.title.is-size-4 Finally
+    .columns
+      .column.has-text-centered
+        b-field.is-inline-block
+          .number-input-group
+            NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
+            NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
+  .content
     .has-text-centered
       b-field
         b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
       p.has-text-grey (by natural selection)
 
-      .preset-config
-        b-field(label="Preset")
-          b-select(v-model="currentPreset")
-            option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
+      //- .preset-config
+      //-   b-field(label="Preset")
+      //-     b-select(v-model="currentPreset")
+      //-       option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
 
-        .preset-config(v-if="currentPreset === 'home_remove'")
-          p Remove the blob's homes from three edges at the following generation:
-          b-field
-            NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
+      //-   .preset-config(v-if="currentPreset === 'home_remove'")
+      //-     p Remove the blob's homes from three edges at the following generation:
+      //-     b-field
+      //-       NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
 
   b-tabs(position="is-centered", :animated="false", v-model="tabItem")
     b-tab-item(label="Creatures")
-
       b-tabs(type="is-toggle", position="is-centered", :animated="false")
-        b-tab-item(label="Blue Blobs")
+        b-tab-item(v-for="(species, key) in creatureConfigs", :key="key", :label="species.name")
+          template(#header)
+            span {{species.name}} Blobs&nbsp;
+            b-icon(
+              v-if="key !== 'default'"
+              , :class="species.active ? 'has-text-success' : 'has-text-danger'"
+              , :icon="species.active ? 'check' : 'cancel'"
+              , size="is-small"
+            )
           .content
-            CreatureTemplateConfig(species="default")
-        b-tab-item(label="Orange Blobs")
-          .content
-            CreatureTemplateConfig(species="invasive_species")
-
-      .content
-        //- .has-text-centered
-        //-   h2.title.is-size-4 Each generation
-        .columns
-          .column.has-text-centered
-            p Creatures will start with this much energy
-            .is-inline-block
-              NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="traitColors.energy")
-
+            CreatureTemplateConfig(:species="key")
 
     b-tab-item(label="Food")
       .content
@@ -60,17 +63,6 @@
               span.has-text-grey (click the graph to add control points)
             .is-inline-block(v-if="tabItem === 1")
               FoodControl
-    b-tab-item(label="General")
-      .content
-        //- .has-text-centered
-        //-   h2.title.is-size-4 Finally
-        .columns
-          .column.has-text-centered
-            b-field.is-inline-block
-              .number-input-group
-                NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
-                NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
-
 </template>
 
 <script>
@@ -138,6 +130,10 @@ export default {
       , creatureTemplate: 'creatureTemplate'
       , presets: 'presets'
     })
+
+    , creatureConfigs(){
+      return this.$store.state.simulation.creatureConfigs
+    }
 
     , currentPreset: {
       get(){
@@ -209,8 +205,15 @@ export default {
   display: flex
   flex-direction: column
   align-items: center
+.add-species
+  margin-bottom: 0.8rem
 
 >>> .tabs.is-toggle
+  li a
+    color: $grey
+    background: $black-ter
+  li.is-active a
+    background: darken($primary, 30)
   a
     border-color: $grey
 </style>

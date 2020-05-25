@@ -5,8 +5,9 @@ import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes'
 import THREEObjectMixin from '@/components/three-vue/v3-object.mixin'
 import traitColors from '@/config/trait-colors'
 import sougy from '@/config/sougy-colors'
+import { creatureColors } from '@/config/creature-colors'
 
-const blobColor = chroma(sougy.blue).desaturate(0.5).num() //0x476B81
+const blobColor = creatureColors.default
 
 function makeEye(size){
   let geo = new THREE.SphereGeometry( size, 16, 16, Math.PI / 2, Math.PI )

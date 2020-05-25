@@ -106,13 +106,12 @@ import v3Fog from '@/components/three-vue/v3-fog'
 import Food from '@/components/3d-objects/food'
 import Creature from '@/components/3d-objects/creature'
 import CreatureStatus from '@/components/3d-objects/creature-status'
+import { creatureColors } from '@/config/creature-colors'
 import Tour from '@/components/tour'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 const defaultCreatureColor = chroma(sougy.blue).desaturate(0.5).num()
-const creatureColors = {
-  'invasive_species': chroma(sougy.orange).num()
-}
+
 
 const components = {
   v3Renderer

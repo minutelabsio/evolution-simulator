@@ -38,7 +38,8 @@ export default {
     label: String
     , value: Number
     , condensed: Boolean
-    , color: String
+    , color: [String, Number]
+    , trueColor: Boolean
     , step: {
       type: Number
       , default: 1
@@ -70,11 +71,11 @@ export default {
   , computed: {
     backgroundColor(){
       if (!this.color){ return '' }
-      return chroma(this.color).alpha(0.15)
+      return chroma(this.color).alpha(this.trueColor ? 0.8 : 0.15)
     }
     , borderColor(){
       if (!this.color){ return '' }
-      return chroma(this.color).alpha(0.3)
+      return chroma(this.color).alpha(this.trueColor ? 0.8 : 0.3)
     }
     , displayValue: {
       get(){
@@ -96,8 +97,8 @@ export default {
         if (!c){ return }
         this.$nextTick(() => {
           this.$el.style.setProperty('--border-color', c.css())
-          this.$el.style.setProperty('--border-color-hover', c.alpha(0.4).css())
-          this.$el.style.setProperty('--border-color-focus', c.alpha(0.6).css())
+          this.$el.style.setProperty('--border-color-hover', c.alpha(this.trueColor ? 1 : 0.4).css())
+          this.$el.style.setProperty('--border-color-focus', c.alpha(this.trueColor ? 1 : 0.6).css())
         })
       }
       , immediate: true

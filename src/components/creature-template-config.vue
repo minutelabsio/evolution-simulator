@@ -1,45 +1,57 @@
 <template lang="pug">
 .creature-template-config
   .content
-    .columns
-      .column.has-text-right-tablet.has-text-centered
-        p We will start with this many creatures
-      .column.has-text-left-tablet.has-text-centered
-        .is-inline-block
-          NumberInput(v-model="creatureCount", label="Num. Blobs at Start", :min="1", :max="1000", :change-rate="10", condensed)
+    p.has-text-centered(v-if="species !== 'default'")
+      b-switch(v-model="active") Enabled
+    p.has-text-centered(v-else) (Always enabled)
+  template(v-if="active")
+    .content
+      .columns
+        .column.has-text-right-tablet.has-text-centered
+          p Start with this many creatures
+        .column.has-text-left-tablet.has-text-centered
+          .is-inline-block
+            NumberInput(v-model="creatureCount", label="Num. Blobs at Start", :min="1", :max="1000", :change-rate="10", condensed, :color="creatureColors[species]", true-color)
 
-    .columns
-      .column.has-text-right-tablet.has-text-centered
-        p and each creature will start with these properties
-      .column.has-text-left-tablet.has-text-centered
-        .is-inline-block
-          .number-input-group
-            NumberInput(v-model="speedValue", label="Speed", :min="0.05", :change-rate="10", :color="traitColors.speed")
-            NumberInput(v-model="sizeValue", label="Size", :min="0.05", :change-rate="10", :color="traitColors.size")
-            NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
-        p.warning
-          b-icon(icon="alert-box-outline")
-          span Caution: setting these values too low without also lowering the energy will result in a very long calculation.
-  .content
-    .has-text-centered
-      h2.title.is-size-4 When they reproduce
-    .columns
-      .column.has-text-right-tablet.has-text-centered
-        p.
-          The traits will mutate by randomly selecting a value
-          (in a gaussian normal distribution) centered around their current trait value
-          with a variance of...
-      .column.has-text-left-tablet.has-text-centered
-        .is-inline-block
-          .number-input-group
-            NumberInput(v-model="speedVariance", label="σ² Speed", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.speed")
-            NumberInput(v-model="sizeVariance", label="σ² Size", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.size")
-            NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.sense_range")
+      .content
+        .columns
+          .column.has-text-right-tablet.has-text-centered
+            p Creatures will start with this much energy
+          .column.has-text-left-tablet.has-text-centered
+            .is-inline-block
+              NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="traitColors.energy")
+
+      .columns
+        .column.has-text-right-tablet.has-text-centered
+          p and each creature will start with these properties
+        .column.has-text-left-tablet.has-text-centered
+          .is-inline-block
+            .number-input-group
+              NumberInput(v-model="speedValue", label="Speed", :min="0.05", :change-rate="10", :color="traitColors.speed")
+              NumberInput(v-model="sizeValue", label="Size", :min="0.05", :change-rate="10", :color="traitColors.size")
+              NumberInput(v-model="sense_rangeValue", label="Sense Range", :min="0.01", :change-rate="10", :color="traitColors.sense_range")
+          p.warning
+            b-icon(icon="alert-box-outline")
+            span Caution: setting these values too low without also lowering the energy will result in a very long calculation.
+
+      .columns
+        .column.has-text-right-tablet.has-text-centered
+          p.
+            The traits will mutate by randomly selecting a value
+            (in a gaussian normal distribution) centered around their current trait value
+            with a variance of...
+        .column.has-text-left-tablet.has-text-centered
+          .is-inline-block
+            .number-input-group
+              NumberInput(v-model="speedVariance", label="σ² Speed", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.speed")
+              NumberInput(v-model="sizeVariance", label="σ² Size", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.size")
+              NumberInput(v-model="sense_rangeVariance", label="σ² Sense", :min="0", :max="10", :change-rate="1", :step="0.1", :color="traitColors.sense_range")
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import traitColors from '@/config/trait-colors'
+import { creatureColors } from '@/config/creature-colors'
 import NumberInput from '@/components/inputs/number-input'
 
 function creatureProps(props){
@@ -71,6 +83,7 @@ export default {
   }
   , data: () => ({
     traitColors
+    , creatureColors
   })
   , components: {
     NumberInput
@@ -82,6 +95,11 @@ export default {
       config: 'config'
       , creatureTemplate: 'creatureTemplate'
     })
+
+    , active: {
+      get(){ return this.$store.getters['simulation/creatureConfig'](this.species).active }
+      , set(v){ this.$store.dispatch('simulation/setCreatureConfig', { active: v, species: this.species }) }
+    }
 
     , creatureCount: {
       get(){ return this.$store.getters['simulation/creatureConfig'](this.species).count }

@@ -90,10 +90,8 @@ export default {
       , traits: 'traits'
       , isLoading: 'isLoading'
       , isContinuing: 'isContinuing'
+      , speciesFilterList: 'speciesFilterList'
     })
-    , speciesFilterList(){
-      return this.$store.state.simulation.speciesFilterList
-    }
     , statsSpeciesFilter: {
       get(){
         return this.$store.state.simulation.statsSpeciesFilter
