@@ -214,6 +214,24 @@ a:hover {
   }
 }
 
+.tabs {
+  $highlight: $text; // lighten($color: $primary, $amount: 8);
+  a {
+    color: $text;
+    border-bottom-color: $grey;
+  }
+
+  li.is-active a,
+  a:hover {
+    color: $highlight;
+    border-bottom-color: $highlight;
+  }
+
+  ul {
+    border-bottom-color: $grey;
+  }
+}
+
 .button.btn-dark {
   background: $background;
   border-color: $grey-darker;

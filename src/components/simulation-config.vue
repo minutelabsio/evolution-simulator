@@ -6,10 +6,16 @@
   .content.has-text-centered
     h1.title.is-size-3 Simulation Settings
 
+    p Modify the settings then click "Evolve!". <br/>More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
+
   .content
     .has-text-centered
+      b-field
+        b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
+      p.has-text-grey (by natural selection)
+
       .preset-config
-        b-field
+        b-field(label="Preset")
           b-select(v-model="currentPreset")
             option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
 
@@ -17,68 +23,54 @@
           p Remove the blob's homes from three edges at the following generation:
           b-field
             NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
-      br/
-      p More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
-  .invasive(v-if="currentPreset === 'invasive_species'")
-    .content
-      .has-text-centered
-        h2.title.is-size-4 Invasive Species (Orange Blobs)
-      CreatureTemplateConfig(species="invasive_species")
-  hr/
-  .content
-    .has-text-centered
-      h2.title.is-size-4 Blob Creatures
-    CreatureTemplateConfig(species="default")
+  b-tabs(position="is-centered", :animated="false", v-model="tabItem")
+    b-tab-item(label="Creatures")
 
-  .content
-    .has-text-centered
-      h2.title.is-size-4 Food
-    .columns
-      .column.has-text-right-tablet.has-text-centered
-        p We will randomly place this much food to start
-        .is-inline-block
-          NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
-      .column.has-text-left-tablet.has-text-centered
-        p And can change the food over time...
-          br
-          span.has-text-grey (click the graph to add control points)
-        .is-inline-block
-          FoodControl
-  .content
-    .has-text-centered
-      h2.title.is-size-4 Each generation
-    .columns
-      .column.has-text-centered
-        p Creatures will start with this much energy
-        .is-inline-block
-          NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="traitColors.energy")
+      b-tabs(type="is-toggle", position="is-centered", :animated="false")
+        b-tab-item(label="Blue Blobs")
+          .content
+            CreatureTemplateConfig(species="default")
+        b-tab-item(label="Orange Blobs")
+          .content
+            CreatureTemplateConfig(species="invasive_species")
+
+      .content
+        //- .has-text-centered
+        //-   h2.title.is-size-4 Each generation
+        .columns
+          .column.has-text-centered
+            p Creatures will start with this much energy
+            .is-inline-block
+              NumberInput(v-model="energy", label="Energy", :min="0", :change-rate="100", condensed, :color="traitColors.energy")
 
 
+    b-tab-item(label="Food")
+      .content
+        //- .has-text-centered
+        //-   h2.title.is-size-4 Food
+        .columns
+          .column.has-text-right-tablet.has-text-centered
+            p We will randomly place this much food to start
+            .is-inline-block
+              NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
+          .column.has-text-left-tablet.has-text-centered
+            p And can change the food over time...
+              br
+              span.has-text-grey (click the graph to add control points)
+            .is-inline-block(v-if="tabItem === 1")
+              FoodControl
+    b-tab-item(label="General")
+      .content
+        //- .has-text-centered
+        //-   h2.title.is-size-4 Finally
+        .columns
+          .column.has-text-centered
+            b-field.is-inline-block
+              .number-input-group
+                NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
+                NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
 
-  //- b-field(grouped)
-  //-   b-field(label="Reach")
-  //-     b-input(v-model="reachValue", type="number", min="0", step="any")
-  //-   b-field(label="Reach mutation variance")
-  //-     b-input(v-model="reachVariance", type="number", min="0", step="any")
-  //- b-field(grouped)
-  //-   b-field(label="Avg Lifespan")
-  //-     b-input(v-model="life_spanValue", type="number", min="0", step="any")
-  //-   b-field(label="Avg Lifespan mutation variance")
-  //-     b-input(v-model="life_spanVariance", type="number", min="0", step="any")
-
-  .content
-    .has-text-centered
-      h2.title.is-size-4 Finally
-    .columns
-      .column.has-text-centered
-        b-field.is-inline-block
-          .number-input-group
-            NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
-            NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
-        b-field
-          b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
-        p.has-text-grey (by natural selection)
 </template>
 
 <script>
@@ -122,7 +114,7 @@ export default {
   , data: () => ({
     traitColors
     , foodColor: sougy.green
-
+    , tabItem: 0
     , presetOptions: {}
   })
   , components: {
@@ -217,4 +209,8 @@ export default {
   display: flex
   flex-direction: column
   align-items: center
+
+>>> .tabs.is-toggle
+  a
+    border-color: $grey
 </style>
