@@ -37,6 +37,7 @@
 import _times from 'lodash/times'
 import _find from 'lodash/find'
 import _flatten from 'lodash/flatten'
+import _throttle from 'lodash/throttle'
 import { mapGetters } from 'vuex'
 import FoodPlot from '@/components/food-plot'
 import sougy from '@/config/sougy-colors'
@@ -74,7 +75,7 @@ const methods = {
     this.data.push([last[0]+1, last[1]])
     this.commit()
   }
-  , commit(){
+  , commit: _throttle(function(){
     this.data = this.data.filter(d => {
       return Number.isFinite(d[0]) && Number.isFinite(d[1]) && d[0] > 1
     })
@@ -84,7 +85,7 @@ const methods = {
     this.$store.dispatch('simulation/setConfig', {
       food_per_generation: this.data.map(([g, f]) => [g - 1, f])
     })
-  }
+  }, 10)
   , setControlPointOnInteract(e){
     if (!e.buttons){ return }
     let [gen, food] = this.$refs.foodPlot.getCoordsAtEvent(e)

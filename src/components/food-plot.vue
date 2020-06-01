@@ -156,6 +156,7 @@ export default {
   }
   , methods: {
     render(){
+      if (this._inactive){ return }
       this.options.scales.xAxes[0].max = this.chartdata.length
       this.renderChart(this.chartdata, this.options)
     }
