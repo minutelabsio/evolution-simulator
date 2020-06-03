@@ -1,68 +1,69 @@
 <template lang="pug">
 .config
-  a.close(@click="close")
-    b-icon(icon="close-circle-outline", size="is-large")
+  .inner
+    a.close(@click="close")
+      b-icon(icon="close-circle-outline", size="is-large")
 
-  .content.has-text-centered
-    h1.title.is-size-3 Simulation Settings
+    .content.has-text-centered
+      h1.title.is-size-3 Simulation Settings
 
-    p Modify the settings then click "Evolve!". <br/>More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
+      p Modify the settings then click "Evolve!". <br/>More details about how this all works can be found in the <router-link :to="{ name: 'about' }" append>about page</router-link>.
 
-  .content
-    //- .has-text-centered
-    //-   h2.title.is-size-4 Finally
-    .columns
-      .column.has-text-centered
-        b-field.is-inline-block
-          .number-input-group
-            NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
-            NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
-  .content
-    .has-text-centered
-      b-field
-        b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
-      p.has-text-grey (by natural selection)
+    .content
+      //- .has-text-centered
+      //-   h2.title.is-size-4 Finally
+      .columns
+        .column.has-text-centered
+          b-field.is-inline-block
+            .number-input-group
+              NumberInput(v-model="maxGenerations", label="Days to run", :min="1", :max="2000", :change-rate="10")
+              NumberInput(v-model="seed", label="Random Seed", :min="1", :change-rate="10")
+    .content
+      .has-text-centered
+        b-field
+          b-button.button.is-primary.is-large(@click="run", :loading="isLoading") Evolve!
+        p.muted (by natural selection)
 
-      //- .preset-config
-      //-   b-field(label="Preset")
-      //-     b-select(v-model="currentPreset")
-      //-       option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
+        //- .preset-config
+        //-   b-field(label="Preset")
+        //-     b-select(v-model="currentPreset")
+        //-       option(v-for="p in presets", :value="p", :key="p") {{ p | startCase }}
 
-      //-   .preset-config(v-if="currentPreset === 'home_remove'")
-      //-     p Remove the blob's homes from three edges at the following generation:
-      //-     b-field
-      //-       NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
+        //-   .preset-config(v-if="currentPreset === 'home_remove'")
+        //-     p Remove the blob's homes from three edges at the following generation:
+        //-     b-field
+        //-       NumberInput(v-model="presetOptions.step", label="Generation", :min="1", :step="1", :change-rate="10")
 
-  b-tabs(position="is-centered", :animated="false", v-model="tabItem")
-    b-tab-item(label="Creatures")
-      b-tabs(type="is-toggle", position="is-centered", :animated="false")
-        b-tab-item(v-for="(species, key) in creatureConfigs", :key="key", :label="species.name")
-          template(#header)
-            span {{species.name}} Blobs&nbsp;
-            b-icon(
-              v-if="key !== 'default'"
-              , :class="species.active ? 'has-text-success' : 'has-text-danger'"
-              , :icon="species.active ? 'check' : 'cancel'"
-              , size="is-small"
-            )
-          .content
-            CreatureTemplateConfig(:species="key")
+    b-tabs(position="is-centered", :animated="false", v-model="tabItem")
+      b-tab-item(label="Creatures")
+        b-tabs(type="is-toggle", position="is-centered", :animated="false")
+          b-tab-item(v-for="(species, key) in creatureConfigs", :key="key", :label="species.name")
+            template(#header)
+              span {{species.name}} Blobs&nbsp;
+              b-icon(
+                v-if="key !== 'default'"
+                , :class="species.active ? 'has-text-success' : 'has-text-danger'"
+                , :icon="species.active ? 'check' : 'cancel'"
+                , size="is-small"
+              )
+            .content
+              CreatureTemplateConfig(:species="key")
 
-    b-tab-item(label="Food")
-      .content
-        //- .has-text-centered
-        //-   h2.title.is-size-4 Food
-        .columns
-          .column.has-text-right-tablet.has-text-centered
-            p We will randomly place this much food to start
-            .is-inline-block
-              NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
-          .column.has-text-left-tablet.has-text-centered
-            p And can change the food over time...
-              br
-              span.has-text-grey (click the graph to add control points)
-            .is-inline-block(v-if="tabItem === 1")
-              FoodControl
+      b-tab-item(label="Food")
+        .content
+          //- .has-text-centered
+          //-   h2.title.is-size-4 Food
+          .columns
+            .column.has-text-right-tablet.has-text-centered
+              p We will randomly place this much food to start
+              .is-inline-block
+                NumberInput(v-model="foodPerGeneration", label="Food", :min="0", :max="1000", :change-rate="10", condensed, :color="foodColor")
+            .column.has-text-left-tablet.has-text-centered
+              p And can change the food over time...
+                br
+                span.muted (click the graph to add control points)
+              .is-inline-block(v-if="tabItem === 1")
+                FoodControl
 </template>
 
 <script>
@@ -190,6 +191,9 @@ export default {
   padding: 5em 2em 2em
   margin-bottom: 0
   font-size: 18px
+  .inner
+    max-width: 1050px
+    margin: auto
   p
     font-family: $family-sans-serif
   >>> .content
@@ -200,7 +204,9 @@ export default {
     top: 1rem
     right: 1rem
     color: lighten($grey, 20)
-
+.muted
+  color: lighten($grey, 10)
+  text-shadow: 0 0 7px rgba(0, 0, 0, 1)
 .preset-config
   display: flex
   flex-direction: column
