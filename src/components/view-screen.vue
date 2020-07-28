@@ -100,6 +100,7 @@ export default {
     , showFoodIndicator: false
     , followCreature: false
     , followCreatureId: 0
+    , prate: 1
   })
   , components: {
     AudioScrubber
@@ -138,11 +139,12 @@ export default {
     }
     , playbackSpeed: {
       get(){
-        let s = this.player.playbackRate
+        let s = this.player.playbackRate + 1e-40 * this.prate
         return Math.log2(s) * 2 + 7
       }
       , set(s){
         this.player.playbackRate = Math.pow(2, (s - 7)/2)
+        this.prate = this.player.playbackRate
       }
     }
     , totalTime(){
