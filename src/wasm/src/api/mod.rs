@@ -56,7 +56,7 @@ fn use_preset( sim : &mut Simulation, preset : &PresetConfig ){
   };
 
   for b in behaviours.drain(0..behaviours.len()) {
-    sim.add_behavour(b);
+    sim.add_behaviour(b);
   }
 }
 
