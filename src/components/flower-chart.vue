@@ -9,7 +9,7 @@
       g.petal(v-for="(svg, index) in petalSVG", v-bind="svg.group", @click="onPetalClick(index)")
         path.hover-area(v-bind="svg.hoverArea")
         path(v-bind="svg.petal")
-        text(v-bind="svg.text") {{ svg.value | fixed(2) }}
+        text(v-bind="svg.text") {{ svg.label }}
     g.center(v-if="showCenter", @mouseenter="centerHover = true && !showValues", @mouseleave="centerHover = false", @click="onCenterClick")
       circle(:r="center", :fill="colors.center")
       circle.hover-area(r="0.3")
@@ -130,7 +130,12 @@ export default {
         }
         let min = range[0]
         let max = range[1]
-        return v => lerp(minSize, 1, scale(min, max, v))
+        return v => {
+          if (isNaN(v) || v === undefined){
+            return 0
+          }
+          return lerp(minSize, 1, scale(min, max, v))
+        }
       })
     }
     , petalSVG(){
@@ -164,11 +169,20 @@ export default {
           , style: { stroke: textFill, fill: textFill }
         }
 
+        let label
+
+        if (isNaN(p.value) || p.value === undefined){
+          label = 'N/A'
+        } else {
+          label = p.value.toFixed(2)
+        }
+
         return {
           group
           , petal
           , hoverArea
           , text
+          , label
           , value: p.value
         }
       })

@@ -19,8 +19,11 @@
 <script>
 import { mapGetters } from 'vuex'
 import _find from 'lodash/find'
+import _reject from 'lodash/reject'
 import _get from 'lodash/get'
 import FlowerChart from '@/components/flower-chart'
+
+const invalidTraits = ['age_at_death']
 
 const components = {
   FlowerChart
@@ -36,17 +39,20 @@ const computed = {
     let g = this.getCurrentGeneration()
     return _find(g.creatures, { id: this.id })
   }
+  , shownTraits(){
+    return _reject(this.traits, e => invalidTraits.indexOf(e) > -1)
+  }
   , traitData(){
     return {
       center: 0
-      , petals: this.traits.map(t => _get(this.creature[t], '0', this.creature[t]))
+      , petals: this.shownTraits.map(t => _get(this.creature[t], '0', this.creature[t]))
     }
   }
   , generationRanges(){
     let s = this.generationStats
     return {
       center: [0, 1]
-      , petals: this.traits.map(t => [s[t].min, s[t].max])
+      , petals: this.shownTraits.map(t => [s[t].min, s[t].max])
     }
   }
   , generationStats(){
