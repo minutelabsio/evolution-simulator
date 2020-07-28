@@ -73,7 +73,7 @@ impl Simulation {
     self.food_per_generation = food_per_generation;
   }
 
-  pub fn add_behavour(&mut self, b : Box<dyn behaviours::StepBehaviour>){
+  pub fn add_behaviour(&mut self, b : Box<dyn behaviours::StepBehaviour>){
     self.behaviours.push(b)
   }
 
