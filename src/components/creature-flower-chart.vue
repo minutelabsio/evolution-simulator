@@ -32,7 +32,7 @@ const components = {
 const computed = {
   colors(){
     return {
-      petals: this.traitColors
+      petals: this.getTraitColors(this.shownTraits)
     }
   }
   , creature(){
@@ -64,7 +64,7 @@ const computed = {
     , 'getCurrentGeneration': 'getCurrentGeneration'
     , 'currentGenerationIndex': 'currentGenerationIndex'
     , 'traits': 'traits'
-    , 'traitColors': 'traitColors'
+    , 'getTraitColors': 'getTraitColors'
   })
 }
 
