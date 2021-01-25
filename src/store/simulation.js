@@ -260,6 +260,9 @@ export const simulation = {
     , setCreatureTemplate({ commit }, config = {}){
       commit('setCreatureTemplate', _cloneDeep(config))
     }
+    , getCSV({ getters }){
+      return worker.getCSV(getters.speciesFilterKey)
+    }
   }
   , mutations: {
     start(state, isRestart){

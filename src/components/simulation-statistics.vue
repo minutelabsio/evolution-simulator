@@ -8,6 +8,9 @@
     .column
       b-field.generation-controls
         p.control
+          b-tooltip(label="Download the data as a CSV", position="is-left")
+            b-button.btn-dark(@click="downloadCSV", :loading="isDownloading", icon-left="download") Download
+        p.control
           b-tooltip(label="Run the simulation again", position="is-left")
             b-button.btn-dark(@click="restart()", :loading="isContinuing", icon-right="reload")
         p.control
@@ -43,6 +46,7 @@
         | &nbsp;
         span.name {{ plot.label | startCase }}
       TraitPlot(:data="plot.data", :label="plot.label | startCase", :color="plot.color", @click="loadGeneration")
+  a.is-hidden(ref="downloadEl")
 </template>
 
 <script>
@@ -68,6 +72,7 @@ export default {
     , populationColor: traitColors.population
     , titleColors
     , hiddenPlots: []
+    , isDownloading: false
   })
   , components: {
     TraitPlot
@@ -187,7 +192,20 @@ export default {
   , watch: {
   }
   , methods: {
-    showPlot(plot){
+    async downloadCSV(){
+      this.isDownloading = true
+      let csvContent = await this.$store.dispatch('simulation/getCSV')
+      let date = (new Date()).toISOString()
+      let speciesFilterLabel = this.speciesFilterList[this.statsSpeciesFilter][1]
+      let link = this.$refs.downloadEl
+      let blob = new Blob([csvContent], {type: 'text/csv'})
+      let href = window.URL.createObjectURL(blob)
+      link.setAttribute('href', href)
+      link.setAttribute('download', `EvolutionSimulatorData_${speciesFilterLabel}_${date}.csv`)
+      link.click()
+      this.isDownloading = false
+    }
+    , showPlot(plot){
       let index = this.hiddenPlots.indexOf(plot)
       this.hiddenPlots.splice(index, 1)
     }

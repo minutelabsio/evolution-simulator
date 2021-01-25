@@ -25,6 +25,14 @@
         p.
           Soon more complex models will be added with different rules... so stay tuned!
 
+        h3.title.is-size-3 CSV Export
+
+        p.
+          You can download the data generated on the Trends page. It will generate a CSV
+          with as many generations as you set in the simulation settings. If you want to
+          download data for only one species, set the species filter at the top of the
+          Trends page before clicking "Download".
+
         h3.title.is-size-3 How to Support my Work
 
         p.

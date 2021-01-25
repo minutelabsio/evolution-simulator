@@ -1,3 +1,6 @@
+import stringify from 'csv-stringify'
+import _get from 'lodash/get'
+
 const app = import(/* webpackPreload: true */ '@/wasm/pkg/app')
 app.then( mod => {
   console.log('setting debug hook')
@@ -72,4 +75,43 @@ export function getGeneration(index){
 
 export function getStatistics(species){
   return simulation.get_statistics(species)
+}
+
+const CSVCOLUMNS = [
+  { key: 'generation', label: 'Generation' }
+  , { key: 'population', label: 'Population' }
+  , { key: 'age.mean', label: 'Mean Age' }
+  // , { key: 'life_span.mean', label: 'Mean Lifespan' }
+  , { key: 'age_at_death.mean', label: 'Mean Age at death' }
+  , { key: 'births', label: 'Births' }
+  , { key: 'deaths', label: 'Deaths' }
+  , { key: 'creatures_eaten', label: 'Creatures Eaten' }
+  , { key: 'food_balls_available', label: 'Food Balls Available' }
+  , { key: 'food_balls_eaten', label: 'Food Balls Eaten' }
+  , { key: 'sense_range.mean', label: 'Mean Sense Range' }
+  , { key: 'size.mean', label: 'Mean Size' }
+  , { key: 'speed.mean', label: 'Mean Speed' }
+]
+
+export function getCSV(species){
+  let stats = simulation.get_statistics(species)
+  let data = stats.generation_statistics.map((entry, i) => {
+    let row = {}
+    entry.generation = i + 1
+    CSVCOLUMNS.forEach(({ key, label }) => {
+      row[label] = _get(entry, key)
+    })
+    return row
+  })
+  let columns = CSVCOLUMNS.map(({ label }) => label)
+  return new Promise((resolve, reject) => {
+    stringify(
+      data
+      , { columns, header: true }
+      , (err, data) => {
+        if (err){ return reject(err) }
+        resolve( data )
+      }
+    )
+  })
 }
