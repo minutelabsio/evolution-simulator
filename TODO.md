@@ -1,5 +1,8 @@
 = TODO =
 
+worker termination
+https://github.com/GoogleChromeLabs/comlink/issues/405
+
 "I'm curious about the effect of field of view vs view distance with relation to bigger and smaller blobs,as in nature many predators have a narrower field of view (front mounted eyes) and prey have a wider field of view (side mounted eyes)."
 
 creature trails

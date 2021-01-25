@@ -17,6 +17,7 @@
     "chart.js": "^2.7.3",
     "chartjs-plugin-annotation": "^0.5.7",
     "chroma-js": "^2.0.4",
+    "csv-stringify": "^5.6.1",
     "howler": "^2.0.15",
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
@@ -65,6 +66,9 @@
     "extends": [
       "plugin:vue/essential",
       "eslint:recommended"
+    ],
+    "ignorePatterns": [
+      "src/wasm/**/*.js"
     ],
     "rules": {
       "generator-star-spacing": "off",
