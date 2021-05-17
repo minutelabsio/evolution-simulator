@@ -76,8 +76,16 @@ impl Generation {
     );
   }
 
+  fn shuffle_creatures(&mut self, sim : &Simulation){
+    use rand::seq::SliceRandom;
+    self.creatures.shuffle(&mut *sim.rng.borrow_mut());
+  }
+
   fn step(&mut self, sim : &Simulation){
     assert!(self.steps < MAX_STEPS);
+
+    // shuffle creatures every step to eliminate bias
+    self.shuffle_creatures(sim);
 
     // let _timer = Timer::new(String::from("Step"));
     self.run_phase(Phase::PRE, sim);
