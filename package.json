@@ -19,7 +19,7 @@
     "chroma-js": "^2.0.4",
     "csv-stringify": "^5.6.1",
     "howler": "^2.0.15",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.21",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
     "nosleep.js": "^0.9.0",
