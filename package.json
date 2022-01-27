@@ -23,7 +23,7 @@
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
     "nosleep.js": "^0.9.0",
-    "three": "^0.111.0",
+    "three": "^0.137.0",
     "three-orbit-controls": "^82.1.0",
     "vue": "^2.5.17",
     "vue-analytics": "^5.17.2",
