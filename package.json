@@ -45,7 +45,7 @@
     "comlink-loader": "https://github.com/wellcaffeinated/comlink-loader#dist",
     "eslint": "^6.2.1",
     "eslint-plugin-vue": "^5.0.0-0",
-    "node-sass": "^4.11.0",
+    "node-sass": "^7.0.0",
     "pug": "^2.0.3",
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.22.10",
